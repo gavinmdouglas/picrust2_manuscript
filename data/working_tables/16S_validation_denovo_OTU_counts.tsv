@@ -1,0 +1,5 @@
+Dataset	Final OTUs (pre-GG filtering)	Ref OTUs	Ref OTUs passed PICRUSt2	Final ASVs	Final ASVs passed PICRUSt2
+HMP	4517	1986	1983	1865	1861
+Mammal	1495	380	380	323	320
+Ocean	1781	926	922	1148	1135
+Soil (Blueberry)	5176	1512	1509	3333	3333
