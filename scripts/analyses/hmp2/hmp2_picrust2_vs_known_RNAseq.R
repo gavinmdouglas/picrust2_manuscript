@@ -62,8 +62,8 @@ host_rna_rpm_ileum_CD_goi_spearman_dist <- as.dist(1 - cor(host_rna_rpm_ileum_CD
 
 host_rna_rpm_ileum_CD_goi_hclust <- hcut(host_rna_rpm_ileum_CD_goi_spearman_dist, k = 6)
 
-saveRDS(object = host_rna_rpm_ileum_CD_goi_hclust,
-        file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/results_out/host_rna_rpm_ileum_CD_goi_hclust.rds")
+#saveRDS(object = host_rna_rpm_ileum_CD_goi_hclust,
+#        file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/results_out/host_rna_rpm_ileum_CD_goi_hclust.rds")
 
 # Get representative gene from each cluster.
 sort(host_rna_rpm_ileum_CD_goi_hclust$cluster)
@@ -72,30 +72,28 @@ cluster_genes_of_interest <- c("DUOX2",  "MMP3", "AQP9", "APOA1", "NAT8", "NOD2"
 
 saveRDS(object=list(pathabun=hmp2_pathabun_ileum_CD_filt, rnaseq=host_rna_rpm_ileum_CD), file = "results_out/prepped_pathabun_rnaseq_tables.rds")
 
-# JUST NEEDED TO RUN THIS ONCE TO GET SIGNIFICANT ASSOCIATIONS.
-# WROTE THIS TO RDS FILE SO NO NEED TO RE-RUN UNLESS SOMETHING IS CHANGED.
 
-hmp2_pathabun_vs_rnaseq_CD_ileum <- data.frame(matrix(NA, nrow=length(cluster_genes_of_interest) * ncol(hmp2_pathabun_ileum_CD_filt), ncol=3))
-colnames(hmp2_pathabun_vs_rnaseq_CD_ileum) <- c("pathway", "gene", "p")
+hmp2_pathabun_vs_rnaseq_CD_ileum <- data.frame(matrix(NA, nrow=length(cluster_genes_of_interest) * ncol(hmp2_pathabun_ileum_CD_filt), ncol=4))
+colnames(hmp2_pathabun_vs_rnaseq_CD_ileum) <- c("pathway", "gene", "R", "p")
 
-i = 0
+i = 1
 for(pathway in colnames(hmp2_pathabun_ileum_CD_filt)) {
   for(gene in cluster_genes_of_interest) {
 
     tmp_input <- data.frame(pathway=hmp2_pathabun_ileum_CD_filt[, pathway],
                             gene=host_rna_rpm_ileum_CD[, gene],
-                            site=diagnosis_map_CD$site_name,
                             consent_age=diagnosis_map_CD$consent_age)
 
+    # BLMER commands (unused):
+    # model_out1 <- blmer(formula = gene ~ pathway + (1 | site), data=tmp_input, REML=FALSE)
+    # model_out2 <- blmer(formula = gene ~ (1 | site), data=tmp_input, REML=FALSE)
+    # anova_out <- anova(model_out1, model_out2)
+    # hmp2_pathabun_vs_rnaseq_CD_ileum[i, "p"] <- anova_out$`Pr(>Chisq)`[[2]]
+    # hmp2_pathabun_vs_rnaseq_CD_ileum[i, c("intercept", "pathway_coef")] <- summary(model_out1)$coefficients[, "Estimate"]
+
+    partial_spearman <- pcor.test(tmp_input$pathway, tmp_input$gene, tmp_input$consent_age, method = "spearman")
     hmp2_pathabun_vs_rnaseq_CD_ileum[i, c("pathway", "gene")] <- c(pathway, gene)
-
-    model_out1 <- blmer(formula = gene ~ pathway + (1 | site) + (1 | consent_age), data=tmp_input, REML=FALSE)
-    model_out2 <- blmer(formula = gene ~ (1 | site) + (1 | consent_age), data=tmp_input, REML=FALSE)
-
-    anova_out <- anova(model_out1, model_out2)
-
-    hmp2_pathabun_vs_rnaseq_CD_ileum[i, "p"] <- anova_out$`Pr(>Chisq)`[[2]]
-
+    hmp2_pathabun_vs_rnaseq_CD_ileum[i, c("R", "p")] <- c(partial_spearman$estimate, partial_spearman$p.value)
     i = i + 1
 
   }
@@ -104,5 +102,7 @@ for(pathway in colnames(hmp2_pathabun_ileum_CD_filt)) {
 hmp2_pathabun_vs_rnaseq_CD_ileum$fdr <- p.adjust(hmp2_pathabun_vs_rnaseq_CD_ileum$p, "fdr")
 hmp2_pathabun_vs_rnaseq_CD_ileum_fdr0.1 <- hmp2_pathabun_vs_rnaseq_CD_ileum[which(hmp2_pathabun_vs_rnaseq_CD_ileum$fdr < 0.1), ]
 
-saveRDS(object = hmp2_pathabun_vs_rnaseq_CD_ileum, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/results_out/hmp2_pathabun_vs_rnaseq_CD_ileum.rds")
-saveRDS(object = hmp2_pathabun_vs_rnaseq_CD_ileum_fdr0.1, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/results_out/hmp2_pathabun_vs_rnaseq_CD_ileum_fdr0.1.rds")
+saveRDS(object = hmp2_pathabun_vs_rnaseq_CD_ileum, file =
+          "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/results_out/hmp2_pathabun_vs_rnaseq_CD_ileum.rds")
+saveRDS(object = hmp2_pathabun_vs_rnaseq_CD_ileum_fdr0.1,
+        file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/results_out/hmp2_pathabun_vs_rnaseq_CD_ileum_fdr0.1.rds")

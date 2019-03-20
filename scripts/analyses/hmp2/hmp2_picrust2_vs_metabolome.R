@@ -3,9 +3,6 @@
 
 rm(list=ls(all=TRUE))
 
-library(blme)
-library(factoextra)
-
 setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/")
 source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/analyses/hmp2/hmp2_util_functions.R")
 
@@ -50,26 +47,27 @@ hmp2_metabolite_ileum_CD_filt <- hmp2_metabolite_ileum_CD[, -which(colSums(hmp2_
 
 saveRDS(object=list(pathabun=hmp2_pathabun_ileum_CD_filt, metabolite=hmp2_metabolite_ileum_CD_filt), file = "results_out/prepped_pathabun_metabolite_tables.rds")
 
-hmp2_pathabun_vs_metabolite_CD_ileum <- data.frame(matrix(NA, nrow=ncol(hmp2_metabolite_ileum_CD_filt) * ncol(hmp2_pathabun_ileum_CD_filt), ncol=3))
-colnames(hmp2_pathabun_vs_metabolite_CD_ileum) <- c("pathway", "meatbolite", "p")
+hmp2_pathabun_vs_metabolite_CD_ileum <- data.frame(matrix(NA, nrow=ncol(hmp2_metabolite_ileum_CD_filt) * ncol(hmp2_pathabun_ileum_CD_filt), ncol=4))
+colnames(hmp2_pathabun_vs_metabolite_CD_ileum) <- c("pathway", "metabolite", "R", "p")
 
-i = 0
+i = 1
 for(pathway in colnames(hmp2_pathabun_ileum_CD_filt)) {
   for(metabolite in colnames(hmp2_metabolite_ileum_CD_filt)) {
     
     tmp_input <- data.frame(pathway=hmp2_pathabun_ileum_CD_filt[, pathway],
-                            gene=hmp2_metabolite_ileum_CD_filt[, metabolite],
-                            site=diagnosis_map_CD$site_name,
+                            metabolite=hmp2_metabolite_ileum_CD_filt[, metabolite],
                             consent_age=diagnosis_map_CD$consent_age)
     
-    hmp2_pathabun_vs_metabolite_CD_ileum[i, c("pathway", "meatbolite")] <- c(pathway, metabolite)
+    # BLMER commands (unused):
+    # model_out1 <- blmer(formula = gene ~ pathway + (1 | site), data=tmp_input, REML=FALSE)
+    # model_out2 <- blmer(formula = gene ~ (1 | site), data=tmp_input, REML=FALSE)
+    # anova_out <- anova(model_out1, model_out2)
+    # hmp2_pathabun_vs_metabolite_CD_ileum[i, "p"] <- anova_out$`Pr(>Chisq)`[[2]]
+    # hmp2_pathabun_vs_metabolite_CD_ileum[i, c("intercept", "pathway_coef")] <- summary(model_out1)$coefficients[, "Estimate"]
     
-    model_out1 <- blmer(formula = gene ~ pathway + (1 | site) + (1 | consent_age), data=tmp_input, REML=FALSE)
-    model_out2 <- blmer(formula = gene ~ (1 | site) + (1 | consent_age), data=tmp_input, REML=FALSE)
-    
-    anova_out <- anova(model_out1, model_out2)
-    
-    hmp2_pathabun_vs_metabolite_CD_ileum[i, "p"] <- anova_out$`Pr(>Chisq)`[[2]]
+    partial_spearman <- pcor.test(tmp_input$pathway, tmp_input$metabolite, tmp_input$consent_age, method = "spearman")
+    hmp2_pathabun_vs_metabolite_CD_ileum[i, c("pathway", "metabolite")] <- c(pathway, metabolite)
+    hmp2_pathabun_vs_metabolite_CD_ileum[i, c("R", "p")] <- c(partial_spearman$estimate, partial_spearman$p.value)
     
     i = i + 1
     
@@ -77,10 +75,6 @@ for(pathway in colnames(hmp2_pathabun_ileum_CD_filt)) {
 }
 
 hmp2_pathabun_vs_metabolite_CD_ileum$fdr <- p.adjust(hmp2_pathabun_vs_metabolite_CD_ileum$p, "fdr")
-hmp2_pathabun_vs_metabolite_CD_ileum_fdr0.1 <- hmp2_pathabun_vs_metabolite_CD_ileum[which(hmp2_pathabun_vs_metabolite_CD_ileum$fdr < 0.1), ]
 
-colnames(hmp2_pathabun_vs_metabolite_CD_ileum)[which(colnames(hmp2_pathabun_vs_metabolite_CD_ileum) == "meatbolite")] <- "metabolite"
-colnames(hmp2_pathabun_vs_metabolite_CD_ileum_fdr0.1)[which(colnames(hmp2_pathabun_vs_metabolite_CD_ileum_fdr0.1) == "meatbolite")] <- "metabolite"
-
-saveRDS(object = hmp2_pathabun_vs_metabolite_CD_ileum_fdr0.1, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/results_out/hmp2_pathabun_vs_metabolite_CD_ileum_fdr0.1.rds")
-saveRDS(object = hmp2_pathabun_vs_metabolite_CD_ileum, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/results_out/hmp2_pathabun_vs_metabolite_CD_ileum.rds")
+saveRDS(object = hmp2_pathabun_vs_metabolite_CD_ileum, file =
+          "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/results_out/hmp2_pathabun_vs_metabolite_CD_ileum.rds")

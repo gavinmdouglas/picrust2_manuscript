@@ -21,7 +21,7 @@ cd_sig_higher_ratio_plot <- ggplot(cd_sig_higher_ratio_prep_melt, aes(x=variable
   coord_flip() +
   scale_fill_manual(values=c("black", "grey")) +
   xlab("") +
-  ylab("log2((Contributed by Proteobacteria + 1)/(Contributed by Other + 1))") +
+  ylab(expression('log'[2]*'((Contributed by Proteobacteria + 1)/(Contributed by Other + 1))')) +
   scale_y_continuous(limits=c(-5, 8)) +
   labs(fill="Disease State") +
   theme(legend.position = c(0.7, 0.8),
@@ -85,39 +85,27 @@ PWY_5188_breakdown_scatterplot <- ggplot(data = PWY_5188_breakdown, aes(x = mgs_
   scale_x_continuous(limits=c(0, 0.07), expand = c(0, 0)) +
   scale_y_continuous(limits=c(0, 0.04), expand = c(0, 0)) +
   coord_cartesian(clip = 'off') +
-  ggtitle("PWY-5188: tetrapyrrole biosynthesis I") +
+  ggtitle("PWY-5188: tetrapyrrole biosynthesis I\n(from glutamate)") +
   xlab("Metagenomics (Stool) Contributing %") +
   ylab("PICRUSt2 (Ileum) Contributing %") +
   theme(legend.text.align = 0)
 
-# Plot stacked barcharts of main contributing to PWY-7197 and PWY0-1533
-hmp2_pathabun_vs_metabolite_CD_ileum_fdr0.1 <- readRDS("results_out/hmp2_pathabun_vs_metabolite_CD_ileum_fdr0.1.rds")
-hmp2_pathabun_vs_metabolite_CD_ileum_fdr0.001 <- hmp2_pathabun_vs_metabolite_CD_ileum_fdr0.1[which(hmp2_pathabun_vs_metabolite_CD_ileum_fdr0.1$fdr < 0.001), ]
-
-# HILp_QI7107 (inosine) is associated with the most pathways (44) at fdr < 0.1.
-# The most significant association is with PWY-7197
-
-
-
-prepped_pathabun_metabolite_tables <- readRDS("results_out/prepped_pathabun_metabolite_tables.rds")
-plot(prepped_pathabun_metabolite_tables$pathabun$`PWY-7197`, prepped_pathabun_metabolite_tables$metabolite$HILp_QI7107)
-
-metabolite2compound <- read.table("compound_metabolite_map.tsv", header=TRUE, sep="\t", stringsAsFactors = FALSE, row.names=1)
-"inosine"                  "N-carbamoyl-beta-alanine" "3-hydroxydecanoate"       "C22:6 LPE"                "ethyl glucuronide"
+# Plot stacked barcharts of main contributing to PWY-6572 and PWY0-1533
 
 hmp2_16S_pathabun_strat_genus_sum <- readRDS("results_out/hmp2_16S_pathabun_strat_full_genus_sum.rds")
+
 
 # Remove "Bacteria" from genus string:
 hmp2_16S_pathabun_strat_genus_sum$genus <- gsub("k__Bacteria; ", "", hmp2_16S_pathabun_strat_genus_sum$genus)
 
 # Identify genera contributing most abundance across both pathways.
-hmp2_16S_pathabun_strat_genus_sum_PWY_7197 <- hmp2_16S_pathabun_strat_genus_sum[which(hmp2_16S_pathabun_strat_genus_sum$pathway == "PWY-7197"), ]
-hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt <- melt(hmp2_16S_pathabun_strat_genus_sum_PWY_7197)
-hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_tmp <- hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt
-hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_tmp <- hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_tmp[, -3]
-hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_by_genera <- aggregate(value ~ genus + pathway, data=hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_tmp, FUN=sum)
-hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_by_genera <- hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_by_genera[with(hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_by_genera, order(value, decreasing = TRUE)),]
-PWY_7197_top_genera <- head(hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_by_genera$genus, 10)
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572 <- hmp2_16S_pathabun_strat_genus_sum[which(hmp2_16S_pathabun_strat_genus_sum$pathway == "PWY-6572"), ]
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt <- melt(hmp2_16S_pathabun_strat_genus_sum_PWY_6572)
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_tmp <- hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_tmp <- hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_tmp[, -3]
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_genera <- aggregate(value ~ genus + pathway, data=hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_tmp, FUN=sum)
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_genera <- hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_genera[with(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_genera, order(value, decreasing = TRUE)),]
+PWY_6572_top_genera <- head(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_genera$genus, 10)
 
 hmp2_16S_pathabun_strat_genus_sum_PWY0_1533 <- hmp2_16S_pathabun_strat_genus_sum[which(hmp2_16S_pathabun_strat_genus_sum$pathway == "PWY0-1533"), ]
 hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt <- melt(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533)
@@ -127,24 +115,26 @@ hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_genera <- aggregate(value ~ 
 hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_genera <- hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_genera[with(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_genera, order(value, decreasing = TRUE)),]
 PWY0_1533_top_genera <- head(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_genera$genus, 10)
 
-overall_top_genera <- sort(unique(c(PWY0_1533_top_genera, PWY_7197_top_genera)))
+overall_top_genera <- sort(unique(c(PWY0_1533_top_genera, PWY_6572_top_genera)))
 
-qual_col <- c('#e6194b', '#3cb44b', '#ffe119', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', '#bcf60c', '#fabebe', '#008080', '#e6beff',
-              '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', 'grey')
+#qual_col <- c('#e6194b', '#3cb44b', 'yellow', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', 'greenyellow', '#fabebe', '#008080', '#e6beff',
+#              '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', 'royalblue1', 'grey')
 
-hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt$genus_clean <- hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt$genus
+qual_col <- c('#e6194b', '#3cb44b', 'yellow', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', 'greenyellow', '#fabebe', '#008080', 'grey')
+
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus_clean <- hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus
 hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$genus_clean <- hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$genus
 
-hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt[which(! hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt$genus_clean %in%  PWY_7197_top_genera), "genus_clean"] <- "Other"
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt[which(! hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus_clean %in%  PWY_6572_top_genera), "genus_clean"] <- "Other"
 hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt[which(! hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$genus_clean %in%  PWY0_1533_top_genera), "genus_clean"] <- "Other"
 
-hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt$genus_clean <- factor(hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt$genus_clean, levels=c(overall_top_genera, "Other"))
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus_clean <- factor(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus_clean, levels=c(overall_top_genera, "Other"))
 hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$genus_clean <- factor(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$genus_clean, levels=c(overall_top_genera, "Other"))
 
 
 # First get plot of only a shared legend.
 hmp2_16S_pathabun_strat_genus_sum_TMP <- melt(hmp2_16S_pathabun_strat_genus_sum)
-hmp2_16S_pathabun_strat_genus_sum_TMP <- hmp2_16S_pathabun_strat_genus_sum_TMP[which(hmp2_16S_pathabun_strat_genus_sum_TMP$pathway %in% c("PWY0-1533", "PWY-7197"))]
+hmp2_16S_pathabun_strat_genus_sum_TMP <- hmp2_16S_pathabun_strat_genus_sum_TMP[which(hmp2_16S_pathabun_strat_genus_sum_TMP$pathway %in% c("PWY-6572", "PWY0-1533")),]
 hmp2_16S_pathabun_strat_genus_sum_TMP[which(! hmp2_16S_pathabun_strat_genus_sum_TMP$genus %in%  overall_top_genera), "genus"] <- "Other"
 hmp2_16S_pathabun_strat_genus_sum_TMP$genus <- factor(hmp2_16S_pathabun_strat_genus_sum_TMP$genus, levels=c(overall_top_genera, "Other"))
 tmp_plot <- ggplot(hmp2_16S_pathabun_strat_genus_sum_TMP, aes(x=variable, y=value, fill=genus)) +
@@ -163,17 +153,17 @@ stacked_legend <- grobs[[which(sapply(grobs, function(x) x$name) == "guide-box")
 
 
 # Get samples ordered by total relative abundance.
-hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_by_sample <- aggregate(value ~ variable, data=hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt, FUN=sum)
-hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_by_sample <- hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_by_sample[with(hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_by_sample, order(value, decreasing = FALSE)),]
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_sample <- aggregate(value ~ variable, data=hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt, FUN=sum)
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_sample <- hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_sample[with(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_sample, order(value, decreasing = FALSE)),]
 
-hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt$variable <- factor(hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt$variable,
-                                                                   levels=hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt_by_sample$variable)
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$variable <- factor(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$variable,
+                                                                   levels=hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_sample$variable)
 
-PWY_7197_col <- qual_col[which(levels(hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt$genus_clean) %in% hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt$genus_clean)]
+PWY_6572_col <- qual_col[which(levels(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus_clean) %in% hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus_clean)]
 
-PWY_7197_stacked <- ggplot(hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt, aes(x=variable, y=value, fill=genus_clean)) +
+PWY_6572_stacked <- ggplot(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt, aes(x=variable, y=value, fill=genus_clean)) +
   geom_bar(stat="identity") +
-  scale_fill_manual(values=PWY_7197_col) + 
+  scale_fill_manual(values=PWY_6572_col) + 
   theme_bw() + theme(panel.border = element_blank(),
                      panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(),
@@ -181,10 +171,10 @@ PWY_7197_stacked <- ggplot(hmp2_16S_pathabun_strat_genus_sum_PWY_7197_melt, aes(
                      axis.text.x=element_blank(),
                      axis.text=element_text(size=12),
                      axis.title=element_text(size=14),
-                     plot.title = element_text(hjust=0.2, vjust=-10)) +
+                     plot.title = element_text(hjust=0.2, vjust=-10, face="bold")) +
   ylab("Relative Abundance (%)") +
   xlab("Sample") +
-  ggtitle("PWY-7197: Pyrimidine deoxyribonucleotide phosphorylation") +
+  ggtitle("PWY-6572: Chondroitin sulfate degradation I (bacterial)") +
   scale_y_continuous(expand = c(0, 0)) +
   guides(fill=FALSE)
 
@@ -202,7 +192,6 @@ PWY0_1533_col <- qual_col[which(levels(hmp2_16S_pathabun_strat_genus_sum_PWY0_15
 PWY0_1533_stacked <- ggplot(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt, aes(x=variable, y=value, fill=genus_clean)) +
   geom_bar(stat="identity") +
   scale_fill_manual(values=PWY0_1533_col) + 
-  #scale_colour_manual(values=rep("black", times=length(unique(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$genus)))) +
   theme_bw() + theme(panel.border = element_blank(),
                      panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(),
@@ -210,7 +199,7 @@ PWY0_1533_stacked <- ggplot(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt, ae
                      axis.text.x=element_blank(),
                      axis.text=element_text(size=12),
                      axis.title=element_text(size=14),
-                     plot.title = element_text(hjust=0.2, vjust=-10)) +
+                     plot.title = element_text(hjust=0.2, vjust=-10, face="bold")) +
   ylab("Relative Abundance (%)") +
   xlab("Sample") +
   ggtitle("PWY0-1533: Methylphosphonate degradation I") +
@@ -223,7 +212,7 @@ PWY0_1533_stacked <- ggplot(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt, ae
 plot_grid(cd_sig_higher_ratio_plot,
           num_contrib_genera_mgs_vs_16S,
           PWY_5188_breakdown_scatterplot,
-          PWY_7197_stacked,
+          PWY_6572_stacked,
           PWY0_1533_stacked,
           stacked_legend,
           labels=c("A", "B", "C", "D", "E", ""),
