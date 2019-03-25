@@ -4,7 +4,6 @@ library(castor)
 library(parallel)
 library(stringi)
 
-<<<<<<< HEAD
 parse_rho_rds_and_calc_wilcoxon <- function(rho_rds, dataset_name, wilcox_cat2ignore, y_pos_start=0.97) {
   
   rho_metrics <- readRDS(rho_rds)
@@ -114,8 +113,6 @@ read_table_check_exists <- function(filename, ...) {
   return(read.table(filename, ...))
 }
 
-=======
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
 # Add in rows for missing functions with all set to 0.
 add_missing_funcs <- function(in_df, all_funcs) {
   
@@ -140,16 +137,6 @@ add_missing_funcs <- function(in_df, all_funcs) {
 
 read_in_pathway_predictions <- function(dataset) {
   
-  # Read in possible ECs from each pipeline.
-<<<<<<< HEAD
-  possible_picrust2_pathways <- read_table_check_exists("possible_metacyc_pathways/picrust2_prokaryotic_pathways.txt", header=F, stringsAsFactors = FALSE)$V1
-  
-  # Read in all EC prediction tables (and MGS).
-  picrust2_pathabun_nsti2_gg_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti2_GGonly.tsv", sep="")
-  picrust2_pathabun_nsti2_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti2.0.tsv", sep="")
-  picrust2_pathabun_nsti1.5_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti1.5.tsv", sep="")
-  picrust2_pathabun_nsti1_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti1.0.tsv", sep="")
-=======
   possible_picrust2_pathways <- read.table("possible_metacyc_pathways/picrust2_prokaryotic_pathways.txt", header=F, stringsAsFactors = FALSE)$V1
   
   # Read in all EC prediction tables (and MGS).
@@ -157,13 +144,11 @@ read_in_pathway_predictions <- function(dataset) {
   picrust2_pathabun_nsti2_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti2.tsv", sep="")
   picrust2_pathabun_nsti1.5_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti1.5.tsv", sep="")
   picrust2_pathabun_nsti1_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti1.tsv", sep="")
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
   picrust2_pathabun_nsti0.5_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti0.5.tsv", sep="")
   picrust2_pathabun_nsti0.25_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti0.25.tsv", sep="")
   picrust2_pathabun_nsti0.1_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti0.1.tsv", sep="")
   picrust2_pathabun_nsti0.05_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti0.05.tsv", sep="")
   
-<<<<<<< HEAD
   picrust2_pathabun_nsti2_gg <- read_table_check_exists(picrust2_pathabun_nsti2_gg_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_pathabun_nsti2 <- read_table_check_exists(picrust2_pathabun_nsti2_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_pathabun_nsti1.5 <- read_table_check_exists(picrust2_pathabun_nsti1.5_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
@@ -177,27 +162,11 @@ read_in_pathway_predictions <- function(dataset) {
   picrust2_pathcov_nsti2_file <- paste("picrust2_out/", dataset, "_picrust2_pathcov_nsti2.0.tsv", sep="")
   picrust2_pathcov_nsti1.5_file <- paste("picrust2_out/", dataset, "_picrust2_pathcov_nsti1.5.tsv", sep="")
   picrust2_pathcov_nsti1_file <- paste("picrust2_out/", dataset, "_picrust2_pathcov_nsti1.0.tsv", sep="")
-=======
-  picrust2_pathabun_nsti2_gg <- read.table(picrust2_pathabun_nsti2_gg_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathabun_nsti2 <- read.table(picrust2_pathabun_nsti2_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathabun_nsti1.5 <- read.table(picrust2_pathabun_nsti1.5_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathabun_nsti1 <- read.table(picrust2_pathabun_nsti1_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathabun_nsti0.5 <- read.table(picrust2_pathabun_nsti0.5_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathabun_nsti0.25 <- read.table(picrust2_pathabun_nsti0.25_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathabun_nsti0.1 <- read.table(picrust2_pathabun_nsti0.1_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathabun_nsti0.05 <- read.table(picrust2_pathabun_nsti0.05_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  
-  picrust2_pathcov_nsti2_gg_file <- paste("picrust2_out/", dataset, "_picrust2_pathcov_nsti2_GGonly.tsv", sep="")
-  picrust2_pathcov_nsti2_file <- paste("picrust2_out/", dataset, "_picrust2_pathcov_nsti2.tsv", sep="")
-  picrust2_pathcov_nsti1.5_file <- paste("picrust2_out/", dataset, "_picrust2_pathcov_nsti1.5.tsv", sep="")
-  picrust2_pathcov_nsti1_file <- paste("picrust2_out/", dataset, "_picrust2_pathcov_nsti1.tsv", sep="")
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
   picrust2_pathcov_nsti0.5_file <- paste("picrust2_out/", dataset, "_picrust2_pathcov_nsti0.5.tsv", sep="")
   picrust2_pathcov_nsti0.25_file <- paste("picrust2_out/", dataset, "_picrust2_pathcov_nsti0.25.tsv", sep="")
   picrust2_pathcov_nsti0.1_file <- paste("picrust2_out/", dataset, "_picrust2_pathcov_nsti0.1.tsv", sep="")
   picrust2_pathcov_nsti0.05_file <- paste("picrust2_out/", dataset, "_picrust2_pathcov_nsti0.05.tsv", sep="")
   
-<<<<<<< HEAD
   picrust2_pathcov_nsti2_gg <- read_table_check_exists(picrust2_pathcov_nsti2_gg_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_pathcov_nsti2 <- read_table_check_exists(picrust2_pathcov_nsti2_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_pathcov_nsti1.5 <- read_table_check_exists(picrust2_pathcov_nsti1.5_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
@@ -212,22 +181,6 @@ read_in_pathway_predictions <- function(dataset) {
   
   mgs_pathcov_file <- paste("../mgs_validation/", dataset, "/humann2_pathcov_unstrat.tsv", sep="")
   mgs_pathcov <- read_table_check_exists(mgs_pathcov_file, header=T, sep="\t", row.names=1)
-=======
-  picrust2_pathcov_nsti2_gg <- read.table(picrust2_pathcov_nsti2_gg_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathcov_nsti2 <- read.table(picrust2_pathcov_nsti2_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathcov_nsti1.5 <- read.table(picrust2_pathcov_nsti1.5_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathcov_nsti1 <- read.table(picrust2_pathcov_nsti1_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathcov_nsti0.5 <- read.table(picrust2_pathcov_nsti0.5_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathcov_nsti0.25 <- read.table(picrust2_pathcov_nsti0.25_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathcov_nsti0.1 <- read.table(picrust2_pathcov_nsti0.1_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_pathcov_nsti0.05 <- read.table(picrust2_pathcov_nsti0.05_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  
-  mgs_pathabun_file <- paste("../mgs_validation/", dataset, "/humann2_pathabun_unstrat.tsv", sep="")
-  mgs_pathabun <- read.table(mgs_pathabun_file, header=T, sep="\t", row.names=1)
-  
-  mgs_pathcov_file <- paste("../mgs_validation/", dataset, "/humann2_pathcov_unstrat.tsv", sep="")
-  mgs_pathcov <- read.table(mgs_pathcov_file, header=T, sep="\t", row.names=1)
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
   
   # Only keep MGS pathways that are in PICRUSt2 prokaryotic set.
   pathabun_rows2keep <- which(rownames(mgs_pathabun) %in% possible_picrust2_pathways)
@@ -338,15 +291,10 @@ read_in_pathway_predictions <- function(dataset) {
 read_in_ec_predictions <- function(dataset) {
   
   # Read in possible ECs from each pipeline.
-<<<<<<< HEAD
+
   possible_picrust2_ecs <- read_table_check_exists("possible_ECs/picrust2_ECs.txt", header=F, stringsAsFactors = FALSE)$V1
   possible_mgs_ecs <- read_table_check_exists("possible_ECs/humann2_ECs.txt", header=F, stringsAsFactors = FALSE)$V1
   possible_paprica_ecs <- read_table_check_exists("possible_ECs/paprica_ECs.txt", header=F, stringsAsFactors = FALSE)$V1
-=======
-  possible_picrust2_ecs <- read.table("possible_ECs/picrust2_ECs.txt", header=F, stringsAsFactors = FALSE)$V1
-  possible_mgs_ecs <- read.table("possible_ECs/humann2_ECs.txt", header=F, stringsAsFactors = FALSE)$V1
-  possible_paprica_ecs <- read.table("possible_ECs/paprica_ECs.txt", header=F, stringsAsFactors = FALSE)$V1
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
   
   # Identify ecs overlapping in all.
   overlapping_possible_ecs <- possible_picrust2_ecs[which(possible_picrust2_ecs %in% possible_mgs_ecs)]
@@ -354,21 +302,15 @@ read_in_ec_predictions <- function(dataset) {
   
   # Read in all EC prediction tables (and MGS).
   picrust2_ec_nsti2_gg_file <- paste("picrust2_out/", dataset, "_picrust2_ec_nsti2_GGonly.tsv", sep="")
-<<<<<<< HEAD
+
   picrust2_ec_nsti2_file <- paste("picrust2_out/", dataset, "_picrust2_ec_nsti2.0.tsv", sep="")
   picrust2_ec_nsti1.5_file <- paste("picrust2_out/", dataset, "_picrust2_ec_nsti1.5.tsv", sep="")
   picrust2_ec_nsti1_file <- paste("picrust2_out/", dataset, "_picrust2_ec_nsti1.0.tsv", sep="")
-=======
-  picrust2_ec_nsti2_file <- paste("picrust2_out/", dataset, "_picrust2_ec_nsti2.tsv", sep="")
-  picrust2_ec_nsti1.5_file <- paste("picrust2_out/", dataset, "_picrust2_ec_nsti1.5.tsv", sep="")
-  picrust2_ec_nsti1_file <- paste("picrust2_out/", dataset, "_picrust2_ec_nsti1.tsv", sep="")
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
   picrust2_ec_nsti0.5_file <- paste("picrust2_out/", dataset, "_picrust2_ec_nsti0.5.tsv", sep="")
   picrust2_ec_nsti0.25_file <- paste("picrust2_out/", dataset, "_picrust2_ec_nsti0.25.tsv", sep="")
   picrust2_ec_nsti0.1_file <- paste("picrust2_out/", dataset, "_picrust2_ec_nsti0.1.tsv", sep="")
   picrust2_ec_nsti0.05_file <- paste("picrust2_out/", dataset, "_picrust2_ec_nsti0.05.tsv", sep="")
-  
-<<<<<<< HEAD
+
   picrust2_ec_nsti2_gg <- read_table_check_exists(picrust2_ec_nsti2_gg_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_ec_nsti2 <- read_table_check_exists(picrust2_ec_nsti2_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_ec_nsti1.5 <- read_table_check_exists(picrust2_ec_nsti1.5_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
@@ -380,30 +322,15 @@ read_in_ec_predictions <- function(dataset) {
   
   paprica_ec_file <- paste("paprica_out/", dataset, "_paprica_ec.csv", sep="")
   paprica_ec <- data.frame(t(read_table_check_exists(paprica_ec_file, header=T, sep=",", stringsAsFactors = FALSE,
-=======
-  picrust2_ec_nsti2_gg <- read.table(picrust2_ec_nsti2_gg_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ec_nsti2 <- read.table(picrust2_ec_nsti2_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ec_nsti1.5 <- read.table(picrust2_ec_nsti1.5_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ec_nsti1 <- read.table(picrust2_ec_nsti1_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ec_nsti0.5 <- read.table(picrust2_ec_nsti0.5_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ec_nsti0.25 <- read.table(picrust2_ec_nsti0.25_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ec_nsti0.1 <- read.table(picrust2_ec_nsti0.1_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ec_nsti0.05 <- read.table(picrust2_ec_nsti0.05_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  
-  paprica_ec_file <- paste("paprica_out/", dataset, "_paprica_ec.csv", sep="")
-  paprica_ec <- data.frame(t(read.table(paprica_ec_file, header=T, sep=",", stringsAsFactors = FALSE,
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
                                         row.names=1, quote="", comment.char="", check.names=FALSE)))
+  
   # The other tools don't output ECs that are missing in all samples, so remove these rows.
   paprica_ec <- paprica_ec[-which(rowSums(paprica_ec) == 0),]
   rownames(paprica_ec) <- gsub("^", "EC:", rownames(paprica_ec))
   
   mgs_ec_file <- paste("../mgs_validation/", dataset, "/humann2_ec_unstrat.tsv", sep="")
-<<<<<<< HEAD
+
   mgs_ec <- read_table_check_exists(mgs_ec_file, header=T, sep="\t", row.names=1)
-=======
-  mgs_ec <- read.table(mgs_ec_file, header=T, sep="\t", row.names=1)
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
   
   rows2remove <- which(rownames(mgs_ec) %in% c("EC:UNMAPPED", "EC:UNGROUPED"))
   if(length(rows2remove) > 0) {
@@ -485,7 +412,7 @@ read_in_ec_predictions <- function(dataset) {
 }
 
 
-<<<<<<< HEAD
+
 read_in_ko_predictions <- function(dataset, verbose=TRUE) {
   
   if(verbose) {
@@ -501,19 +428,7 @@ read_in_ko_predictions <- function(dataset, verbose=TRUE) {
   possible_tax4fun_kos <- read_table_check_exists("possible_KOs/Tax4Fun_KOs.txt", header=F, stringsAsFactors = FALSE)$V1
   
   # Identify subset of KOs that could have been output by all approaches.
-=======
-read_in_ko_predictions <- function(dataset) {
-  
-  # Read in all possible ECs output by each tool.
-  possible_picrust2_kos <- read.table("possible_KOs/PICRUSt2_KOs.txt", header=F, stringsAsFactors = FALSE)$V1
-  possible_mgs_kos <- read.table("possible_KOs/humann2_KOs.txt", header=F, stringsAsFactors = FALSE)$V1
-  possible_picrust1_kos <- read.table("possible_KOs/PICRUSt1_KOs.txt", header=F, stringsAsFactors = FALSE)$V1
-  possible_piphillin_kos <- read.table("possible_KOs/piphillin_KOs.txt", header=F, stringsAsFactors = FALSE)$V1
-  possible_panfp_kos <- read.table("possible_KOs/PanFP_KOs.txt", header=F, stringsAsFactors = FALSE)$V1
-  possible_tax4fun_kos <- read.table("possible_KOs/Tax4Fun_KOs.txt", header=F, stringsAsFactors = FALSE)$V1
-  
-  # Identify subset of ECs that could have been output by all approaches.
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
+
   overlapping_possible_kos <- possible_picrust2_kos[which(possible_picrust2_kos %in% possible_picrust1_kos)]
   overlapping_possible_kos <- overlapping_possible_kos[which(overlapping_possible_kos %in% possible_mgs_kos)]
   overlapping_possible_kos <- overlapping_possible_kos[which(overlapping_possible_kos %in% possible_piphillin_kos)]
@@ -522,20 +437,14 @@ read_in_ko_predictions <- function(dataset) {
   
   # Read in all KO prediction tables (and MGS).
   picrust2_ko_nsti2_gg_file <- paste("picrust2_out/", dataset, "_picrust2_ko_nsti2_GGonly.tsv", sep="")
-<<<<<<< HEAD
+
   picrust2_ko_nsti2_file <- paste("picrust2_out/", dataset, "_picrust2_ko_nsti2.0.tsv", sep="")
   picrust2_ko_nsti1.5_file <- paste("picrust2_out/", dataset, "_picrust2_ko_nsti1.5.tsv", sep="")
   picrust2_ko_nsti1_file <- paste("picrust2_out/", dataset, "_picrust2_ko_nsti1.0.tsv", sep="")
-=======
-  picrust2_ko_nsti2_file <- paste("picrust2_out/", dataset, "_picrust2_ko_nsti2.tsv", sep="")
-  picrust2_ko_nsti1.5_file <- paste("picrust2_out/", dataset, "_picrust2_ko_nsti1.5.tsv", sep="")
-  picrust2_ko_nsti1_file <- paste("picrust2_out/", dataset, "_picrust2_ko_nsti1.tsv", sep="")
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
   picrust2_ko_nsti0.5_file <- paste("picrust2_out/", dataset, "_picrust2_ko_nsti0.5.tsv", sep="")
   picrust2_ko_nsti0.25_file <- paste("picrust2_out/", dataset, "_picrust2_ko_nsti0.25.tsv", sep="")
   picrust2_ko_nsti0.1_file <- paste("picrust2_out/", dataset, "_picrust2_ko_nsti0.1.tsv", sep="")
   picrust2_ko_nsti0.05_file <- paste("picrust2_out/", dataset, "_picrust2_ko_nsti0.05.tsv", sep="")
-<<<<<<< HEAD
 
   if(verbose) {
     print("Reading in unstratified KO tables")    
@@ -556,26 +465,12 @@ read_in_ko_predictions <- function(dataset) {
   
   picrust1_ko_file <- paste("picrust1_out/", dataset, "_picrust1_ko.tsv", sep="")
   picrust1_ko <- read_table_check_exists(picrust1_ko_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, skip=1, comment.char="")
-=======
-  
-  picrust2_ko_nsti2_gg <- read.table(picrust2_ko_nsti2_gg_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ko_nsti2 <- read.table(picrust2_ko_nsti2_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ko_nsti1.5 <- read.table(picrust2_ko_nsti1.5_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ko_nsti1 <- read.table(picrust2_ko_nsti1_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ko_nsti0.5 <- read.table(picrust2_ko_nsti0.5_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ko_nsti0.25 <- read.table(picrust2_ko_nsti0.25_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ko_nsti0.1 <- read.table(picrust2_ko_nsti0.1_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  picrust2_ko_nsti0.05 <- read.table(picrust2_ko_nsti0.05_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-  
-  picrust1_ko_file <- paste("picrust1_out/", dataset, "_picrust1_ko.tsv", sep="")
-  picrust1_ko <- read.table(picrust1_ko_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, skip=1, comment.char="")
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
   
   # The other tools don't output KOs that are missing in all samples, so remove these rows.
   picrust1_ko <- picrust1_ko[-which(rowSums(picrust1_ko) == 0),]
   
   panfp_ko_file <- paste("panfp_out/", dataset, "_panfp_ko.tsv", sep="")
-<<<<<<< HEAD
+
   panfp_ko <- read_table_check_exists(panfp_ko_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, comment.char="")
   
   piphillin_ko_file <- paste("piphillin_out/", dataset, "_piphillin_ko.tsv", sep="")
@@ -590,18 +485,6 @@ read_in_ko_predictions <- function(dataset) {
   
   mgs_ko_file <- paste("../mgs_validation/", dataset, "/humann2_ko_unstrat.tsv", sep="")
   mgs_ko <- read_table_check_exists(mgs_ko_file, header=T, sep="\t", row.names=1)
-=======
-  panfp_ko <- read.table(panfp_ko_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, comment.char="")
-  
-  piphillin_ko_file <- paste("piphillin_out/", dataset, "_piphillin_ko.tsv", sep="")
-  piphillin_ko <- read.table(piphillin_ko_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, comment.char="")
-  
-  tax4fun_ko_file <- paste("tax4fun_out/", dataset, "_tax4fun_ko.tsv", sep="")
-  tax4fun_ko <- read.table(tax4fun_ko_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, comment.char="")
-
-  mgs_ko_file <- paste("../mgs_validation/", dataset, "/humann2_ko_unstrat.tsv", sep="")
-  mgs_ko <- read.table(mgs_ko_file, header=T, sep="\t", row.names=1)
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
   
   rows2remove <- which(rownames(mgs_ko) %in% c("UNMAPPED", "UNGROUPED"))
   if(length(rows2remove) > 0) {
@@ -707,14 +590,10 @@ calc_accuracy_metrics <- function(df1, df2, category) {
   cols2keep <- colnames(df1)[which(colnames(df1) %in% colnames(df2))]
   rows2keep <- rownames(df1)[which(rownames(df1) %in% rownames(df2))]
   
-<<<<<<< HEAD
+
   df1 <- df1[rows2keep, cols2keep, drop=FALSE] > 0
   df2 <- df2[rows2keep, cols2keep, drop=FALSE] > 0
-=======
-  df1 <- df1[rows2keep, cols2keep] > 0
-  df2 <- df2[rows2keep, cols2keep] > 0
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
-  
+
   out_df <- data.frame(matrix(NA, nrow=length(cols2keep), ncol=12))
   colnames(out_df) <- c("category", "sample", "acc", "TP", "TN", "FP", "FN", "NPV", "precision", "recall", "fpr", "F1")
   
@@ -947,15 +826,12 @@ compare_vecs <- function(vec1, vec2, method) {
     
     return(cosine_sim(vec1, vec2)) 
     
-<<<<<<< HEAD
+
   } else if(method == "spearman") {
     
     return(cor.test(vec1, vec2,method=method, exact=FALSE)$estimate)
     
   } else if(method == "pearson") {
-=======
-  } else if(method == "spearman" || method == "pearson") {
->>>>>>> 42b754e4586a977fbf18bdad273e65279b0d021b
     
     return(cor.test(vec1, vec2,method=method)$estimate)
     
