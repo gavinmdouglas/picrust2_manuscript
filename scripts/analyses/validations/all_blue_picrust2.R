@@ -18,7 +18,27 @@ blue_bulk_managed_samples <- rownames(blue_map)[which(blue_map$Description_Manag
 
 managed_samples <- c(blue_root_managed_samples, blue_rhizo_managed_samples, blue_bulk_managed_samples)
 
+# Run RF on ASVs:
+blue_asvs <- read.table("deblur_output_exported/blueberry_18S_all.biom.tsv",
+                            header=T, sep="\t", row.names=1, check.names=FALSE, comment.char="", skip=1)
 
+blue_asvs_t <- data.frame(t(blue_asvs), check.names=FALSE)
+
+all_asvs <- colnames(blue_asvs_t)
+
+blue_asvs_t_relab <- data.frame(sweep(blue_asvs_t, 1, rowSums(blue_asvs_t), '/'), check.names = FALSE) * 100
+
+
+blue_asvs_t_relab$group <- blue_map[rownames(blue_asvs_t_relab), "Description_Managemet"]
+blue_asvs_t_relab_managed <- blue_asvs_t_relab[which(blue_asvs_t_relab$group %in% c("MngRoot", "MngRhizo", "MngBulk")), ]
+
+blue_asvs_t_relab_managed$group <- factor(blue_asvs_t_relab_managed$group)
+
+blue_asvs_t_relab_managed_RF <- rfPermute(x=blue_asvs_t_relab_managed[,1:(ncol(blue_asvs_t_relab_managed)-1)],
+                                              y=blue_asvs_t_relab_managed[ , ncol(blue_asvs_t_relab_managed)],
+                                              ntree=501, importance=TRUE, proximities=TRUE, nrep=1000, num.cores =20)
+
+# Run RF on pathway abundances:
 blue_pathabun <- read.table("picrust2_full_output/pathways_out/path_abun_unstrat.tsv",
                       header=T, sep="\t", row.names=1, check.names=FALSE)
 
