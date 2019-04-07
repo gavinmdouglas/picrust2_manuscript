@@ -9,7 +9,7 @@ library(reshape2)
 library(ggpubr)
 library(cowplot)
 
-setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/saved_RDS/16S_vs_MGS_metrics/")
+setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/")
 
 source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_ms_functions.R")
 
@@ -82,6 +82,25 @@ combined_pathabun_rho_wilcoxon_no_nsti[which(combined_pathabun_rho_wilcoxon_no_n
 
 combined_pathabun_rho_no_nsti_melt <- melt(combined_pathabun_rho_no_nsti)
 
+combined_pathabun_rho_wilcoxon_no_nsti$p_symbol[which(combined_pathabun_rho_wilcoxon_no_nsti$p_symbol == "ns")] <- ""
+
+combined_pathabun_rho_wilcoxon_no_nsti$to_plot <- combined_pathabun_rho_wilcoxon_no_nsti$raw_p
+
+low_num <- which(combined_pathabun_rho_wilcoxon_no_nsti$to_plot < 0.001)
+
+combined_pathabun_rho_wilcoxon_no_nsti$to_plot[-low_num] <- round(combined_pathabun_rho_wilcoxon_no_nsti$to_plot[-low_num], digits = 3)
+
+combined_pathabun_rho_wilcoxon_no_nsti$to_plot[low_num] <- formatC(combined_pathabun_rho_wilcoxon_no_nsti$to_plot[low_num], format = "e", digits = 2)
+
+
+combined_pathabun_rho_wilcoxon_no_nsti$clean_p <- paste("P=",
+                                                        combined_pathabun_rho_wilcoxon_no_nsti$to_plot,
+                                                        combined_pathabun_rho_wilcoxon_no_nsti$p_symbol,
+                                                        sep="")
+
+# Clean up a p-value by hand that does not need to be in scientific notation:
+combined_ec_rho_wilcoxon_no_nsti$clean_p[which(combined_ec_rho_wilcoxon_no_nsti$clean_p == "P=7.81e-03*")] <- "P=0.00781*"
+
 pathabun_rho_boxplots <- ggplot(combined_pathabun_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
   ylim(c(0.6, 1.05)) +
   ylab(c("Spearman Correlation Coefficient")) +
@@ -92,7 +111,7 @@ pathabun_rho_boxplots <- ggplot(combined_pathabun_rho_no_nsti_melt, aes(x=cat, y
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
         axis.text.x=element_text(angle=45, hjust=1)) +
   scale_fill_manual(values=c("light grey", "#00BFC4")) +
-  stat_pvalue_manual(combined_pathabun_rho_wilcoxon_no_nsti, label = "p_symbol")
+  stat_pvalue_manual(combined_pathabun_rho_wilcoxon_no_nsti, label = "clean_p")
 
 
 ### PANEL B - IMG PHENOTYPES HOLDOUT VALIDATIONS.
@@ -129,6 +148,12 @@ phenotype_wilcox_p_df$p_symbol <- "ns"
 phenotype_wilcox_p_df[which(phenotype_wilcox_p_df$pval < 0.05), "p_symbol"] <- "*"
 phenotype_wilcox_p_df[which(phenotype_wilcox_p_df$pval < 0.001), "p_symbol"] <- "**"
 
+
+phenotype_wilcox_p_df$clean_p <- paste("P=",
+                                       formatC(phenotype_wilcox_p_df$pval, format = "e", digits = 0),
+                                       phenotype_wilcox_p_df$p_symbol,
+                                       sep="")
+
 IMG_pheno_boxplots <- ggplot(combined_acc_by_phenotype_subset_melt, aes(x=Category, y=value, fill=Category)) +
   geom_boxplot() +
   facet_grid(. ~ variable, scales = "free", space = "free", switch="x") +
@@ -137,10 +162,10 @@ IMG_pheno_boxplots <- ggplot(combined_acc_by_phenotype_subset_melt, aes(x=Catego
   ylab(c("Phenotype Prediction Performance")) +
   guides(fill=FALSE) +
   scale_fill_manual(values=c("light grey", "#00BFC4")) +
-  stat_pvalue_manual(phenotype_wilcox_p_df, label = "p_symbol", tip.length = 0.01) +
+  stat_pvalue_manual(phenotype_wilcox_p_df, label = "clean_p", tip.length = 0.01) +
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
         axis.text.x=element_text(angle=45, hjust=1))
 
-# Plot figure.
+# Plot figure (11x5)
 plot_grid(pathabun_rho_boxplots, IMG_pheno_boxplots, labels = c("A", "B"), ncol=2, nrow=1, rel_widths = c(1, 0.5))

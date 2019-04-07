@@ -24,14 +24,6 @@ blue_ec_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "saved_RDS/18S_
 blue_ec_rho <- blue_ec_rho_outlist[[1]]
 blue_ec_rho_wilcoxon <- blue_ec_rho_outlist[[2]]
 
-blue_ec_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "saved_RDS/18S_ITS_vs_MGS_metrics/blueberry_ec_scc_metrics.rds",
-                                                       dataset_name = "Soil (Blueberry)",
-                                                       wilcox_cat2ignore = extra_nsti_categories,
-                                                       y_pos_start = 0.75)
-
-blue_ec_rho <- blue_ec_rho_outlist[[1]]
-blue_ec_rho_wilcoxon <- blue_ec_rho_outlist[[2]]
-
 
 # wine:
 wine_ec_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "saved_RDS/18S_ITS_vs_MGS_metrics/wine_ec_scc_metrics.rds",
@@ -55,6 +47,14 @@ combined_ec_rho_no_nsti$cat <- factor(combined_ec_rho_no_nsti$cat,
 combined_ec_rho_wilcoxon_no_nsti <- combined_ec_rho_wilcoxon
 combined_ec_rho_wilcoxon_no_nsti[which(combined_ec_rho_wilcoxon_no_nsti$group1 == "NSTI=2"), "group1"] <- "PICRUSt2"
 
+# Add column of p-values to add to plot.
+combined_ec_rho_wilcoxon_no_nsti$clean_p <- paste("P=",
+                                                  formatC(combined_ec_rho_wilcoxon_no_nsti$raw_p, format = "e", digits = 2),
+                                                  combined_ec_rho_wilcoxon_no_nsti$p_symbol,
+                                                  sep="")
+# Clean up a p-value by hand that does not need to be in scientific notation:
+combined_ec_rho_wilcoxon_no_nsti$clean_p[which(combined_ec_rho_wilcoxon_no_nsti$clean_p == "P=7.81e-03*")] <- "P=0.00781*"
+
 combined_ec_rho_no_nsti_melt <- melt(combined_ec_rho_no_nsti)
 
 ec_scc_boxplots <- ggplot(combined_ec_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
@@ -67,7 +67,7 @@ ec_scc_boxplots <- ggplot(combined_ec_rho_no_nsti_melt, aes(x=cat, y=value, fill
   #      axis.text.x=element_text(angle=45, hjust=1)) +
   guides(fill=FALSE) +
   scale_fill_manual(values=c("light grey", "#00BFC4")) +
-  stat_pvalue_manual(combined_ec_rho_wilcoxon_no_nsti, label = "p_symbol")
+  stat_pvalue_manual(combined_ec_rho_wilcoxon_no_nsti, label = "clean_p")
 
 # Get mean and sd values.
 mean(blue_ec_rho[which(blue_ec_rho$cat == "Null"), "metric"])
@@ -130,6 +130,14 @@ combined_pathabun_rho_wilcoxon_no_nsti[which(combined_pathabun_rho_wilcoxon_no_n
 
 combined_pathabun_rho_no_nsti_melt <- melt(combined_pathabun_rho_no_nsti)
 
+combined_pathabun_rho_wilcoxon_no_nsti$clean_p <- paste("P=",
+                                                  formatC(combined_pathabun_rho_wilcoxon_no_nsti$raw_p, format = "e", digits = 2),
+                                                  combined_pathabun_rho_wilcoxon_no_nsti$p_symbol,
+                                                  sep="")
+
+# Clean up a p-value by hand that does not need to be in scientific notation:
+combined_pathabun_rho_wilcoxon_no_nsti$clean_p[which(combined_pathabun_rho_wilcoxon_no_nsti$clean_p == "P=7.81e-03*")] <- "P=0.00781*"
+  
 pathabun_scc_boxplots <- ggplot(combined_pathabun_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) +
   geom_boxplot() +
   ylim(c(0, 1)) +
@@ -141,7 +149,7 @@ pathabun_scc_boxplots <- ggplot(combined_pathabun_rho_no_nsti_melt, aes(x=cat, y
   #      axis.text.x=element_text(angle=45, hjust=1)) +
   guides(fill=FALSE) +
   scale_fill_manual(values=c("light grey", "#00BFC4")) +
-  stat_pvalue_manual(combined_pathabun_rho_wilcoxon_no_nsti, label = "p_symbol")
+  stat_pvalue_manual(combined_pathabun_rho_wilcoxon_no_nsti, label = "clean_p")
 
 # Get mean and sd values.
 mean(blue_pathabun_rho[which(blue_pathabun_rho$cat == "Null"), "metric"])
@@ -245,7 +253,7 @@ top_row <- plot_grid(ec_scc_boxplots,
                      ncol=3,
                      nrow=1)
                     
-
+# 13 x 7
 plot_grid(top_row,
           blueberry_sig_paths_boxplots,
           labels = c('', 'D'),
