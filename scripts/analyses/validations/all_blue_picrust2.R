@@ -34,38 +34,45 @@ blue_asvs_t_relab_managed <- blue_asvs_t_relab[which(blue_asvs_t_relab$group %in
 
 blue_asvs_t_relab_managed$group <- factor(blue_asvs_t_relab_managed$group)
 
-blue_asvs_t_relab_managed_RF <- rfPermute(x=blue_asvs_t_relab_managed[,1:(ncol(blue_asvs_t_relab_managed)-1)],
-                                              y=blue_asvs_t_relab_managed[ , ncol(blue_asvs_t_relab_managed)],
-                                              ntree=501, importance=TRUE, proximities=TRUE, nrep=1000, num.cores =20)
+# Shouldn't be re-run (see RDS below).
+# blue_asvs_t_relab_managed_RF <- rfPermute(x=blue_asvs_t_relab_managed[,1:(ncol(blue_asvs_t_relab_managed)-1)],
+#                                               y=blue_asvs_t_relab_managed[ , ncol(blue_asvs_t_relab_managed)],
+#                                               ntree=501, importance=TRUE, proximities=TRUE, nrep=1000, num.cores =20)
+# 
+# saveRDS(object = blue_asvs_t_relab_managed_RF, file="/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/blueberry_RF/blue_asvs_t_relab_managed_RF.rds")
+blue_asvs_t_relab_managed_RF <- readRDS("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/blueberry_RF/blue_asvs_t_relab_managed_RF.rds")
 
 # Run RF on pathway abundances:
-blue_pathabun <- read.table("picrust2_full_output/pathways_out/path_abun_unstrat.tsv",
+blue_ec <- read.table("picrust2_full_output/ec_18S_counts_metagenome_out/pred_metagenome_unstrat.tsv",
                       header=T, sep="\t", row.names=1, check.names=FALSE)
 
+blue_ec_t <- data.frame(t(blue_ec), check.names=FALSE)
 
-blue_pathabun_t <- data.frame(t(blue_pathabun), check.names=FALSE)
+all_ec <- colnames(blue_ec_t)
 
-all_pathabun <- colnames(blue_pathabun_t)
-
-blue_pathabun_t_relab <- data.frame(sweep(blue_pathabun_t, 1, rowSums(blue_pathabun_t), '/'), check.names = FALSE) * 100
+blue_ec_t_relab <- data.frame(sweep(blue_ec_t, 1, rowSums(blue_ec_t), '/'), check.names = FALSE) * 100
 
 
-blue_pathabun_t_relab$group <- blue_map[rownames(blue_pathabun_t_relab), "Description_Managemet"]
-blue_pathabun_t_relab_managed <- blue_pathabun_t_relab[which(blue_pathabun_t_relab$group %in% c("MngRoot", "MngRhizo", "MngBulk")), ]
+blue_ec_t_relab$group <- blue_map[rownames(blue_ec_t_relab), "Description_Managemet"]
+blue_ec_t_relab_managed <- blue_ec_t_relab[which(blue_ec_t_relab$group %in% c("MngRoot", "MngRhizo", "MngBulk")), ]
 
-blue_pathabun_t_relab_managed$group <- factor(blue_pathabun_t_relab_managed$group)
+blue_ec_t_relab_managed$group <- factor(blue_ec_t_relab_managed$group)
 
-blue_pathabun_t_relab_managed_RF <- rfPermute(x=blue_pathabun_t_relab_managed[,1:(ncol(blue_pathabun_t_relab_managed)-1)],
-                                        y=blue_pathabun_t_relab_managed[ , ncol(blue_pathabun_t_relab_managed)],
-                                        ntree=501, importance=TRUE, proximities=TRUE, nrep=1000, num.cores =20)
+# Shouldn't be re-run (see RDS below).
+# blue_ec_t_relab_managed_RF <- rfPermute(x=blue_ec_t_relab_managed[,1:(ncol(blue_ec_t_relab_managed)-1)],
+#                                         y=blue_ec_t_relab_managed[ , ncol(blue_ec_t_relab_managed)],
+#                                         ntree=501, importance=TRUE, proximities=TRUE, nrep=1000, num.cores =20)
+# 
+# saveRDS(object = blue_ec_t_relab_managed_RF, file="/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/blueberry_RF/blue_ec_t_relab_managed_RF.rds")
+blue_ec_t_relab_managed_RF <- readRDS("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/blueberry_RF/blue_ec_t_relab_managed_RF.rds")
 
-sig_pathabuns_i <- as.numeric(which(blue_pathabun_t_relab_managed_RF$pval[,, "scaled"][,"MeanDecreaseAccuracy"] < 0.001))
+sig_ecs_i <- as.numeric(which(blue_ec_t_relab_managed_RF$pval[,, "scaled"][,"MeanDecreaseAccuracy"] < 0.001))
 
-sig_pathabuns <- names(blue_pathabun_t_relab_managed_RF$pval[,, "scaled"][sig_pathabuns_i,"MeanDecreaseAccuracy"])
+sig_ecs <- names(blue_ec_t_relab_managed_RF$pval[,, "scaled"][sig_ecs_i,"MeanDecreaseAccuracy"])
 
-blue_pathabun_t_relab_managed_sig_subset <- blue_pathabun_t_relab_managed[, c(sig_pathabuns, "group")]
+blue_ec_t_relab_managed_sig_subset <- blue_ec_t_relab_managed[, c(sig_ecs, "group")]
 
-blue_pathabun_t_relab_managed_sig_subset$sample <- rownames(blue_pathabun_t_relab_managed_sig_subset)
+blue_ec_t_relab_managed_sig_subset$sample <- rownames(blue_ec_t_relab_managed_sig_subset)
 
-write.table(x = blue_pathabun_t_relab_managed_sig_subset, file="/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/all_blueberry_sig_pathways.tsv",
+write.table(x = blue_ec_t_relab_managed_sig_subset, file="/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/all_blueberry_sig_ecs.tsv",
             col.names=TRUE, row.names=FALSE, quote=FALSE, sep="\t")

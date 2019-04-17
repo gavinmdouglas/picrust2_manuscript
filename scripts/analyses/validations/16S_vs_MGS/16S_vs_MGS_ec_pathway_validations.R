@@ -14,11 +14,11 @@ ec <- read.table(gzfile("/home/gavin/github_repos/picrust_repos/picrust2/picrust
                  row.names=1, header=T, sep="\t", stringsAsFactors = FALSE, check.names=FALSE)
 
 ### Read in expected metacyc database (based on reference E.C. number database).
-pathabun <- t(read.table(gzfile("/home/gavin/projects/picrust_pipeline/IMG_db/ref_genome_metacyc/path_abun_unstrat.tsv"),
-                         row.names=1, header=T, sep="\t", stringsAsFactors = FALSE))
+pathabun <- data.frame(t(read.table(gzfile("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/ref_wide_mean_ec/mean_ec_ref_16S_pathway/path_abun_unstrat.tsv"),
+                         row.names=1, header=T, sep="\t", stringsAsFactors = FALSE)), check.names=FALSE)
 
-pathcov <- t(read.table(gzfile("/home/gavin/projects/picrust_pipeline/IMG_db/ref_genome_metacyc/path_cov_unstrat.tsv"),
-                        row.names=1, header=T, sep="\t", stringsAsFactors = FALSE))
+pathcov <- data.frame(t(read.table(gzfile("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/ref_wide_mean_ec/mean_ec_ref_16S_pathway/path_cov_unstrat.tsv"),
+                                    row.names=1, header=T, sep="\t", stringsAsFactors = FALSE)), check.names=FALSE)
 
 # Read in all tables, restrict to overlapping samples only, and get subsets with all possible ECs filled in and with
 # only ECs overlapping between PICRUSt2 and PAPRICA. Focus analyses on ECs overlapping between both tools, but outputted others as well
@@ -502,31 +502,34 @@ blueberry_pathcov_acc <- rbind(blueberry_null_pathcov_metrics,
                          blueberry_picrust2_pathcov_nsti0.1_metrics,
                          blueberry_picrust2_pathcov_nsti0.05_metrics)
 
+
+
+
 # Save RDS objects:
-saveRDS(object = hmp_ec_spearman_df, file = "../../saved_RDS/16S_vs_MGS_metrics/hmp_ec_spearman_df.rds")
-saveRDS(object = hmp_ec_acc, file = "../../saved_RDS/16S_vs_MGS_metrics/hmp_ec_acc_metrics.rds")
-saveRDS(object = hmp_pathabun_spearman_df, file = "../../saved_RDS/16S_vs_MGS_metrics/hmp_pathabun_spearman_df.rds")
-saveRDS(object = hmp_pathabun_acc, file = "../../saved_RDS/16S_vs_MGS_metrics/hmp_pathabun_acc_metrics.rds")
-saveRDS(object = hmp_pathcov_spearman_df, file = "../../saved_RDS/16S_vs_MGS_metrics/hmp_pathcov_spearman_df.rds")
-saveRDS(object = hmp_pathcov_acc, file = "../../saved_RDS/16S_vs_MGS_metrics/hmp_pathcov_acc_metrics.rds")
+saveRDS(object = hmp_ec_spearman_df, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/hmp_ec_spearman_df.rds")
+saveRDS(object = hmp_ec_acc, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/hmp_ec_acc_metrics.rds")
+saveRDS(object = hmp_pathabun_spearman_df, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/hmp_pathabun_spearman_df.rds")
+saveRDS(object = hmp_pathabun_acc, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/hmp_pathabun_acc_metrics.rds")
+saveRDS(object = hmp_pathcov_spearman_df, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/hmp_pathcov_spearman_df.rds")
+saveRDS(object = hmp_pathcov_acc, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/hmp_pathcov_acc_metrics.rds")
 
-saveRDS(object = mammal_ec_spearman_df, file = "../../saved_RDS/16S_vs_MGS_metrics/mammal_ec_spearman_df.rds")
-saveRDS(object = mammal_ec_acc, file = "../../saved_RDS/16S_vs_MGS_metrics/mammal_ec_acc_metrics.rds")
-saveRDS(object = mammal_pathabun_spearman_df, file = "../../saved_RDS/16S_vs_MGS_metrics/mammal_pathabun_spearman_df.rds")
-saveRDS(object = mammal_pathabun_acc, file = "../../saved_RDS/16S_vs_MGS_metrics/mammal_pathabun_acc_metrics.rds")
-saveRDS(object = mammal_pathcov_spearman_df, file = "../../saved_RDS/16S_vs_MGS_metrics/mammal_pathcov_spearman_df.rds")
-saveRDS(object = mammal_pathcov_acc, file = "../../saved_RDS/16S_vs_MGS_metrics/mammal_pathcov_acc_metrics.rds")
+saveRDS(object = mammal_ec_spearman_df, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/mammal_ec_spearman_df.rds")
+saveRDS(object = mammal_ec_acc, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/mammal_ec_acc_metrics.rds")
+saveRDS(object = mammal_pathabun_spearman_df, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/mammal_pathabun_spearman_df.rds")
+saveRDS(object = mammal_pathabun_acc, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/mammal_pathabun_acc_metrics.rds")
+saveRDS(object = mammal_pathcov_spearman_df, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/mammal_pathcov_spearman_df.rds")
+saveRDS(object = mammal_pathcov_acc, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/mammal_pathcov_acc_metrics.rds")
 
-saveRDS(object = ocean_ec_spearman_df, file = "../../saved_RDS/16S_vs_MGS_metrics/ocean_ec_spearman_df.rds")
-saveRDS(object = ocean_ec_acc, file = "../../saved_RDS/16S_vs_MGS_metrics/ocean_ec_acc_metrics.rds")
-saveRDS(object = ocean_pathabun_spearman_df, file = "../../saved_RDS/16S_vs_MGS_metrics/ocean_pathabun_spearman_df.rds")
-saveRDS(object = ocean_pathabun_acc, file = "../../saved_RDS/16S_vs_MGS_metrics/ocean_pathabun_acc_metrics.rds")
-saveRDS(object = ocean_pathcov_spearman_df, file = "../../saved_RDS/16S_vs_MGS_metrics/ocean_pathcov_spearman_df.rds")
-saveRDS(object = ocean_pathcov_acc, file = "../../saved_RDS/16S_vs_MGS_metrics/ocean_pathcov_acc_metrics.rds")
+saveRDS(object = ocean_ec_spearman_df, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/ocean_ec_spearman_df.rds")
+saveRDS(object = ocean_ec_acc, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/ocean_ec_acc_metrics.rds")
+saveRDS(object = ocean_pathabun_spearman_df, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/ocean_pathabun_spearman_df.rds")
+saveRDS(object = ocean_pathabun_acc, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/ocean_pathabun_acc_metrics.rds")
+saveRDS(object = ocean_pathcov_spearman_df, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/ocean_pathcov_spearman_df.rds")
+saveRDS(object = ocean_pathcov_acc, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/ocean_pathcov_acc_metrics.rds")
 
-saveRDS(object = blueberry_ec_spearman_df, file = "../../saved_RDS/16S_vs_MGS_metrics/blueberry_ec_spearman_df.rds")
-saveRDS(object = blueberry_ec_acc, file = "../../saved_RDS/16S_vs_MGS_metrics/blueberry_ec_acc_metrics.rds")
-saveRDS(object = blueberry_pathabun_spearman_df, file = "../../saved_RDS/16S_vs_MGS_metrics/blueberry_pathabun_spearman_df.rds")
-saveRDS(object = blueberry_pathabun_acc, file = "../../saved_RDS/16S_vs_MGS_metrics/blueberry_pathabun_acc_metrics.rds")
-saveRDS(object = blueberry_pathcov_spearman_df, file = "../../saved_RDS/16S_vs_MGS_metrics/blueberry_pathcov_spearman_df.rds")
-saveRDS(object = blueberry_pathcov_acc, file = "../../saved_RDS/16S_vs_MGS_metrics/blueberry_pathcov_acc_metrics.rds")
+saveRDS(object = blueberry_ec_spearman_df, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/blueberry_ec_spearman_df.rds")
+saveRDS(object = blueberry_ec_acc, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/blueberry_ec_acc_metrics.rds")
+saveRDS(object = blueberry_pathabun_spearman_df, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/blueberry_pathabun_spearman_df.rds")
+saveRDS(object = blueberry_pathabun_acc, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/blueberry_pathabun_acc_metrics.rds")
+saveRDS(object = blueberry_pathcov_spearman_df, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/blueberry_pathcov_spearman_df.rds")
+saveRDS(object = blueberry_pathcov_acc, file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/blueberry_pathcov_acc_metrics.rds")

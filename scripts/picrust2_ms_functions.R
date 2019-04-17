@@ -141,9 +141,9 @@ read_in_pathway_predictions <- function(dataset) {
   
   # Read in all EC prediction tables (and MGS).
   picrust2_pathabun_nsti2_gg_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti2_GGonly.tsv", sep="")
-  picrust2_pathabun_nsti2_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti2.tsv", sep="")
+  picrust2_pathabun_nsti2_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti2.0.tsv", sep="")
   picrust2_pathabun_nsti1.5_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti1.5.tsv", sep="")
-  picrust2_pathabun_nsti1_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti1.tsv", sep="")
+  picrust2_pathabun_nsti1_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti1.0.tsv", sep="")
   picrust2_pathabun_nsti0.5_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti0.5.tsv", sep="")
   picrust2_pathabun_nsti0.25_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti0.25.tsv", sep="")
   picrust2_pathabun_nsti0.1_file <- paste("picrust2_out/", dataset, "_picrust2_pathabun_nsti0.1.tsv", sep="")
@@ -687,7 +687,7 @@ rep_func_subset_cor <- function(func, rep, n) {
 generate_null_mean_db_funcs <- function(db, tab) {
   n_sample <- ncol(tab)
   tab <- tab[rownames(tab)[which(rownames(tab) %in% colnames(db))],]
-  db_subset <- db[, rownames(tab)]
+  db_subset <- db[, rownames(tab), drop=FALSE]
   
   # Create empty null df
   null_df <- data.frame(matrix(NA,nrow=nrow(tab), ncol=ncol(tab)))
