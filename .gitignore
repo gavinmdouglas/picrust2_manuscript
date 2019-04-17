@@ -1,3 +1,4 @@
 data/saved_RDS/blueberry_RF/*
 data/saved_RDS/16S_vs_MGS_metrics/past/*
+data/saved_RDS/18S_ITS_vs_MGS_metrics/past/*
 scripts/processing_scripts/create_reference_files/__pycache__/
