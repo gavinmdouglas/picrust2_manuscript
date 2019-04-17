@@ -137,7 +137,8 @@ combined_pathabun_rho_wilcoxon_no_nsti$clean_p <- paste("P=",
 
 # Clean up a p-value by hand that does not need to be in scientific notation:
 combined_pathabun_rho_wilcoxon_no_nsti$clean_p[which(combined_pathabun_rho_wilcoxon_no_nsti$clean_p == "P=7.81e-03*")] <- "P=0.00781*"
-  
+combined_pathabun_rho_wilcoxon_no_nsti$clean_p[which(combined_pathabun_rho_wilcoxon_no_nsti$clean_p == "P=5.47e-02ns")] <- "P=0.0547"
+
 pathabun_scc_boxplots <- ggplot(combined_pathabun_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) +
   geom_boxplot() +
   ylim(c(0, 1)) +
@@ -224,16 +225,24 @@ mean(wine_metaxa2_relab_euk_subset$total_filt)
 sd(wine_metaxa2_relab_euk_subset$total_filt)
 
 
-# PANEL D: Sig pathways in blueberry dataset.
-blueberry_sig_path <- read.table("working_tables/all_blueberry_sig_pathways.tsv",
+# PANEL D: Sig ECs in blueberry dataset.
+blueberry_sig_ec <- read.table("working_tables/all_blueberry_sig_ecs.tsv",
                                  header=TRUE, sep="\t", check.names=FALSE)
 
-blueberry_sig_path_melt <- melt(blueberry_sig_path)
+# Restrict to EC numbers with a mean of at least 0.15% relative abundance across all samples.
 
-blueberry_sig_path_melt$group <- as.character(blueberry_sig_path_melt$group)
-blueberry_sig_path_melt$Type <- factor(gsub("Mng", "", blueberry_sig_path_melt$group), levels=c("Bulk", "Rhizo", "Root"))
+EC_col <- grep("EC:", colnames(blueberry_sig_ec), value = TRUE)
 
-blueberry_sig_paths_boxplots <- ggplot(blueberry_sig_path_melt, aes(x=Type, y=value, fill=Type)) +
+common_EC <- names(which(colMeans(blueberry_sig_ec[, EC_col]) > 0.15))
+
+blueberry_sig_ec <- blueberry_sig_ec[, c(common_EC, "group", "sample")]
+
+blueberry_sig_ec_melt <- melt(blueberry_sig_ec)
+
+blueberry_sig_ec_melt$group <- as.character(blueberry_sig_ec_melt$group)
+blueberry_sig_ec_melt$Type <- factor(gsub("Mng", "", blueberry_sig_ec_melt$group), levels=c("Bulk", "Rhizo", "Root"))
+
+blueberry_sig_ecs_boxplots <- ggplot(blueberry_sig_ec_melt, aes(x=Type, y=value, fill=Type)) +
   geom_boxplot() +
   ylim(c(0, 2)) +
   ylab("% Relative Abundance") +
@@ -255,8 +264,7 @@ top_row <- plot_grid(ec_scc_boxplots,
                     
 # 13 x 7
 plot_grid(top_row,
-          blueberry_sig_paths_boxplots,
+          blueberry_sig_ecs_boxplots,
           labels = c('', 'D'),
           ncol = 1,
           nrow=2)
-

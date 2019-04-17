@@ -150,6 +150,7 @@ blueberry_pathabun_spearman_boxplots <- ggplot(blueberry_pathabun_rho_melt, aes(
   scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
   stat_pvalue_manual(blueberry_pathabun_rho_wilcoxon, label = "p_symbol")
 
+# 9 x 10
 plot_grid(hmp_pathabun_spearman_boxplots,
           mammal_pathabun_spearman_boxplots,
           ocean_pathabun_spearman_boxplots,

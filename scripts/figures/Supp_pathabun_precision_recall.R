@@ -153,7 +153,7 @@ pathabun_recall_boxplots <- ggplot(combined_pathabun_recall_melt, aes(x=cat, y=v
 
 
 
-# Plot boxplots:
+# Plot boxplots (9x7):
 plot_grid(pathabun_precision_boxplots,
           pathabun_recall_boxplots,
           nrow=2,
