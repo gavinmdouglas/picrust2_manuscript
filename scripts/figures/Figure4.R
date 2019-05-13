@@ -67,7 +67,8 @@ ec_scc_boxplots <- ggplot(combined_ec_rho_no_nsti_melt, aes(x=cat, y=value, fill
   #      axis.text.x=element_text(angle=45, hjust=1)) +
   guides(fill=FALSE) +
   scale_fill_manual(values=c("light grey", "#00BFC4")) +
-  stat_pvalue_manual(combined_ec_rho_wilcoxon_no_nsti, label = "clean_p")
+  stat_pvalue_manual(combined_ec_rho_wilcoxon_no_nsti, label = "clean_p") +
+  ggtitle("EC Numbers")
 
 # Get mean and sd values.
 mean(blue_ec_rho[which(blue_ec_rho$cat == "Null"), "metric"])
@@ -150,7 +151,9 @@ pathabun_scc_boxplots <- ggplot(combined_pathabun_rho_no_nsti_melt, aes(x=cat, y
   #      axis.text.x=element_text(angle=45, hjust=1)) +
   guides(fill=FALSE) +
   scale_fill_manual(values=c("light grey", "#00BFC4")) +
-  stat_pvalue_manual(combined_pathabun_rho_wilcoxon_no_nsti, label = "clean_p")
+  stat_pvalue_manual(combined_pathabun_rho_wilcoxon_no_nsti, label = "clean_p") +
+  ggtitle("MetaCyc Pathwys")
+
 
 # Get mean and sd values.
 mean(blue_pathabun_rho[which(blue_pathabun_rho$cat == "Null"), "metric"])

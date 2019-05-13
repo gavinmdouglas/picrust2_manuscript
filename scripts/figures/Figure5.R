@@ -23,7 +23,7 @@ cd_sig_higher_ratio_plot <- ggplot(cd_sig_higher_ratio_prep_melt, aes(x=variable
   xlab("") +
   ylab(expression('log'[2]*'((Contributed by Proteobacteria + 1)/(Contributed by Other + 1))')) +
   scale_y_continuous(limits=c(-5, 8)) +
-  labs(fill="Disease State") +
+  labs(fill="Phenotype") +
   theme(legend.position = c(0.7, 0.8),
         legend.background = element_rect(color = "black", 
                                          fill = "white", size = 0.2, linetype = "solid"))
