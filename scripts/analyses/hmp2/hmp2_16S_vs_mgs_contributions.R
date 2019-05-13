@@ -2,94 +2,9 @@
 
 rm(list=ls(all=TRUE))
 
-# First compare numbers of genera contributing pathways (excluding "unclassified" in 16S biopsies and mgs stool).
-num_contrib_genera <- function(pred_df, mgs_df) {
-  
-  # Remove unclassified rows.
-  pred_df <- pred_df[-which(pred_df$genus == "unclassified"), ]
-  mgs_df <- mgs_df[-which(mgs_df$genus == "unclassified"), ]
-  
-  all_path <- unique(c(pred_df$pathway, mgs_df$pathway))
-  
-  num_contrib_df <- data.frame(matrix(NA, nrow=length(all_path), ncol=4))
-  colnames(num_contrib_df) <- c("picrust2_mean", "picrust2_sem", "mgs_mean", "mgs_sem")
-  rownames(num_contrib_df) <- all_path
-  
-  for(pathway in all_path) {
-    
-    if(pathway %in% pred_df$pathway) {
-      pred_df_subset <- pred_df[which(pred_df$pathway == pathway), ]
-      
-      num_contrib_df[pathway, "picrust2_mean"] <- mean(colSums(pred_df_subset > 0))
-      num_contrib_df[pathway, "picrust2_sem"] <- sd(colSums(pred_df_subset > 0)) / sqrt(ncol(pred_df_subset))
-    }
-    
-    if(pathway %in% mgs_df$pathway) {
-      mgs_df_subset <- mgs_df[which(mgs_df$pathway == pathway), ]
-      
-      num_contrib_df[pathway, "mgs_mean"] <- mean(colSums(mgs_df_subset > 0))
-      num_contrib_df[pathway, "mgs_sem"] <- sd(colSums(mgs_df_subset > 0)) / sqrt(ncol(mgs_df_subset))
-    }
-    
-  }
-  
-  return(num_contrib_df)
-}
-
-pathway_mean_sem <- function(in_df, pathway, col_str) {
-  
-  pathway_subset_abun <- in_df[which(in_df$pathway == pathway), ]
-  
-  pathway_subset_abun <- pathway_subset_abun[-which(pathway_subset_abun$genus == "unclassified"), ]
-  
-  rownames(pathway_subset_abun) <- pathway_subset_abun$genus
-  
-  pathway_subset_abun <- pathway_subset_abun[, -which(colnames(pathway_subset_abun) %in% c("genus", "pathway"))]
-  
-  pathway_subset_abun <- data.frame(sweep(pathway_subset_abun, 2, colSums(pathway_subset_abun), '/'), check.names = FALSE) * 100
-  
-  if(length(which(is.na(pathway_subset_abun))) > 0) {
-    pathway_subset_abun[is.na(pathway_subset_abun)] <- 0
-  }
-  pathway_subset_abun_genus_mean <- rowMeans(pathway_subset_abun)
-  
-  pathway_subset_abun_genus_sd <- apply(pathway_subset_abun, 1, sd)
-  
-  pathway_subset_abun_genus_sem <- pathway_subset_abun_genus_sd / sqrt(ncol(pathway_subset_abun))
-  
-  pathway_subset_abun_genus_upper <- pathway_subset_abun_genus_mean + pathway_subset_abun_genus_sem * 2
-  pathway_subset_abun_genus_lower <- pathway_subset_abun_genus_mean - pathway_subset_abun_genus_sem * 2
-  
-  if(length(which(pathway_subset_abun_genus_lower < 0)) > 0) {
-    pathway_subset_abun_genus_lower[which(pathway_subset_abun_genus_lower < 0)] <- 0
-  }
-  
-  out_df <- data.frame(mean=pathway_subset_abun_genus_mean,
-                       sem=pathway_subset_abun_genus_sem,
-                       lower=pathway_subset_abun_genus_lower,
-                       upper=pathway_subset_abun_genus_upper)
-  rownames(out_df) <- names(pathway_subset_abun_genus_mean) 
-  colnames(out_df) <- paste(col_str, colnames(out_df), sep="_")
-  
-  return(out_df)
-}
-
-breakdown_mean_genera_contrib <- function(pred_df, mgs_df, pathway) {
-  
-  pred_summary <- pathway_mean_sem(pred_df, pathway, "picrust2")
-  mgs_summary <- pathway_mean_sem(mgs_df, pathway, "mgs")
-  
-  merged_out <- merge(pred_summary, mgs_summary, by="row.names", all.x=TRUE)
-  
-  if(length(which(is.na(merged_out))) > 0 ) {
-    merged_out[is.na(merged_out)] <- 0
-  }
-  return(merged_out)
-}
-
-
 setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/")
 source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/analyses/hmp2/hmp2_util_functions.R")
+source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_ms_functions.R")
 
 # Read in stratified HMP2 pathway abundances
 hmp2_16S_pathabun_strat <- data.frame(t(readRDS("count_tables/hmp2_pathabun_strat_filt_count_Ileum.rds")), check.names=FALSE)
@@ -185,28 +100,45 @@ num_contrib_genera_out[is.na(num_contrib_genera_out)] <- 0
 saveRDS(object = num_contrib_genera_out, file = "results_out/num_contrib_genera_out.rds")
 
 
+unique_path <- unique(c(hmp2_16S_pathabun_strat_genus_sum$pathway, hmp2_mgs_pathabun_strat_genus_sum$pathway))
+path_spearman <- rep(NA, length(unique_path))
+names(path_spearman) <- unique_path
+
+for(pathway in unique_path) {
+  pathway_breakdown <- breakdown_mean_genera_contrib(hmp2_16S_pathabun_strat_genus_sum, hmp2_mgs_pathabun_strat_genus_sum, pathway)
+
+  if(nrow(pathway_breakdown) <= 1) {
+    next 
+  }
+
+  path_spearman[pathway] <- cor.test(pathway_breakdown$mgs_mean, pathway_breakdown$picrust2_mean, method="spearman")$estimate
+}
+
+saveRDS(object = path_spearman, file = "results_out/16S_vs_MGS_contrib_pathway_spearman.rds")
+
+### TESTING:
 # Next compare contributions to 1 pathway expected to be contributed mainly by Proteobacteria (PWY-5188) vs a different one.
-hmp2_pathabun_vs_rnaseq_CD_ileum_fdr0.1 <- readRDS("results_out/hmp2_pathabun_vs_rnaseq_CD_ileum_fdr0.1.rds")
-
-proteobacteria_enriched_pathways <- levels(cd_sig_higher_ratio_prep_melt$variable)
-
-hmp2_pathabun_vs_rnaseq_CD_ileum_fdr0.1[which(hmp2_pathabun_vs_rnaseq_CD_ileum_fdr0.1$gene == "NAT8"), ]
-# PWY0-1533 NAT8 0.004757666 0.09840439
-
-
-PWY_5188_breakdown <- breakdown_mean_genera_contrib(hmp2_16S_pathabun_strat_genus_sum, hmp2_mgs_pathabun_strat_genus_sum, "PWY-5188")
-PWY0_1533_breakdown <- breakdown_mean_genera_contrib(hmp2_16S_pathabun_strat_genus_sum, hmp2_mgs_pathabun_strat_genus_sum, "PWY0-1533")
-
-plot(PWY_5188_breakdown$mgs_mean, PWY_5188_breakdown$picrust2_mean)
-plot(PWY0_1533_breakdown$mgs_mean, PWY0_1533_breakdown$picrust2_mean)
-
-### PWY0-1533 is in MGS and at a similar relative abundance as 16S data.
-
-
-### Stacked barchart of genera contributions.
-hmp2_16S_pathabun_strat_genus_sum_PWY_5188 <- hmp2_16S_pathabun_strat_genus_sum[which(hmp2_16S_pathabun_strat_genus_sum$pathway == "PWY0-1533"), ]
-hmp2_16S_pathabun_strat_genus_sum_PWY_5188_melt <- melt(hmp2_16S_pathabun_strat_genus_sum_PWY_5188)
-
-ggplot(hmp2_16S_pathabun_strat_genus_sum_PWY_5188_melt, aes(x=variable, y=value, fill=genus)) +
-  geom_bar(stat="identity")
-
+# hmp2_pathabun_vs_rnaseq_CD_ileum_fdr0.1 <- readRDS("results_out/hmp2_pathabun_vs_rnaseq_CD_ileum_fdr0.1.rds")
+# 
+# proteobacteria_enriched_pathways <- levels(cd_sig_higher_ratio_prep_melt$variable)
+# 
+# hmp2_pathabun_vs_rnaseq_CD_ileum_fdr0.1[which(hmp2_pathabun_vs_rnaseq_CD_ileum_fdr0.1$gene == "NAT8"), ]
+# # PWY0-1533 NAT8 0.004757666 0.09840439
+# 
+# 
+# PWY_5188_breakdown <- breakdown_mean_genera_contrib(hmp2_16S_pathabun_strat_genus_sum, hmp2_mgs_pathabun_strat_genus_sum, "PWY-5188")
+# PWY0_1533_breakdown <- breakdown_mean_genera_contrib(hmp2_16S_pathabun_strat_genus_sum, hmp2_mgs_pathabun_strat_genus_sum, "PWY0-1533")
+# 
+# plot(PWY_5188_breakdown$mgs_mean, PWY_5188_breakdown$picrust2_mean)
+# plot(PWY0_1533_breakdown$mgs_mean, PWY0_1533_breakdown$picrust2_mean)
+# 
+# ### PWY0-1533 is in MGS and at a similar relative abundance as 16S data.
+# 
+# 
+# ### Stacked barchart of genera contributions.
+# hmp2_16S_pathabun_strat_genus_sum_PWY_5188 <- hmp2_16S_pathabun_strat_genus_sum[which(hmp2_16S_pathabun_strat_genus_sum$pathway == "PWY0-1533"), ]
+# hmp2_16S_pathabun_strat_genus_sum_PWY_5188_melt <- melt(hmp2_16S_pathabun_strat_genus_sum_PWY_5188)
+# 
+# ggplot(hmp2_16S_pathabun_strat_genus_sum_PWY_5188_melt, aes(x=variable, y=value, fill=genus)) +
+#   geom_bar(stat="identity")
+# 
