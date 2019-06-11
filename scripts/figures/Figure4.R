@@ -152,7 +152,7 @@ pathabun_scc_boxplots <- ggplot(combined_pathabun_rho_no_nsti_melt, aes(x=cat, y
   guides(fill=FALSE) +
   scale_fill_manual(values=c("light grey", "#00BFC4")) +
   stat_pvalue_manual(combined_pathabun_rho_wilcoxon_no_nsti, label = "clean_p") +
-  ggtitle("MetaCyc Pathwys")
+  ggtitle("MetaCyc Pathways")
 
 
 # Get mean and sd values.
