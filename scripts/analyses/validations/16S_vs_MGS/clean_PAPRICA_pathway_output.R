@@ -36,3 +36,18 @@ clean_write_paprica_pathabun(infile="/home/gavin/projects/picrust_pipeline/data/
                              outfile="/home/gavin/projects/picrust_pipeline/data/validation/blueberry/16S/paprica_out/blueberry_paprica_out.path_tally_clean.csv",
                              path_descrip=path_description)
 
+
+# Also get all possible PAPRICA MetaCyc pathways predicted using similar approach:
+paprica_ref_pathabun <- read.table("/home/gavin/local/anaconda2_old_backup/envs/paprica/download/paprica/ref_genome_database/bacteria/terminal_paths.csv",
+                                   header=TRUE, sep=",", row.names=1, check.names=FALSE, stringsAsFactors = FALSE, comment.char="", quote="\"")
+
+colnames(paprica_ref_pathabun)[which(! colnames(paprica_ref_pathabun) %in% rownames(path_description))]
+
+paprica_ref_pathabun_subset <- paprica_ref_pathabun[, which(colnames(paprica_ref_pathabun) %in% rownames(path_description))]
+
+write.table(x = path_description[colnames(paprica_ref_pathabun_subset), "V1"],
+            file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/16S_validation/possible_metacyc_pathways/paprica_bacteria_pathways.txt",
+            quote=FALSE, row.names=FALSE, col.names=FALSE)
+
+
+

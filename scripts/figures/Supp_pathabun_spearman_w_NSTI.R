@@ -1,7 +1,7 @@
 ### Code to make figure contrasting pathabun correlations on each 16S validation dataset.
 ### Include all NSTI cut-offs in these plots.
 
-rm(list=ls())
+rm(list=ls(all=TRUE))
 
 library(ggplot2)
 library(reshape2)

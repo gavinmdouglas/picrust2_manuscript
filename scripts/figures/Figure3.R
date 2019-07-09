@@ -2,7 +2,7 @@
 ### These metrics were calculated by assuming the metagenomics sequencing was the "gold standard".
 ### Also tests for statistical significance between these categories.
 
-rm(list=ls())
+rm(list=ls(all=TRUE))
 
 library(ggplot2)
 library(reshape2)
@@ -15,15 +15,14 @@ source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_m
 
 ### PANEL A - pathabun spearman correlations.
 
-extra_nsti_categories <- c("NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05")
+extra_categories <- c("NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05")
 
 # Read in metrics and prep per dataset.
 # HMP:
 hmp_pathabun_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "hmp_pathabun_spearman_df.rds",
                                                             dataset_name = "HMP",
-                                                            wilcox_cat2ignore = extra_nsti_categories,
+                                                            wilcox_cat2ignore = extra_categories,
                                                             y_pos_start = 0.97)
-
 
 hmp_pathabun_rho <- hmp_pathabun_rho_outlist[[1]]
 hmp_pathabun_rho_wilcoxon <- hmp_pathabun_rho_outlist[[2]]
@@ -32,7 +31,7 @@ hmp_pathabun_rho_wilcoxon <- hmp_pathabun_rho_outlist[[2]]
 # Mammal:
 mammal_pathabun_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "mammal_pathabun_spearman_df.rds",
                                                                dataset_name = "Mammal",
-                                                               wilcox_cat2ignore = extra_nsti_categories,
+                                                               wilcox_cat2ignore = extra_categories,
                                                                y_pos_start = 0.97)
 
 mammal_pathabun_rho <- mammal_pathabun_rho_outlist[[1]]
@@ -42,7 +41,7 @@ mammal_pathabun_rho_wilcoxon <- mammal_pathabun_rho_outlist[[2]]
 # Ocean:
 ocean_pathabun_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "ocean_pathabun_spearman_df.rds",
                                                               dataset_name = "Ocean",
-                                                              wilcox_cat2ignore = extra_nsti_categories,
+                                                              wilcox_cat2ignore = extra_categories,
                                                               y_pos_start = 0.97)
 
 ocean_pathabun_rho <- ocean_pathabun_rho_outlist[[1]]
@@ -52,7 +51,7 @@ ocean_pathabun_rho_wilcoxon <- ocean_pathabun_rho_outlist[[2]]
 # Soil (Blueberry):
 blueberry_pathabun_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "blueberry_pathabun_spearman_df.rds",
                                                                   dataset_name = "Soil (Blueberry)",
-                                                                  wilcox_cat2ignore = extra_nsti_categories,
+                                                                  wilcox_cat2ignore = extra_categories,
                                                                   y_pos_start = 0.97)
 
 
@@ -70,7 +69,7 @@ combined_pathabun_rho_wilcoxon <- rbind(hmp_pathabun_rho_wilcoxon, mammal_pathab
 
 combined_pathabun_rho_no_nsti <- combined_pathabun_rho
 combined_pathabun_rho_no_nsti$cat <- as.character(combined_pathabun_rho_no_nsti$cat)
-combined_pathabun_rho_no_nsti <- combined_pathabun_rho_no_nsti[-which(combined_pathabun_rho_no_nsti$cat %in% extra_nsti_categories) ,]
+combined_pathabun_rho_no_nsti <- combined_pathabun_rho_no_nsti[-which(combined_pathabun_rho_no_nsti$cat %in% extra_categories) ,]
 combined_pathabun_rho_no_nsti[which(combined_pathabun_rho_no_nsti$cat == "NSTI=2"), "cat"] <- "PICRUSt2 (ASVs)"
 combined_pathabun_rho_no_nsti[which(combined_pathabun_rho_no_nsti$cat == "NSTI=2 (GG)"), "cat"] <- "PICRUSt2 (GG)"
 combined_pathabun_rho_no_nsti$cat <- factor(combined_pathabun_rho_no_nsti$cat,
