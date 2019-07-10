@@ -125,58 +125,7 @@ sig_taxa <- rownames(Ileum_CD_non_IBD_asv_all_levels_filt_aldex)[which(Ileum_CD_
 # [5] "k__Bacteria; p__Firmicutes; c__Clostridia; o__Clostridiales; f__Lachnospiraceae; g__Lachnospira"     
 # [6] "k__Bacteria; p__Proteobacteria"  
 
-# Plot the significant pathway and taxa abundances (after converting to relative abundance):
-Ileum_CD_non_IBD_pathabun_in_filt_relab <- data.frame(sweep(Ileum_CD_non_IBD_pathabun_in_filt, 2, colSums(Ileum_CD_non_IBD_pathabun_in_filt), FUN="/")) * 100
-Ileum_CD_non_IBD_asv_abun_relab <- data.frame(sweep(Ileum_CD_non_IBD_asv_abun, 2, colSums(Ileum_CD_non_IBD_asv_abun), FUN="/")) * 100
-Ileum_CD_non_IBD_asv_abun_Species_relab <- data.frame(sweep(Ileum_CD_non_IBD_asv_abun_taxa$Species, 2, colSums(Ileum_CD_non_IBD_asv_abun_taxa$Species), FUN="/")) * 100
-Ileum_CD_non_IBD_asv_abun_Genus_relab <- data.frame(sweep(Ileum_CD_non_IBD_asv_abun_taxa$Genus, 2, colSums(Ileum_CD_non_IBD_asv_abun_taxa$Genus), FUN="/")) * 100
-Ileum_CD_non_IBD_asv_abun_Phylum_relab <- data.frame(sweep(Ileum_CD_non_IBD_asv_abun_taxa$Phylum, 2, colSums(Ileum_CD_non_IBD_asv_abun_taxa$Phylum), FUN="/")) * 100
-
-ASV_samples_meta <- biopsy_16S_meta[colnames(Ileum_CD_non_IBD_asv_abun), ]
-ASV_CD_samples <- ASV_samples_meta[which(ASV_samples_meta$diagnosis == "CD"), "Participant.ID"]
-ASV_nonIBD_samples <- ASV_samples_meta[which(ASV_samples_meta$diagnosis == "nonIBD"), "Participant.ID"]
-
-sig_taxa_df <- data.frame(asv_sig=as.numeric(Ileum_CD_non_IBD_asv_abun_relab["2031d34eae50b711bfb7c1a7b9a22f39",]),
-                          s_sig=as.numeric(Ileum_CD_non_IBD_asv_abun_Species_relab["k__Bacteria; p__Firmicutes; c__Clostridia; o__Clostridiales; f__Lachnospiraceae; g__Lachnospira; s__",]),
-                          g_sig=as.numeric(Ileum_CD_non_IBD_asv_abun_Genus_relab["k__Bacteria; p__Firmicutes; c__Clostridia; o__Clostridiales; f__Lachnospiraceae; g__Lachnospira",]),
-                          p_sig=as.numeric(Ileum_CD_non_IBD_asv_abun_Phylum_relab["k__Bacteria; p__Proteobacteria",]),
-                          diagnosis=biopsy_16S_meta[colnames(Ileum_CD_non_IBD_asv_abun_relab), "diagnosis"])
-                          
-
-asv_boxplot <- ggplot(sig_taxa_df, aes(x=diagnosis, y=asv_sig, fill=diagnosis)) +
-               geom_boxplot() +
-               ylab("Relative Abundance (%)") +
-               xlab("") +
-               ggtitle("ASV for unclassified o__Clostridiales") +
-               scale_fill_manual(values=c("black", "grey")) +
-               theme(legend.position = "none") 
-
-species_boxplot <- ggplot(sig_taxa_df, aes(x=diagnosis, y=s_sig, fill=diagnosis)) +
-  geom_boxplot() +
-  ylab("Relative Abundance (%)") +
-  xlab("") +
-  ggtitle("g__Lachnospira; s__") +
-  scale_fill_manual(values=c("black", "grey")) +
-  theme(legend.position = "none") 
-
-genus_boxplot <- ggplot(sig_taxa_df, aes(x=diagnosis, y=g_sig, fill=diagnosis)) +
-  geom_boxplot() +
-  ylab("Relative Abundance (%)") +
-  xlab("") +
-  ggtitle("g__Lachnospira") +
-  scale_fill_manual(values=c("black", "grey")) +
-  theme(legend.position = "none") 
-
-
-phylum_boxplot <- ggplot(sig_taxa_df, aes(x=diagnosis, y=p_sig, fill=diagnosis)) +
-  geom_boxplot() +
-  ylab("Relative Abundance (%)") +
-  xlab("") +
-  ggtitle("p__Proteobacteria") +
-  scale_fill_manual(values=c("black", "grey")) +
-  theme(legend.position = "none") 
-
-plot_grid(asv_boxplot, species_boxplot, genus_boxplot, phylum_boxplot, labels=c("A", "B", "C", "D"))
+# Plot these significant hits in separate script.
 
 # Based on significant taxa instead limit testing to functions contributed by taxa in the 2 groups:
 # (1) Those that are at higher RA in nonIBD and (2) those are higher RA in CD
