@@ -2,11 +2,12 @@
 ### These metrics were calculated by assuming the metagenomics sequencing was the "gold standard".
 ### Also tests for statistical significance between these categories (and save wilcoxon output to RDS).
 
-rm(list=ls())
+rm(list=ls(all=TRUE))
 
 library(ggplot2)
 library(reshape2)
 library(ggpubr)
+library(ggbeeswarm)
 
 setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/")
 
@@ -115,7 +116,9 @@ combined_ec_precision$cat <- factor(combined_ec_precision$cat,
                                              "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
 combined_ec_precision_melt <- melt(combined_ec_precision)
 
-ec_precision_boxplots <- ggplot(combined_ec_precision_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+ec_precision_boxplots <- ggplot(combined_ec_precision_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.2, 1)) +
   ylab(c("Precision")) +
   xlab("") +
@@ -140,7 +143,9 @@ combined_ec_recall$cat <- factor(combined_ec_recall$cat,
                                           "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
 combined_ec_recall_melt <- melt(combined_ec_recall)
 
-ec_recall_boxplots <- ggplot(combined_ec_recall_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+ec_recall_boxplots <- ggplot(combined_ec_recall_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.2, 1)) +
   ylab(c("Recall")) +
   xlab("") +
@@ -153,7 +158,7 @@ ec_recall_boxplots <- ggplot(combined_ec_recall_melt, aes(x=cat, y=value, fill=D
 
 
 
-# Plot boxplots:
+# 11 x 7
 plot_grid(ec_precision_boxplots,
           ec_recall_boxplots,
           nrow=2,

@@ -5,6 +5,7 @@ rm(list=ls(all=TRUE))
 library(ggplot2)
 library(reshape2)
 library(cowplot)
+library(ggbeeswarm)
 
 setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/")
 source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_ms_functions.R")
@@ -17,14 +18,15 @@ cd_sig_higher_ratio_prep_melt$variable <- as.character(cd_sig_higher_ratio_prep_
 cd_sig_higher_ratio_prep_melt$variable <- factor(cd_sig_higher_ratio_prep_melt$variable, levels=c("PWY0-42", "PWY-5189", "PWY-5188"))
 
 cd_sig_higher_ratio_plot <- ggplot(cd_sig_higher_ratio_prep_melt, aes(x=variable, y=log2ratio, fill=diagnosis)) +
-  geom_boxplot(width=0.75, outlier.shape = NA) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(dodge.width=0.8, size=0.1, bandwidth = 0.5) +
   coord_flip() +
-  scale_fill_manual(values=c("black", "grey")) +
+  scale_fill_manual(values=c("white", "grey")) +
   xlab("") +
   ylab(expression('log'[2]*'((Contributed by Proteobacteria + 1)/(Contributed by Other + 1))')) +
-  scale_y_continuous(limits=c(-5, 8)) +
+  scale_y_continuous(limits=c(-5, 11)) +
   labs(fill="Phenotype") +
-  theme(legend.position = c(0.7, 0.8),
+  theme(legend.position = c(.7, .9),
         legend.background = element_rect(color = "black", 
                                          fill = "white", size = 0.2, linetype = "solid"))
 

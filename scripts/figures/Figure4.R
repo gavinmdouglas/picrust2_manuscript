@@ -8,6 +8,7 @@ library(ggplot2)
 library(reshape2)
 library(ggpubr)
 library(cowplot)
+library(ggbeeswarm)
 
 setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data")
 source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_ms_functions.R")
@@ -57,7 +58,9 @@ combined_ec_rho_wilcoxon_no_nsti$clean_p[which(combined_ec_rho_wilcoxon_no_nsti$
 
 combined_ec_rho_no_nsti_melt <- melt(combined_ec_rho_no_nsti)
 
-ec_scc_boxplots <- ggplot(combined_ec_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+ec_scc_boxplots <- ggplot(combined_ec_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=1) +
   ylim(c(0, 1)) +
   ylab(c("Spearman Correlation")) +
   xlab("") +
@@ -141,7 +144,8 @@ combined_pathabun_rho_wilcoxon_no_nsti$clean_p[which(combined_pathabun_rho_wilco
 combined_pathabun_rho_wilcoxon_no_nsti$clean_p[which(combined_pathabun_rho_wilcoxon_no_nsti$clean_p == "P=5.47e-02ns")] <- "P=0.0547"
 
 pathabun_scc_boxplots <- ggplot(combined_pathabun_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) +
-  geom_boxplot() +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=1) +
   ylim(c(0, 1)) +
   ylab(c("Spearman Correlation")) +
   xlab("") +
@@ -246,8 +250,9 @@ blueberry_sig_ec_melt$group <- as.character(blueberry_sig_ec_melt$group)
 blueberry_sig_ec_melt$Type <- factor(gsub("Mng", "", blueberry_sig_ec_melt$group), levels=c("Bulk", "Rhizo", "Root"))
 
 blueberry_sig_ecs_boxplots <- ggplot(blueberry_sig_ec_melt, aes(x=Type, y=value, fill=Type)) +
-  geom_boxplot() +
-  ylim(c(0, 2)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
+  ylim(c(0, 1.5)) +
   ylab("% Relative Abundance") +
   xlab("") +
   scale_fill_manual("Sample Type", values=c("light grey", "cornflowerblue", "orange")) +

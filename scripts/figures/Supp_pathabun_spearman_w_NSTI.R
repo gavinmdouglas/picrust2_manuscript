@@ -7,6 +7,7 @@ library(ggplot2)
 library(reshape2)
 library(ggpubr)
 library(cowplot)
+library(ggbeeswarm)
 
 setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/")
 
@@ -67,7 +68,9 @@ hmp_pathabun_rho$cat <- factor(hmp_pathabun_rho$cat,
 
 hmp_pathabun_rho_melt <- melt(hmp_pathabun_rho)
 
-hmp_pathabun_spearman_boxplots <- ggplot(hmp_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+hmp_pathabun_spearman_boxplots <- ggplot(hmp_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.4, 1.31)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +
@@ -90,7 +93,9 @@ mammal_pathabun_rho$cat <- factor(mammal_pathabun_rho$cat,
 
 mammal_pathabun_rho_melt <- melt(mammal_pathabun_rho)
 
-mammal_pathabun_spearman_boxplots <- ggplot(mammal_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+mammal_pathabun_spearman_boxplots <- ggplot(mammal_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.4, 1.31)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +
@@ -113,7 +118,9 @@ ocean_pathabun_rho$cat <- factor(ocean_pathabun_rho$cat,
 
 ocean_pathabun_rho_melt <- melt(ocean_pathabun_rho)
 
-ocean_pathabun_spearman_boxplots <- ggplot(ocean_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+ocean_pathabun_spearman_boxplots <- ggplot(ocean_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.4, 1.31)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +
@@ -135,7 +142,9 @@ blueberry_pathabun_rho$cat <- factor(blueberry_pathabun_rho$cat,
 
 blueberry_pathabun_rho_melt <- melt(blueberry_pathabun_rho)
 
-blueberry_pathabun_spearman_boxplots <- ggplot(blueberry_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+blueberry_pathabun_spearman_boxplots <- ggplot(blueberry_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.4, 1.31)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +

@@ -1,12 +1,13 @@
 ### Code to make figure contrasting KO correlations on each 16S validation dataset.
 ### Include all NSTI cut-offs in these plots.
 
-rm(list=ls())
+rm(list=ls(all=TRUE))
 
 library(ggplot2)
 library(reshape2)
 library(ggpubr)
 library(cowplot)
+library(ggbeeswarm)
 
 setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/")
 
@@ -67,7 +68,9 @@ hmp_ko_rho$cat <- factor(hmp_ko_rho$cat,
 
 hmp_ko_rho_melt <- melt(hmp_ko_rho)
 
-hmp_ko_spearman_boxplots <- ggplot(hmp_ko_rho_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+hmp_ko_spearman_boxplots <- ggplot(hmp_ko_rho_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.5, 1.31)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +
@@ -90,7 +93,9 @@ mammal_ko_rho$cat <- factor(mammal_ko_rho$cat,
 
 mammal_ko_rho_melt <- melt(mammal_ko_rho)
 
-mammal_ko_spearman_boxplots <- ggplot(mammal_ko_rho_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+mammal_ko_spearman_boxplots <- ggplot(mammal_ko_rho_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.5, 1.31)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +
@@ -113,7 +118,9 @@ ocean_ko_rho$cat <- factor(ocean_ko_rho$cat,
 
 ocean_ko_rho_melt <- melt(ocean_ko_rho)
 
-ocean_ko_spearman_boxplots <- ggplot(ocean_ko_rho_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+ocean_ko_spearman_boxplots <- ggplot(ocean_ko_rho_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.5, 1.31)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +
@@ -135,7 +142,9 @@ blueberry_ko_rho$cat <- factor(blueberry_ko_rho$cat,
 
 blueberry_ko_rho_melt <- melt(blueberry_ko_rho)
 
-blueberry_ko_spearman_boxplots <- ggplot(blueberry_ko_rho_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+blueberry_ko_spearman_boxplots <- ggplot(blueberry_ko_rho_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.5, 1.31)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +

@@ -1,10 +1,13 @@
 ### Exploring NSTI values in each 16S validation dataset (and in the 18S and ITS datasets).
 
+rm(list=ls(all=TRUE))
+
 setwd("/home/gavin/projects/picrust_pipeline/data/validation/")
 
 library(ggplot2)
 library(cowplot)
 library(Biostrings)
+library(ggbeeswarm)
 
 # Read in HMP2 NSTI values, which were originally used to select the cut-off of 2.
 hmp2_val_nsti <- read.table("/home/gavin/projects/hmp2_ibd_working/16S/April2018_redownload/picrust2_full_output_2.1.0-b/marker_predicted_and_nsti.tsv",
@@ -208,31 +211,44 @@ combined_nsti_id$dataset  <- factor(combined_nsti_id$dataset, levels=c("HMP", "M
                                                                              "Soil ", "Soil 18S ",
                                                                              "Wine ITS"))
 
-percent_id_boxplots <- ggplot(combined_nsti_id, aes(dataset, 100 - percent_id)) + geom_boxplot(fill="light grey") + theme_bw() + 
-  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + 
-  ylab("100% - (% Identity)") + xlab("Dataset") + 
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 110)) 
-
-full_nsti_boxplots <- ggplot(combined_nsti_id, aes(dataset, nsti)) + geom_boxplot(fill="light grey") + theme_bw() + 
+full_nsti_boxplots <- ggplot(combined_nsti_id, aes(dataset, nsti)) +
+  geom_boxplot(fill="light grey", outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
+  theme_bw() + 
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
 panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + 
   ylab("Nearest Sequenced Taxon Index") + xlab("Dataset") + 
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 40)) + geom_hline(yintercept=c(2), linetype="dotted")
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 40)) + geom_hline(yintercept=c(2), linetype="dotted", colour="grey")
 
-cropped_nsti_boxplots <- ggplot(combined_nsti_id, aes(dataset, nsti)) + geom_boxplot(fill="light grey") + theme_bw() + 
+cropped_nsti_boxplots <- ggplot(combined_nsti_id, aes(dataset, nsti)) +
+  geom_boxplot(fill="light grey", outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
+  theme_bw() + 
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + 
   ylab("Nearest Sequenced Taxon Index") + xlab("Dataset") + 
-  scale_y_continuous(expand = c(0, 0), limits = c(0, 4)) + geom_hline(yintercept=c(2), linetype="dotted")
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 4)) + geom_hline(yintercept=c(2), linetype="dotted", colour="grey")
 
 
-weighted_nsti_boxplots <- ggplot(combined_nsti_weighted, aes(dataset, weighted_NSTI)) + geom_boxplot(fill="light grey") + theme_bw() + 
+weighted_nsti_boxplots <- ggplot(combined_nsti_weighted, aes(dataset, weighted_NSTI)) +
+  geom_boxplot(fill="light grey", outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
+  theme_bw() + 
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + 
   ylab("Weighted Nearest Sequenced Taxon Index") + xlab("Dataset") + 
   scale_y_continuous(expand = c(0, 0), limits = c(0, 1))
 
+percent_id_boxplots <- ggplot(combined_nsti_id, aes(dataset, 100 - percent_id)) +
+  geom_boxplot(fill="light grey", outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
+  theme_bw() + 
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + 
+  ylab("100% - (% Identity)") + xlab("Dataset") + 
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 110)) 
+
+# 8 x 8 inches
 plot_grid(full_nsti_boxplots, cropped_nsti_boxplots, weighted_nsti_boxplots, percent_id_boxplots, labels = c("A", "B", "C", "D"), align="h", axis="b")
 
 

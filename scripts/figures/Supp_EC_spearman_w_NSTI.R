@@ -1,12 +1,13 @@
 ### Code to make figure contrasting EC correlations on each 16S validation dataset.
 ### Include all NSTI cut-offs in these plots.
 
-rm(list=ls())
+rm(list=ls(all=TRUE))
 
 library(ggplot2)
 library(reshape2)
 library(ggpubr)
 library(cowplot)
+library(ggbeeswarm)
 
 setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/")
 
@@ -67,7 +68,11 @@ hmp_ec_rho$cat <- factor(hmp_ec_rho$cat,
 
 hmp_ec_rho_melt <- melt(hmp_ec_rho)
 
-hmp_ec_spearman_boxplots <- ggplot(hmp_ec_rho_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+hmp_ec_rho_melt[which(hmp_ec_rho_melt$Database == "Other"), "Database"] <- "PAPRICA"
+
+hmp_ec_spearman_boxplots <- ggplot(hmp_ec_rho_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.4, 1.31)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +
@@ -90,7 +95,11 @@ mammal_ec_rho$cat <- factor(mammal_ec_rho$cat,
 
 mammal_ec_rho_melt <- melt(mammal_ec_rho)
 
-mammal_ec_spearman_boxplots <- ggplot(mammal_ec_rho_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+mammal_ec_rho_melt[which(mammal_ec_rho_melt$Database == "Other"), "Database"] <- "PAPRICA"
+
+mammal_ec_spearman_boxplots <- ggplot(mammal_ec_rho_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.4, 1.31)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +
@@ -113,7 +122,11 @@ ocean_ec_rho$cat <- factor(ocean_ec_rho$cat,
 
 ocean_ec_rho_melt <- melt(ocean_ec_rho)
 
-ocean_ec_spearman_boxplots <- ggplot(ocean_ec_rho_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+ocean_ec_rho_melt[which(ocean_ec_rho_melt$Database == "Other"), "Database"] <- "PAPRICA"
+
+ocean_ec_spearman_boxplots <- ggplot(ocean_ec_rho_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.4, 1.31)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +
@@ -135,7 +148,11 @@ blueberry_ec_rho$cat <- factor(blueberry_ec_rho$cat,
 
 blueberry_ec_rho_melt <- melt(blueberry_ec_rho)
 
-blueberry_ec_spearman_boxplots <- ggplot(blueberry_ec_rho_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+blueberry_ec_rho_melt[which(blueberry_ec_rho_melt$Database == "Other"), "Database"] <- "PAPRICA"
+
+blueberry_ec_spearman_boxplots <- ggplot(blueberry_ec_rho_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.4, 1.31)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +
@@ -150,6 +167,7 @@ blueberry_ec_spearman_boxplots <- ggplot(blueberry_ec_rho_melt, aes(x=cat, y=val
   scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
   stat_pvalue_manual(blueberry_ec_rho_wilcoxon, label = "p_symbol")
 
+# 9 x 10
 plot_grid(hmp_ec_spearman_boxplots,
           mammal_ec_spearman_boxplots,
           ocean_ec_spearman_boxplots,

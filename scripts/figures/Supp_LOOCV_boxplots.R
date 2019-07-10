@@ -1,5 +1,5 @@
 
-rm(list=ls())
+rm(list=ls(all=TRUE))
 
 library(ggplot2)
 library(cowplot)

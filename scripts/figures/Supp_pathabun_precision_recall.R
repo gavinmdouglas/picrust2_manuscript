@@ -7,6 +7,7 @@ rm(list=ls(all=TRUE))
 library(ggplot2)
 library(reshape2)
 library(ggpubr)
+library(ggbeeswarm)
 
 setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/")
 
@@ -115,7 +116,9 @@ combined_pathabun_precision$cat <- factor(combined_pathabun_precision$cat,
                                              "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
 combined_pathabun_precision_melt <- melt(combined_pathabun_precision)
 
-pathabun_precision_boxplots <- ggplot(combined_pathabun_precision_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+pathabun_precision_boxplots <- ggplot(combined_pathabun_precision_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.2, 1)) +
   ylab(c("Precision")) +
   xlab("") +
@@ -140,7 +143,9 @@ combined_pathabun_recall$cat <- factor(combined_pathabun_recall$cat,
                                           "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
 combined_pathabun_recall_melt <- melt(combined_pathabun_recall)
 
-pathabun_recall_boxplots <- ggplot(combined_pathabun_recall_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+pathabun_recall_boxplots <- ggplot(combined_pathabun_recall_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.2, 1)) +
   ylab(c("Recall")) +
   xlab("") +

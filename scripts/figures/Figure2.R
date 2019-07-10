@@ -7,6 +7,7 @@ rm(list=ls())
 library(ggplot2)
 library(reshape2)
 library(ggpubr)
+library(ggbeeswarm)
 
 setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/")
 
@@ -79,7 +80,12 @@ combined_ko_rho_wilcoxon_no_nsti[which(combined_ko_rho_wilcoxon_no_nsti$group2 =
 
 combined_ko_rho_no_nsti_melt <- melt(combined_ko_rho_no_nsti)
 
-ggplot(combined_ko_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+combined_ko_rho_no_nsti_melt$dataset
+
+# Saved as 12 x 6.
+ggplot(combined_ko_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.5, 1.31)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +

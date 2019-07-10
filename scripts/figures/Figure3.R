@@ -8,6 +8,7 @@ library(ggplot2)
 library(reshape2)
 library(ggpubr)
 library(cowplot)
+library(ggbeeswarm)
 
 setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/16S_vs_MGS_metrics/")
 
@@ -100,7 +101,9 @@ combined_pathabun_rho_wilcoxon_no_nsti$clean_p <- paste("P=",
 # Clean up a p-value by hand that does not need to be in scientific notation:
 combined_ec_rho_wilcoxon_no_nsti$clean_p[which(combined_ec_rho_wilcoxon_no_nsti$clean_p == "P=7.81e-03*")] <- "P=0.00781*"
 
-pathabun_rho_boxplots <- ggplot(combined_pathabun_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) + geom_boxplot() +
+pathabun_rho_boxplots <- ggplot(combined_pathabun_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   ylim(c(0.6, 1.05)) +
   ylab(c("Spearman Correlation Coefficient")) +
   xlab("") +
@@ -154,7 +157,8 @@ phenotype_wilcox_p_df$clean_p <- paste("P=",
                                        sep="")
 
 IMG_pheno_boxplots <- ggplot(combined_acc_by_phenotype_subset_melt, aes(x=Category, y=value, fill=Category)) +
-  geom_boxplot() +
+  geom_boxplot(outlier.shape = NA) +
+  geom_quasirandom(size=0.1) +
   facet_grid(. ~ variable, scales = "free", space = "free", switch="x") +
   xlab("") +
   ylim(c(0, 1.05)) +

@@ -1,3 +1,5 @@
+rm(list=ls(all=TRUE))
+
 library(ggplot2)
 library(reshape2)
 
@@ -63,30 +65,27 @@ for(f in pheno_loocv_files) {
   pheno_loocv_df <- rbind(pheno_loocv_df, file_in)
 }
 
-
-
-phenotype_db_filt <- phenotype_db[,-which(colnames(phenotype_db) %in% c("Growth_on_cellulose_via_cellobiose", "Chlorate_reducer"))]
-
-write.table(x = phenotype_db_filt, file = "/home/gavin/projects/picrust_pipeline/IMG_phenotypes/combined_table/IMG_phenotypes_mean_filt.txt",
-            quote = FALSE, sep = "\t",row.names = TRUE, col.names=TRUE)
-
+# phenotype_db_filt <- phenotype_db[,-which(colnames(phenotype_db) %in% c("Growth_on_cellulose_via_cellobiose", "Chlorate_reducer"))]
+# 
+# write.table(x = phenotype_db_filt, file = "/home/gavin/projects/picrust_pipeline/IMG_phenotypes/combined_table/IMG_phenotypes_mean_filt.txt",
+#             quote = FALSE, sep = "\t",row.names = TRUE, col.names=TRUE)
 
 phenotype_db <- read.table("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/reference/IMG_phenotypes_mean_filt.txt",
                            header=TRUE, sep="\t", comment.char="", quote="", row.names=1)
 
 rownames(pheno_loocv_df) <- pheno_loocv_df$sequence
 pheno_loocv_df <- pheno_loocv_df[rownames(phenotype_db),]
-pheno_loocv_df <- pheno_loocv_df[, -1]
+pheno_loocv_df <- pheno_loocv_df[, -which(colnames(pheno_loocv_df) %in% c("sequence", "metadata_NSTI"))]
 
 # Inititalize null dataframe by scrambling column.
 phenotype_null <- phenotype_db
 for(phenotype in colnames(phenotype_db)) {
-  non_na_index <- which(! is.na(phenotype_db[,phenotype]))
+  non_na_index <- which(! is.na(phenotype_db[, phenotype]))
   phenotype_null[non_na_index, phenotype] <- sample(phenotype_db[non_na_index, phenotype])
 }
-saveRDS(phenotype_null, file="/home/gavin/gavin_backup/projects/picrust2_manuscript/saved_RDS/IMG_phenotypes_null.rds")
+saveRDS(phenotype_null, file="/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/IMG_phenotypes_null.rds")
 
-phenotype_null <- readRDS("/home/gavin/gavin_backup/projects/picrust2_manuscript/saved_RDS/IMG_phenotypes_null.rds")
+phenotype_null <- readRDS("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/saved_RDS/IMG_phenotypes_null.rds")
 
 phenotype_db_t <- data.frame(t(phenotype_db))
 pheno_loocv_df_t <- data.frame(t(pheno_loocv_df))
@@ -104,7 +103,68 @@ write.table(x = combined_acc_by_phenotype, file = "/home/gavin/gavin_backup/proj
 ########################################
 ### TESTING
 ########################################
-# Test that values are correct for random phenotype
+# Test that values are correct for random phenotypes
+
+test_pheno <- phenotype_null[, "L.histidine_prototroph"]
+expected_pheno <- phenotype_db[, "L.histidine_prototroph"]
+
+identical(rownames(pheno_loocv_df), rownames(phenotype_db))
+
+acc_by_phenotype_null[which(acc_by_phenotype_null$sample == "L.histidine_prototroph"), ]
+#category                 sample      acc  TP    TN   FP   FN       NPV precision    recall       fpr        F1
+#20     Null L.histidine_prototroph 0.807601 222 14738 1782 1782 0.8921308 0.1107784 0.1107784 0.1078692 0.1107784
+
+# Accuracy:
+
+na_element <- which(is.na(test_pheno))
+
+if(length(na_element) > 0) {
+  test_pheno <- test_pheno[-na_element]
+  expected_pheno <- expected_pheno[-na_element]
+}
+
+length(which(test_pheno == expected_pheno))/length(test_pheno)
+
+test_pheno_binary <- test_pheno > 0
+expected_pheno_binary <- expected_pheno > 0
+
+TP = length(which(which(test_pheno_binary) %in% which(expected_pheno_binary)))
+# TP: 222
+
+TN = length(which(which(! test_pheno_binary) %in% which(! expected_pheno_binary)))
+# TN:14738
+
+FP = length(which(which(test_pheno_binary) %in% which(! expected_pheno_binary)))
+#FP: 1782
+
+FN = length(which(which(! test_pheno_binary) %in% which(expected_pheno_binary)))
+#FN: 1782
+
+
+
+#NPV
+TN/(TN+FN)
+# 0.8921308
+
+#precision
+TP/(TP + FP)
+# 0.1107784
+
+#recall
+TP/ (TP+FN)
+# 0.1107784
+
+#fpr
+FP/(FP+TN)
+# 0.1078692
+
+#F1 = 2*((precision*recall)/(precision+recall)) = 2*((0.1107784*0.1107784)/(0.1107784+0.1107784)) = 0.1107784
+
+##################
+
+
+
+
 test_pheno <- pheno_loocv_df[, "L.histidine_prototroph"]
 expected_pheno <- phenotype_db[, "L.histidine_prototroph"]
 
