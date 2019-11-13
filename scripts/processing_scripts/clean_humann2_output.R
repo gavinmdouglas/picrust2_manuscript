@@ -1,5 +1,7 @@
 ### Commands to clean-up HUMAnN2 output tables to make them easier to compare with PICRUSt2 tables.
 
+rm(list=ls(all=TRUE))
+
 source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_ms_functions.R")
 
 ### Run these commands on all expected files given an input and output folder:
@@ -63,13 +65,13 @@ wrap_humann2_cleaner(input_dir = "/home/gavin/projects/picrust_pipeline/data/val
                      output_dir = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/mgs_validation/hmp")
 
 wrap_humann2_cleaner(input_dir = "/home/gavin/projects/picrust_pipeline/data/validation/iGEM/mgs/humann2_final_out",
-                     output_dir = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/mgs_validation/mammalian_stool")
+                     output_dir = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/mgs_validation/mammal")
 
 soil_ids_map <- read.table("/home/gavin/projects/picrust_pipeline/data/validation/soil_crossbiome/16S_to_MGS_ids.txt",
                            header=T, sep="\t", row.names=2, stringsAsFactors = FALSE)
 
 wrap_humann2_cleaner(input_dir = "/home/gavin/projects/picrust_pipeline/data/validation/soil_crossbiome/mgs/humann2_final_out",
-                     output_dir = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/mgs_validation/soil_crossbiome",
+                     output_dir = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/mgs_validation/crossbiome",
                      old_sample = rownames(soil_ids_map),
                      new_sample = soil_ids_map$sample_id)
 
@@ -98,3 +100,40 @@ wrap_humann2_cleaner(input_dir = "/home/gavin/projects/picrust_pipeline/data/val
                      output_dir = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/mgs_validation/blueberry",
                      old_sample = blueberry_soil_mgs_names$V1,
                      new_sample = blueberry_soil_16S_names$V1)
+
+
+# Indian
+indian_microbiome_metadata <- read.table("/home/gavin/projects/picrust_pipeline/data/validation/indian/PRJNA397112.txt",
+                                         header=TRUE, sep="\t", comment.char="", stringsAsFactors = FALSE)
+
+wrap_humann2_cleaner(input_dir = "/home/gavin/projects/picrust_pipeline/data/validation/indian/mgs_workflow/humann2_final_out",
+                     output_dir = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/mgs_validation/indian",
+                     old_sample = indian_microbiome_metadata$run_accession,
+                     new_sample = indian_microbiome_metadata$sample_alias)
+
+
+# Primate
+wrap_humann2_cleaner(input_dir = "/home/gavin/projects/picrust_pipeline/data/validation/primate/mgs/humann2_final_out/",
+                     output_dir = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/mgs_validation/primate")
+
+
+
+# Cameroon
+cameroon_microbiome_metadata <- read.table("/home/gavin/projects/picrust_pipeline/data/validation/cameroon/PRJEB27005.txt",
+                                         header=TRUE, sep="\t", comment.char="", stringsAsFactors = FALSE)
+
+wrap_humann2_cleaner(input_dir = "/home/gavin/projects/picrust_pipeline/data/validation/cameroon/mgs_workflow/humann2_final_out/",
+                     output_dir = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/mgs_validation/cameroon",
+                     old_sample = cameroon_microbiome_metadata$run_accession,
+                     new_sample = cameroon_microbiome_metadata$sample_alias)
+
+# Microbial Mat
+mat_microbiome_metadata <- read.table("/home/gavin/projects/picrust_pipeline/data/validation/microbial_mat/mgp12_edit.txt",
+                                           header=TRUE, sep="\t", comment.char="", stringsAsFactors = FALSE)
+
+wrap_humann2_cleaner(input_dir = "/home/gavin/projects/picrust_pipeline/data/validation/microbial_mat/MGS/humann2_final_out/",
+                     output_dir = "/home/gavin/gavin_backup/projects/picrust2_manuscript/data/mgs_validation/microbialmat",
+                     old_sample = as.character(mat_microbiome_metadata$mgs_filename),
+                     new_sample = mat_microbiome_metadata$amplicon_filename)
+
+
