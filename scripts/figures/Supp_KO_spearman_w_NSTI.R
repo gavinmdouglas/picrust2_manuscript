@@ -15,154 +15,78 @@ source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_m
 
 extra_nsti_categories <- c("NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05")
 
-# Read in metrics and prep per dataset.
-# HMP:
-hmp_ko_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "hmp_ko_spearman_df.rds",
-                                                      dataset_name = "HMP",
-                                                      wilcox_cat2ignore = extra_nsti_categories,
-                                                      y_pos_start = 0.97)
+ko_rho_outlist_raw <- list()
+ko_rho <- list()
+ko_rho_wilcoxon <- list()
+
+datasets <- c("cameroon", "primate", "hmp", "mammal", "ocean", "blueberry", "indian")
+
+dataset2name <- list("cameroon"="Cameroon", "indian"="Indian", "hmp"="HMP", "mammal"="Mammal",
+                     "ocean"="Ocean", "blueberry"="Soil (Blueberry)", "primate"="Primate")
 
 
-hmp_ko_rho <- hmp_ko_rho_outlist[[1]]
-hmp_ko_rho_wilcoxon <- hmp_ko_rho_outlist[[2]]
-
-
-# Mammal:
-mammal_ko_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "mammal_ko_spearman_df.rds",
-                                                      dataset_name = "Mammal",
-                                                      wilcox_cat2ignore = extra_nsti_categories,
-                                                      y_pos_start = 0.97)
-
-mammal_ko_rho <- mammal_ko_rho_outlist[[1]]
-mammal_ko_rho_wilcoxon <- mammal_ko_rho_outlist[[2]]
-
-
-# Ocean:
-ocean_ko_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "ocean_ko_spearman_df.rds",
-                                                      dataset_name = "Ocean",
-                                                      wilcox_cat2ignore = extra_nsti_categories,
-                                                      y_pos_start = 0.97)
-
-ocean_ko_rho <- ocean_ko_rho_outlist[[1]]
-ocean_ko_rho_wilcoxon <- ocean_ko_rho_outlist[[2]]
-
-
-# Soil (Blueberry):
-blueberry_ko_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "blueberry_ko_spearman_df.rds",
-                                                      dataset_name = "Soil (Blueberry)",
-                                                      wilcox_cat2ignore = extra_nsti_categories,
-                                                      y_pos_start = 0.97)
-
-
-blueberry_ko_rho <- blueberry_ko_rho_outlist[[1]]
-blueberry_ko_rho_wilcoxon <- blueberry_ko_rho_outlist[[2]]
-
+for(d in datasets) {
+  
+  ko_rho_outlist_raw[[d]] <- parse_rho_rds_and_calc_wilcoxon(rho_rds = paste(d, "_ko_spearman_df.rds", sep=""),
+                                                             dataset_name = dataset2name[[d]],
+                                                             wilcox_cat2ignore = extra_nsti_categories,
+                                                             y_pos_start = 0.94,
+                                                             dist_to_add=0.05)
+  ko_rho[[d]] <- ko_rho_outlist_raw[[d]][[1]]
+  ko_rho_wilcoxon[[d]] <- ko_rho_outlist_raw[[d]][[2]]
+  
+}
 
 
 # Make plot for each dataset.
+KO_spearman_boxplots <- list()
 
-hmp_ko_rho$cat <- as.character(hmp_ko_rho$cat)
-hmp_ko_rho$cat <- factor(hmp_ko_rho$cat,
-                         levels=c("Null", "Tax4Fun", "PanFP", "Piphillin", "PICRUSt1", "NSTI=2 (GG)", "NSTI=2",
-                                  "NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
+for(j in 1:length(datasets)) {
+  
+  d <- datasets[j]
+  
+  dataset_ko_rho <- ko_rho[[d]]
+  
+  dataset_ko_rho$cat <- as.character(dataset_ko_rho$cat)
+  dataset_ko_rho <- dataset_ko_rho[-which(dataset_ko_rho$cat %in% c("NSTI=1.5",  "NSTI=0.5", "NSTI=0.25", "NSTI=0.1")), ]
+  
+  dataset_ko_rho$cat <- factor(dataset_ko_rho$cat,
+                               levels=c("Null", "Tax4Fun2", "PanFP", "Piphillin", "PICRUSt1", "NSTI=2", "NSTI=1", "NSTI=0.05"))
 
-hmp_ko_rho_melt <- melt(hmp_ko_rho)
+  dataset_ko_rho_melt <- melt(dataset_ko_rho)
 
-hmp_ko_spearman_boxplots <- ggplot(hmp_ko_rho_melt, aes(x=cat, y=value, fill=Database)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_quasirandom(size=0.1) +
-  ylim(c(0.5, 1.31)) +
-  ylab(c("Spearman Correlation Coefficient")) +
-  xlab("") +
-  facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        axis.text.x=element_text(angle=45, hjust=1),
-        legend.position = c(0.6, 0.85), legend.background = element_rect(color = "black", 
-                                                                          fill = "white", size = 0.3, linetype = "solid"),
-        legend.title = element_text(colour="black", size=8, face="bold"),
-        legend.text = element_text(colour="black", size=8)) +
-  scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
-  stat_pvalue_manual(hmp_ko_rho_wilcoxon, label = "p_symbol")
+  KO_spearman_boxplots[[d]] <- ggplot(dataset_ko_rho_melt, aes(x=cat, y=value, fill=Database)) +
+                                                geom_boxplot(outlier.shape = NA) +
+                                                geom_quasirandom(size=0.1) +
+                                                ylim(c(0.485, 1.31)) +
+                                                ylab(c("Spearman Correlation Coefficient")) +
+                                                xlab("") +
+                                                facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
+                                                theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                                                      panel.background = element_blank(), axis.line = element_line(colour = "black"),
+                                                      axis.text.x=element_text(angle=45, hjust=1),
+                                                      legend.position = c(0.07, 0.85), legend.background = element_rect(color = "black", 
+                                                                                                                        fill = "white", size = 0.3, linetype = "solid"),
+                                                      legend.title = element_text(colour="black", size=8, face="bold"),
+                                                      legend.text = element_text(colour="black", size=8)) +
+                                                scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
+                                                stat_pvalue_manual(ko_rho_wilcoxon[[d]], label = "p_symbol")
 
-
-mammal_ko_rho$cat <- as.character(mammal_ko_rho$cat)
-mammal_ko_rho$cat <- factor(mammal_ko_rho$cat,
-                         levels=c("Null", "Tax4Fun", "PanFP", "Piphillin", "PICRUSt1", "NSTI=2 (GG)", "NSTI=2",
-                                  "NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
-
-mammal_ko_rho_melt <- melt(mammal_ko_rho)
-
-mammal_ko_spearman_boxplots <- ggplot(mammal_ko_rho_melt, aes(x=cat, y=value, fill=Database)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_quasirandom(size=0.1) +
-  ylim(c(0.5, 1.31)) +
-  ylab(c("Spearman Correlation Coefficient")) +
-  xlab("") +
-  facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        axis.text.x=element_text(angle=45, hjust=1),
-        legend.position = c(0.6, 0.85), legend.background = element_rect(color = "black", 
-                                                                         fill = "white", size = 0.3, linetype = "solid"),
-        legend.title = element_text(colour="black", size=8, face="bold"),
-        legend.text = element_text(colour="black", size=8)) +
-  scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
-  stat_pvalue_manual(mammal_ko_rho_wilcoxon, label = "p_symbol")
+}
 
 
-ocean_ko_rho$cat <- as.character(ocean_ko_rho$cat)
-ocean_ko_rho$cat <- factor(ocean_ko_rho$cat,
-                         levels=c("Null", "Tax4Fun", "PanFP", "Piphillin", "PICRUSt1", "NSTI=2 (GG)", "NSTI=2",
-                                  "NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
+pdf(file = "../../../figures/Supp - KO spearman w NSTI.pdf", width=16, height=16)
 
-ocean_ko_rho_melt <- melt(ocean_ko_rho)
+plot_grid(KO_spearman_boxplots[["cameroon"]],
+          KO_spearman_boxplots[["hmp"]],
+          KO_spearman_boxplots[["indian"]],
+          KO_spearman_boxplots[["mammal"]],
+          KO_spearman_boxplots[["ocean"]],
+          KO_spearman_boxplots[["primate"]],
+          KO_spearman_boxplots[["blueberry"]],
+          labels=c("a", "b", "c", "d", "e", "f", "g"),
+          nrow=3,
+          ncol=3)
+dev.off()
 
-ocean_ko_spearman_boxplots <- ggplot(ocean_ko_rho_melt, aes(x=cat, y=value, fill=Database)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_quasirandom(size=0.1) +
-  ylim(c(0.5, 1.31)) +
-  ylab(c("Spearman Correlation Coefficient")) +
-  xlab("") +
-  facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        axis.text.x=element_text(angle=45, hjust=1),
-        legend.position = c(0.6, 0.85), legend.background = element_rect(color = "black", 
-                                                                         fill = "white", size = 0.3, linetype = "solid"),
-        legend.title = element_text(colour="black", size=8, face="bold"),
-        legend.text = element_text(colour="black", size=8)) +
-  scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
-  stat_pvalue_manual(ocean_ko_rho_wilcoxon, label = "p_symbol")
 
-blueberry_ko_rho$cat <- as.character(blueberry_ko_rho$cat)
-blueberry_ko_rho$cat <- factor(blueberry_ko_rho$cat,
-                         levels=c("Null", "Tax4Fun", "PanFP", "Piphillin", "PICRUSt1", "NSTI=2 (GG)", "NSTI=2",
-                                  "NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
-
-blueberry_ko_rho_melt <- melt(blueberry_ko_rho)
-
-blueberry_ko_spearman_boxplots <- ggplot(blueberry_ko_rho_melt, aes(x=cat, y=value, fill=Database)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_quasirandom(size=0.1) +
-  ylim(c(0.5, 1.31)) +
-  ylab(c("Spearman Correlation Coefficient")) +
-  xlab("") +
-  facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        axis.text.x=element_text(angle=45, hjust=1),
-        legend.position = c(0.6, 0.85), legend.background = element_rect(color = "black", 
-                                                                         fill = "white", size = 0.3, linetype = "solid"),
-        legend.title = element_text(colour="black", size=8, face="bold"),
-        legend.text = element_text(colour="black", size=8)) +
-  scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
-  stat_pvalue_manual(blueberry_ko_rho_wilcoxon, label = "p_symbol")
-
-plot_grid(hmp_ko_spearman_boxplots,
-          mammal_ko_spearman_boxplots,
-          ocean_ko_spearman_boxplots,
-          blueberry_ko_spearman_boxplots,
-          labels=c("A", "B", "C", "D"),
-          nrow=2,
-          ncol=2)
