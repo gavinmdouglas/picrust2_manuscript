@@ -96,7 +96,7 @@ compute_ko_validation_metrics <- function(dataset_infiles, in_db, ko_subset=NULL
 }
 
 ### Read in database files (used for calculating null distribution).
-ko <- read.table(gzfile("/home/gavin/github_repos/picrust_repos/picrust2/picrust2/default_files/prokaryotic/ko.txt.gz"),
+ko_db <- read.table(gzfile("/home/gavin/github_repos/picrust_repos/picrust2/picrust2/default_files/prokaryotic/ko.txt.gz"),
                  row.names=1, header=T, sep="\t", stringsAsFactors = FALSE)
 
 ### Loop over all dataset names: read in predictions (restrict to overlapping samples only,
@@ -106,7 +106,7 @@ datasets <- c("hmp", "mammal", "ocean", "blueberry", "crossbiome", "mat", "india
 
 for(dataset in datasets) {
   tmp <- compute_ko_validation_metrics(dataset_infiles = read_in_ko_predictions(dataset),
-                                       in_db = ko,
+                                       in_db = ko_db,
                                        save_RDS = TRUE,
                                        out_prefix = paste("../saved_RDS/16S_vs_MGS_metrics/", dataset, sep=""))
 }

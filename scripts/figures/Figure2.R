@@ -15,98 +15,32 @@ source("../../../scripts/picrust2_ms_functions.R")
 
 extra_nsti_categories <- c("NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05")
 
-# Read in metrics and prep per dataset.
-# HMP:
-hmp_ko_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "hmp_ko_spearman_df.rds",
-                                                      dataset_name = "HMP",
-                                                      wilcox_cat2ignore = extra_nsti_categories,
-                                                      y_pos_start = 0.94,
-                                                      dist_to_add=0.03)
+# Read in metics per dataset
+
+ko_rho_outlist_raw <- list()
+ko_rho <- list()
+ko_rho_wilcoxon <- list()
+
+datasets <- c("cameroon", "primate", "hmp", "mammal", "ocean", "blueberry", "indian")
+
+dataset2name <- list("cameroon"="Cameroon", "indian"="Indian", "hmp"="HMP", "mammal"="Mammal",
+                     "ocean"="Ocean", "blueberry"="Soil (Blueberry)", "primate"="Primate")
 
 
-hmp_ko_rho <- hmp_ko_rho_outlist[[1]]
-hmp_ko_rho_wilcoxon <- hmp_ko_rho_outlist[[2]]
+for(d in datasets) {
+ 
+  ko_rho_outlist_raw[[d]] <- parse_rho_rds_and_calc_wilcoxon(rho_rds = paste(d, "_ko_spearman_df.rds", sep=""),
+                                                             dataset_name = dataset2name[[d]],
+                                                             wilcox_cat2ignore = extra_nsti_categories,
+                                                             y_pos_start = 0.94,
+                                                             dist_to_add=0.03)
+  ko_rho[[d]] <- ko_rho_outlist_raw[[d]][[1]]
+  ko_rho_wilcoxon[[d]] <- ko_rho_outlist_raw[[d]][[2]]
+   
+}
 
-
-# Mammal:
-mammal_ko_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "mammal_ko_spearman_df.rds",
-                                                      dataset_name = "Mammal",
-                                                      wilcox_cat2ignore = extra_nsti_categories,
-                                                      y_pos_start = 0.94,
-                                                      dist_to_add=0.03)
-
-mammal_ko_rho <- mammal_ko_rho_outlist[[1]]
-mammal_ko_rho_wilcoxon <- mammal_ko_rho_outlist[[2]]
-
-
-# Ocean:
-ocean_ko_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "ocean_ko_spearman_df.rds",
-                                                      dataset_name = "Ocean",
-                                                      wilcox_cat2ignore = extra_nsti_categories,
-                                                      y_pos_start = 0.94,
-                                                      dist_to_add=0.03)
-
-ocean_ko_rho <- ocean_ko_rho_outlist[[1]]
-ocean_ko_rho_wilcoxon <- ocean_ko_rho_outlist[[2]]
-
-
-# Soil (Blueberry):
-blueberry_ko_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "blueberry_ko_spearman_df.rds",
-                                                      dataset_name = "Soil (Blueberry)",
-                                                      wilcox_cat2ignore = extra_nsti_categories,
-                                                      y_pos_start = 0.94,
-                                                      dist_to_add=0.03)
-
-blueberry_ko_rho <- blueberry_ko_rho_outlist[[1]]
-blueberry_ko_rho_wilcoxon <- blueberry_ko_rho_outlist[[2]]
-
-
-# cameroon:
-cameroon_ko_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "cameroon_ko_spearman_df.rds",
-                                                           dataset_name = "Cameroon",
-                                                           wilcox_cat2ignore = extra_nsti_categories,
-                                                           y_pos_start = 0.94,
-                                                           dist_to_add=0.03)
-
-
-cameroon_ko_rho <- cameroon_ko_rho_outlist[[1]]
-cameroon_ko_rho_wilcoxon <- cameroon_ko_rho_outlist[[2]]
-
-
-# indian
-indian_ko_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "indian_ko_spearman_df.rds",
-                                                           dataset_name = "Indian",
-                                                           wilcox_cat2ignore = extra_nsti_categories,
-                                                           y_pos_start = 0.94,
-                                                           dist_to_add=0.03)
-
-
-indian_ko_rho <- indian_ko_rho_outlist[[1]]
-indian_ko_rho_wilcoxon <- indian_ko_rho_outlist[[2]]
-
-
-# primate
-primate_ko_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "primate_ko_spearman_df.rds",
-                                                         dataset_name = "Primate",
-                                                         wilcox_cat2ignore = extra_nsti_categories,
-                                                         y_pos_start = 0.94,
-                                                         dist_to_add=0.03)
-
-
-primate_ko_rho <- primate_ko_rho_outlist[[1]]
-primate_ko_rho_wilcoxon <- primate_ko_rho_outlist[[2]]
-
-
-
-
-# Rho
-combined_ko_rho <- rbind(hmp_ko_rho, mammal_ko_rho,
-                         ocean_ko_rho, blueberry_ko_rho,
-                         cameroon_ko_rho, indian_ko_rho, primate_ko_rho)
-
-combined_ko_rho_wilcoxon <- rbind(hmp_ko_rho_wilcoxon, mammal_ko_rho_wilcoxon,
-                         ocean_ko_rho_wilcoxon, blueberry_ko_rho_wilcoxon,
-                         cameroon_ko_rho_wilcoxon, indian_ko_rho_wilcoxon, primate_ko_rho_wilcoxon)
+combined_ko_rho <- do.call("rbind", ko_rho)
+combined_ko_rho_wilcoxon <- do.call("rbind", ko_rho_wilcoxon)
 
 combined_ko_rho_no_nsti <- combined_ko_rho
 combined_ko_rho_no_nsti$cat <- as.character(combined_ko_rho_no_nsti$cat)
