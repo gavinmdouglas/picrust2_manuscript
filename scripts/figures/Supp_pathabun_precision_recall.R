@@ -4,6 +4,7 @@
 
 rm(list=ls(all=TRUE))
 
+library(cowplot)
 library(ggplot2)
 library(reshape2)
 library(ggpubr)
@@ -15,169 +16,107 @@ source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_m
 
 extra_nsti_categories <- c("NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05")
 
-# Read in metrics and prep per dataset.
-# HMP:
-hmp_pathabun_precision_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "hmp_pathabun_acc_metrics.rds",
-                                                                    dataset_name = "HMP",
-                                                                    metric_col="precision",
-                                                                    wilcox_cat2ignore = extra_nsti_categories,
-                                                                    y_pos_start = 1.03)
+pathabun_precision_raw <- list()
+pathabun_precision <- list()
+pathabun_precision_wilcoxon <- list()
 
-hmp_pathabun_recall_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "hmp_pathabun_acc_metrics.rds",
-                                                                 dataset_name = "HMP",
-                                                                 metric_col="recall",
-                                                                 wilcox_cat2ignore = extra_nsti_categories,
-                                                                 y_pos_start = 1.03)
+pathabun_recall_raw <- list()
+pathabun_recall <- list()
+pathabun_recall_wilcoxon <- list()
 
+datasets <- c("cameroon", "primate", "hmp", "mammal", "ocean", "blueberry", "indian")
 
-hmp_pathabun_precision <- hmp_pathabun_precision_outlist[[1]]
-hmp_pathabun_precision_wilcoxon <- hmp_pathabun_precision_outlist[[2]]
+dataset2name <- list("cameroon"="Cameroon", "indian"="India", "hmp"="HMP", "mammal"="Mammal",
+                     "ocean"="Ocean", "blueberry"="Soil (Blueberry)", "primate"="Primate")
 
-hmp_pathabun_recall <- hmp_pathabun_recall_outlist[[1]]
-hmp_pathabun_recall_wilcoxon <- hmp_pathabun_recall_outlist[[2]]
-
-
-# Mammal:
-
-mammal_pathabun_precision_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "mammal_pathabun_acc_metrics.rds",
-                                                                    dataset_name = "Mammal",
-                                                                    metric_col="precision",
-                                                                    wilcox_cat2ignore = extra_nsti_categories,
-                                                                    y_pos_start = 1.03)
-
-mammal_pathabun_recall_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "mammal_pathabun_acc_metrics.rds",
-                                                                 dataset_name = "Mammal",
-                                                                 metric_col="recall",
-                                                                 wilcox_cat2ignore = extra_nsti_categories,
-                                                                 y_pos_start = 1.03)
-
-
-
-mammal_pathabun_precision <- mammal_pathabun_precision_outlist[[1]]
-mammal_pathabun_precision_wilcoxon <- mammal_pathabun_precision_outlist[[2]]
-
-mammal_pathabun_recall <- mammal_pathabun_recall_outlist[[1]]
-mammal_pathabun_recall_wilcoxon <- mammal_pathabun_recall_outlist[[2]]
-
-
-# Ocean:
-
-ocean_pathabun_precision_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "ocean_pathabun_acc_metrics.rds",
-                                                                    dataset_name = "Ocean",
-                                                                    metric_col="precision",
-                                                                    wilcox_cat2ignore = extra_nsti_categories,
-                                                                    y_pos_start = 1.03)
-
-ocean_pathabun_recall_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "ocean_pathabun_acc_metrics.rds",
-                                                                 dataset_name = "Ocean",
-                                                                 metric_col="recall",
-                                                                 wilcox_cat2ignore = extra_nsti_categories,
-                                                                 y_pos_start = 1.03)
-
-ocean_pathabun_precision <- ocean_pathabun_precision_outlist[[1]]
-ocean_pathabun_precision_wilcoxon <- ocean_pathabun_precision_outlist[[2]]
-
-ocean_pathabun_recall <- ocean_pathabun_recall_outlist[[1]]
-ocean_pathabun_recall_wilcoxon <- ocean_pathabun_recall_outlist[[2]]
-
-
-
-# Soil (Blueberry):
-
-blueberry_pathabun_precision_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "blueberry_pathabun_acc_metrics.rds",
-                                                                    dataset_name = "Soil (Blueberry)",
-                                                                    metric_col="precision",
-                                                                    wilcox_cat2ignore = extra_nsti_categories,
-                                                                    y_pos_start = 1.03)
-
-blueberry_pathabun_recall_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "blueberry_pathabun_acc_metrics.rds",
-                                                                 dataset_name = "Soil (Blueberry)",
-                                                                 metric_col="recall",
-                                                                 wilcox_cat2ignore = extra_nsti_categories,
-                                                                 y_pos_start = 1.03)
-
-blueberry_pathabun_precision <- blueberry_pathabun_precision_outlist[[1]]
-blueberry_pathabun_precision_wilcoxon <- blueberry_pathabun_precision_outlist[[2]]
-
-blueberry_pathabun_recall <- blueberry_pathabun_recall_outlist[[1]]
-blueberry_pathabun_recall_wilcoxon <- blueberry_pathabun_recall_outlist[[2]]
-
+for(d in datasets) {
+  
+  pathabun_precision_raw[[d]] <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = paste(d, "_pathabun_acc_df.rds", sep=""),
+                                                                   dataset_name = dataset2name[[d]],
+                                                                   metric_col="precision",
+                                                                   wilcox_cat2ignore = extra_nsti_categories,
+                                                                   y_pos_start = 1.03)
+  
+  pathabun_precision[[d]] <- pathabun_precision_raw[[d]][[1]]
+  pathabun_precision_wilcoxon[[d]] <- pathabun_precision_raw[[d]][[2]]
+  
+  
+  pathabun_recall_raw[[d]] <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = paste(d, "_pathabun_acc_df.rds", sep=""),
+                                                                dataset_name = dataset2name[[d]],
+                                                                metric_col="recall",
+                                                                wilcox_cat2ignore = extra_nsti_categories,
+                                                                y_pos_start = 1.03)
+  
+  pathabun_recall[[d]] <- pathabun_recall_raw[[d]][[1]]
+  pathabun_recall_wilcoxon[[d]] <- pathabun_recall_raw[[d]][[2]]
+  
+}
 
 # Precision
-combined_pathabun_precision <- rbind(hmp_pathabun_precision, mammal_pathabun_precision,
-                         ocean_pathabun_precision, blueberry_pathabun_precision)
+combined_pathabun_precision <- do.call("rbind", pathabun_precision)
 
-combined_pathabun_precision_wilcoxon <- rbind(hmp_pathabun_precision_wilcoxon, mammal_pathabun_precision_wilcoxon,
-                                  ocean_pathabun_precision_wilcoxon, blueberry_pathabun_precision_wilcoxon)
+combined_pathabun_precision_wilcoxon <- do.call("rbind", pathabun_precision_wilcoxon)
 
 combined_pathabun_precision$cat <- as.character(combined_pathabun_precision$cat)
+
+# Remove some NSTI categories so it's easier to plot.
+combined_pathabun_precision <- combined_pathabun_precision[-which(combined_pathabun_precision$cat %in% c("NSTI=1.5", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1")), ]
+
 combined_pathabun_precision$cat <- factor(combined_pathabun_precision$cat,
-                                    levels=c("Null", "NSTI=2 (GG)", "NSTI=2", "NSTI=1.5",
-                                             "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
+                                    levels=c("Null", "NSTI=2", "NSTI=1", "NSTI=0.05"))
 combined_pathabun_precision_melt <- melt(combined_pathabun_precision)
+
+combined_pathabun_precision_melt$dataset <- factor(combined_pathabun_precision_melt$dataset, levels=c("Cameroon", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
+
 
 pathabun_precision_boxplots <- ggplot(combined_pathabun_precision_melt, aes(x=cat, y=value, fill=Database)) +
   geom_boxplot(outlier.shape = NA) +
   geom_quasirandom(size=0.1) +
-  ylim(c(0.2, 1)) +
+  ylim(c(0.5, 1)) +
   ylab(c("Precision")) +
   xlab("") +
   guides(fill=FALSE) +
   facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+  theme(panel.background = element_rect(fill = "gray90"),
+        axis.line = element_line(colour = "black"),
         axis.text.x=element_text(angle=45, hjust=1)) +
   scale_fill_manual(values=c("light grey", "#00BFC4"))
 
 
 # Recall
-combined_pathabun_recall <- rbind(hmp_pathabun_recall, mammal_pathabun_recall,
-                               ocean_pathabun_recall, blueberry_pathabun_recall)
+combined_pathabun_recall <- do.call("rbind", pathabun_recall)
 
-combined_pathabun_recall_wilcoxon <- rbind(hmp_pathabun_recall_wilcoxon, mammal_pathabun_recall_wilcoxon,
-                                        ocean_pathabun_recall_wilcoxon, blueberry_pathabun_recall_wilcoxon)
+combined_pathabun_recall_wilcoxon <- do.call("rbind", pathabun_recall_wilcoxon)
 
 combined_pathabun_recall$cat <- as.character(combined_pathabun_recall$cat)
+combined_pathabun_recall <- combined_pathabun_recall[-which(combined_pathabun_recall$cat %in% c("NSTI=1.5", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1")), ]
+
+
+
 combined_pathabun_recall$cat <- factor(combined_pathabun_recall$cat,
-                                 levels=c("Null", "NSTI=2 (GG)", "NSTI=2", "NSTI=1.5",
-                                          "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
+                                 levels=c("Null", "NSTI=2", "NSTI=1", "NSTI=0.05"))
 combined_pathabun_recall_melt <- melt(combined_pathabun_recall)
+
+combined_pathabun_recall_melt$dataset <- factor(combined_pathabun_recall_melt$dataset, levels=c("Cameroon", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
+
 
 pathabun_recall_boxplots <- ggplot(combined_pathabun_recall_melt, aes(x=cat, y=value, fill=Database)) +
   geom_boxplot(outlier.shape = NA) +
   geom_quasirandom(size=0.1) +
-  ylim(c(0.2, 1)) +
+  ylim(c(0.5, 1)) +
   ylab(c("Recall")) +
   xlab("") +
   guides(fill=FALSE) +
   facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+  theme(panel.background = element_rect(fill = "gray90"), axis.line = element_line(colour = "black"),
         axis.text.x=element_text(angle=45, hjust=1)) +
   scale_fill_manual(values=c("light grey", "#00BFC4"))
 
+pdf(file = "../../../figures/Supp_pathabun_precision_recall.pdf", width=13, height=8)
 
-
-# Plot boxplots (9x7):
 plot_grid(pathabun_precision_boxplots,
           pathabun_recall_boxplots,
           nrow=2,
           ncol=1,
-          labels=c("A", "B"))
-
-
-# Report mean and sd per dataset.
-
-# For precision:
-mean(hmp_pathabun_precision[which(hmp_pathabun_precision$cat == "NSTI=2"), "precision"])
-sd(hmp_pathabun_precision[which(hmp_pathabun_precision$cat == "NSTI=2"), "precision"])
-
-mean(mammal_pathabun_precision[which(mammal_pathabun_precision$cat == "NSTI=2"), "precision"])
-sd(mammal_pathabun_precision[which(mammal_pathabun_precision$cat == "NSTI=2"), "precision"])
-
-mean(ocean_pathabun_precision[which(ocean_pathabun_precision$cat == "NSTI=2"), "precision"])
-sd(ocean_pathabun_precision[which(ocean_pathabun_precision$cat == "NSTI=2"), "precision"])
-
-mean(blueberry_pathabun_precision[which(blueberry_pathabun_precision$cat == "NSTI=2"), "precision"])
-sd(blueberry_pathabun_precision[which(blueberry_pathabun_precision$cat == "NSTI=2"), "precision"])
-
+          labels=c("a", "b"))
+dev.off()

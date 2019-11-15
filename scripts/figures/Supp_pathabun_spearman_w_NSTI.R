@@ -1,4 +1,4 @@
-### Code to make figure contrasting pathabun correlations on each 16S validation dataset.
+### Code to make figure contrasting pathway abundance correlations on each 16S validation dataset.
 ### Include all NSTI cut-offs in these plots.
 
 rm(list=ls(all=TRUE))
@@ -15,155 +15,78 @@ source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_m
 
 extra_nsti_categories <- c("NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05")
 
-# Read in metrics and prep per dataset.
-# HMP:
-hmp_pathabun_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "hmp_pathabun_spearman_df.rds",
-                                                      dataset_name = "HMP",
-                                                      wilcox_cat2ignore = extra_nsti_categories,
-                                                      y_pos_start = 0.97)
+pathabun_rho_outlist_raw <- list()
+pathabun_rho <- list()
+pathabun_rho_wilcoxon <- list()
+
+datasets <- c("cameroon", "primate", "hmp", "mammal", "ocean", "blueberry", "indian")
+
+dataset2name <- list("cameroon"="Cameroon", "indian"="India", "hmp"="HMP", "mammal"="Mammal",
+                     "ocean"="Ocean", "blueberry"="Soil (Blueberry)", "primate"="Primate")
 
 
-hmp_pathabun_rho <- hmp_pathabun_rho_outlist[[1]]
-hmp_pathabun_rho_wilcoxon <- hmp_pathabun_rho_outlist[[2]]
-
-
-# Mammal:
-mammal_pathabun_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "mammal_pathabun_spearman_df.rds",
-                                                      dataset_name = "Mammal",
-                                                      wilcox_cat2ignore = extra_nsti_categories,
-                                                      y_pos_start = 0.97)
-
-mammal_pathabun_rho <- mammal_pathabun_rho_outlist[[1]]
-mammal_pathabun_rho_wilcoxon <- mammal_pathabun_rho_outlist[[2]]
-
-
-# Ocean:
-ocean_pathabun_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "ocean_pathabun_spearman_df.rds",
-                                                      dataset_name = "Ocean",
-                                                      wilcox_cat2ignore = extra_nsti_categories,
-                                                      y_pos_start = 0.97)
-
-ocean_pathabun_rho <- ocean_pathabun_rho_outlist[[1]]
-ocean_pathabun_rho_wilcoxon <- ocean_pathabun_rho_outlist[[2]]
-
-
-# Soil (Blueberry):
-blueberry_pathabun_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "blueberry_pathabun_spearman_df.rds",
-                                                      dataset_name = "Soil (Blueberry)",
-                                                      wilcox_cat2ignore = extra_nsti_categories,
-                                                      y_pos_start = 0.97)
-
-
-blueberry_pathabun_rho <- blueberry_pathabun_rho_outlist[[1]]
-blueberry_pathabun_rho_wilcoxon <- blueberry_pathabun_rho_outlist[[2]]
-
+for(d in datasets) {
+  
+  pathabun_rho_outlist_raw[[d]] <- parse_rho_rds_and_calc_wilcoxon(rho_rds = paste(d, "_pathabun_spearman_df.rds", sep=""),
+                                                             dataset_name = dataset2name[[d]],
+                                                             wilcox_cat2ignore = extra_nsti_categories,
+                                                             y_pos_start = 0.94,
+                                                             dist_to_add=0.05)
+  pathabun_rho[[d]] <- pathabun_rho_outlist_raw[[d]][[1]]
+  pathabun_rho_wilcoxon[[d]] <- pathabun_rho_outlist_raw[[d]][[2]]
+  
+}
 
 
 # Make plot for each dataset.
+pathabun_spearman_boxplots <- list()
 
-hmp_pathabun_rho$cat <- as.character(hmp_pathabun_rho$cat)
-hmp_pathabun_rho$cat <- factor(hmp_pathabun_rho$cat,
-                         levels=c("Null", "NSTI=2 (GG)", "NSTI=2", "NSTI=1.5",
-                                  "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
-
-hmp_pathabun_rho_melt <- melt(hmp_pathabun_rho)
-
-hmp_pathabun_spearman_boxplots <- ggplot(hmp_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_quasirandom(size=0.1) +
-  ylim(c(0.4, 1.31)) +
-  ylab(c("Spearman Correlation Coefficient")) +
-  xlab("") +
-  facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        axis.text.x=element_text(angle=45, hjust=1),
-        legend.position = c(0.6, 0.85), legend.background = element_rect(color = "black", 
-                                                                          fill = "white", size = 0.3, linetype = "solid"),
-        legend.title = element_text(colour="black", size=8, face="bold"),
-        legend.text = element_text(colour="black", size=8)) +
-  scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
-  stat_pvalue_manual(hmp_pathabun_rho_wilcoxon, label = "p_symbol")
-
-
-mammal_pathabun_rho$cat <- as.character(mammal_pathabun_rho$cat)
-mammal_pathabun_rho$cat <- factor(mammal_pathabun_rho$cat,
-                            levels=c("Null", "NSTI=2 (GG)", "NSTI=2", "NSTI=1.5",
-                                     "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
-
-mammal_pathabun_rho_melt <- melt(mammal_pathabun_rho)
-
-mammal_pathabun_spearman_boxplots <- ggplot(mammal_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_quasirandom(size=0.1) +
-  ylim(c(0.4, 1.31)) +
-  ylab(c("Spearman Correlation Coefficient")) +
-  xlab("") +
-  facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        axis.text.x=element_text(angle=45, hjust=1),
-        legend.position = c(0.6, 0.85), legend.background = element_rect(color = "black", 
-                                                                         fill = "white", size = 0.3, linetype = "solid"),
-        legend.title = element_text(colour="black", size=8, face="bold"),
-        legend.text = element_text(colour="black", size=8)) +
-  scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
-  stat_pvalue_manual(mammal_pathabun_rho_wilcoxon, label = "p_symbol")
+for(j in 1:length(datasets)) {
+  
+  d <- datasets[j]
+  
+  dataset_pathabun_rho <- pathabun_rho[[d]]
+  
+  dataset_pathabun_rho$cat <- as.character(dataset_pathabun_rho$cat)
+  dataset_pathabun_rho <- dataset_pathabun_rho[-which(dataset_pathabun_rho$cat %in% c("NSTI=1.5",  "NSTI=0.5", "NSTI=0.25", "NSTI=0.1")), ]
+  
+  dataset_pathabun_rho$cat <- factor(dataset_pathabun_rho$cat,
+                               levels=c("Null", "NSTI=2", "NSTI=1", "NSTI=0.05"))
+  
+  dataset_pathabun_rho_melt <- melt(dataset_pathabun_rho)
+  
+  pathabun_spearman_boxplots[[d]] <- ggplot(dataset_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) +
+    geom_boxplot(outlier.shape = NA) +
+    geom_quasirandom(size=0.1) +
+    ylim(c(0.6, 1.31)) +
+    ylab(c("Spearman Correlation Coefficient")) +
+    xlab("") +
+    facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+          panel.background = element_blank(), axis.line = element_line(colour = "black"),
+          axis.text.x=element_text(angle=45, hjust=1),
+          legend.position = c(0.07, 0.85), legend.background = element_rect(color = "black", 
+                                                                            fill = "white", size = 0.3, linetype = "solid"),
+          legend.title = element_text(colour="black", size=8, face="bold"),
+          legend.text = element_text(colour="black", size=8)) +
+    scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
+    stat_pvalue_manual(pathabun_rho_wilcoxon[[d]], label = "p_symbol")
+  
+}
 
 
-ocean_pathabun_rho$cat <- as.character(ocean_pathabun_rho$cat)
-ocean_pathabun_rho$cat <- factor(ocean_pathabun_rho$cat,
-                           levels=c("Null", "NSTI=2 (GG)", "NSTI=2", "NSTI=1.5",
-                                    "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
+pdf(file = "../../../figures/Supp_pathabun_spearman_w_NSTI.pdf", width=12, height=14)
 
-ocean_pathabun_rho_melt <- melt(ocean_pathabun_rho)
+plot_grid(pathabun_spearman_boxplots[["cameroon"]],
+          pathabun_spearman_boxplots[["hmp"]],
+          pathabun_spearman_boxplots[["indian"]],
+          pathabun_spearman_boxplots[["mammal"]],
+          pathabun_spearman_boxplots[["ocean"]],
+          pathabun_spearman_boxplots[["primate"]],
+          pathabun_spearman_boxplots[["blueberry"]],
+          labels=c("a", "b", "c", "d", "e", "f", "g"),
+          nrow=3,
+          ncol=3)
+dev.off()
 
-ocean_pathabun_spearman_boxplots <- ggplot(ocean_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_quasirandom(size=0.1) +
-  ylim(c(0.4, 1.31)) +
-  ylab(c("Spearman Correlation Coefficient")) +
-  xlab("") +
-  facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        axis.text.x=element_text(angle=45, hjust=1),
-        legend.position = c(0.6, 0.85), legend.background = element_rect(color = "black", 
-                                                                         fill = "white", size = 0.3, linetype = "solid"),
-        legend.title = element_text(colour="black", size=8, face="bold"),
-        legend.text = element_text(colour="black", size=8)) +
-  scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
-  stat_pvalue_manual(ocean_pathabun_rho_wilcoxon, label = "p_symbol")
 
-blueberry_pathabun_rho$cat <- as.character(blueberry_pathabun_rho$cat)
-blueberry_pathabun_rho$cat <- factor(blueberry_pathabun_rho$cat,
-                               levels=c("Null", "NSTI=2 (GG)", "NSTI=2", "NSTI=1.5",
-                                        "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
-
-blueberry_pathabun_rho_melt <- melt(blueberry_pathabun_rho)
-
-blueberry_pathabun_spearman_boxplots <- ggplot(blueberry_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_quasirandom(size=0.1) +
-  ylim(c(0.4, 1.31)) +
-  ylab(c("Spearman Correlation Coefficient")) +
-  xlab("") +
-  facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        axis.text.x=element_text(angle=45, hjust=1),
-        legend.position = c(0.6, 0.85), legend.background = element_rect(color = "black", 
-                                                                         fill = "white", size = 0.3, linetype = "solid"),
-        legend.title = element_text(colour="black", size=8, face="bold"),
-        legend.text = element_text(colour="black", size=8)) +
-  scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
-  stat_pvalue_manual(blueberry_pathabun_rho_wilcoxon, label = "p_symbol")
-
-# 9 x 10
-plot_grid(hmp_pathabun_spearman_boxplots,
-          mammal_pathabun_spearman_boxplots,
-          ocean_pathabun_spearman_boxplots,
-          blueberry_pathabun_spearman_boxplots,
-          labels=c("A", "B", "C", "D"),
-          nrow=2,
-          ncol=2)
