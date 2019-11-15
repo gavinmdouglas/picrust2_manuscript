@@ -75,7 +75,7 @@ for(j in 1:length(datasets)) {
 }
 
 
-pdf(file = "../../../figures/Supp - KO spearman w NSTI.pdf", width=16, height=16)
+pdf(file = "../../../figures/Supp_KO_spearman_w_NSTI.pdf", width=16, height=16)
 
 plot_grid(KO_spearman_boxplots[["cameroon"]],
           KO_spearman_boxplots[["hmp"]],

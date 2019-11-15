@@ -4,6 +4,7 @@
 
 rm(list=ls(all=TRUE))
 
+library(cowplot)
 library(ggplot2)
 library(reshape2)
 library(ggpubr)
@@ -15,169 +16,109 @@ source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_m
 
 extra_nsti_categories <- c("NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05")
 
-# Read in metrics and prep per dataset.
-# HMP:
-hmp_ko_precision_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "hmp_ko_acc_metrics.rds",
-                                                                    dataset_name = "HMP",
-                                                                    metric_col="precision",
-                                                                    wilcox_cat2ignore = extra_nsti_categories,
-                                                                    y_pos_start = 1.03)
+ko_precision_raw <- list()
+ko_precision <- list()
+ko_precision_wilcoxon <- list()
 
-hmp_ko_recall_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "hmp_ko_acc_metrics.rds",
-                                                                 dataset_name = "HMP",
-                                                                 metric_col="recall",
-                                                                 wilcox_cat2ignore = extra_nsti_categories,
-                                                                 y_pos_start = 1.03)
+ko_recall_raw <- list()
+ko_recall <- list()
+ko_recall_wilcoxon <- list()
 
+datasets <- c("cameroon", "primate", "hmp", "mammal", "ocean", "blueberry", "indian")
 
-hmp_ko_precision <- hmp_ko_precision_outlist[[1]]
-hmp_ko_precision_wilcoxon <- hmp_ko_precision_outlist[[2]]
+dataset2name <- list("cameroon"="Cameroon", "indian"="Indian", "hmp"="HMP", "mammal"="Mammal",
+                     "ocean"="Ocean", "blueberry"="Soil (Blueberry)", "primate"="Primate")
 
-hmp_ko_recall <- hmp_ko_recall_outlist[[1]]
-hmp_ko_recall_wilcoxon <- hmp_ko_recall_outlist[[2]]
-
-
-# Mammal:
-
-mammal_ko_precision_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "mammal_ko_acc_metrics.rds",
-                                                                    dataset_name = "Mammal",
-                                                                    metric_col="precision",
-                                                                    wilcox_cat2ignore = extra_nsti_categories,
-                                                                    y_pos_start = 1.03)
-
-mammal_ko_recall_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "mammal_ko_acc_metrics.rds",
-                                                                 dataset_name = "Mammal",
-                                                                 metric_col="recall",
-                                                                 wilcox_cat2ignore = extra_nsti_categories,
-                                                                 y_pos_start = 1.03)
-
-
-
-mammal_ko_precision <- mammal_ko_precision_outlist[[1]]
-mammal_ko_precision_wilcoxon <- mammal_ko_precision_outlist[[2]]
-
-mammal_ko_recall <- mammal_ko_recall_outlist[[1]]
-mammal_ko_recall_wilcoxon <- mammal_ko_recall_outlist[[2]]
-
-
-# Ocean:
-
-ocean_ko_precision_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "ocean_ko_acc_metrics.rds",
-                                                                    dataset_name = "Ocean",
-                                                                    metric_col="precision",
-                                                                    wilcox_cat2ignore = extra_nsti_categories,
-                                                                    y_pos_start = 1.03)
-
-ocean_ko_recall_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "ocean_ko_acc_metrics.rds",
-                                                                 dataset_name = "Ocean",
-                                                                 metric_col="recall",
-                                                                 wilcox_cat2ignore = extra_nsti_categories,
-                                                                 y_pos_start = 1.03)
-
-ocean_ko_precision <- ocean_ko_precision_outlist[[1]]
-ocean_ko_precision_wilcoxon <- ocean_ko_precision_outlist[[2]]
-
-ocean_ko_recall <- ocean_ko_recall_outlist[[1]]
-ocean_ko_recall_wilcoxon <- ocean_ko_recall_outlist[[2]]
-
-
-
-# Soil (Blueberry):
-
-blueberry_ko_precision_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "blueberry_ko_acc_metrics.rds",
-                                                                    dataset_name = "Soil (Blueberry)",
-                                                                    metric_col="precision",
-                                                                    wilcox_cat2ignore = extra_nsti_categories,
-                                                                    y_pos_start = 1.03)
-
-blueberry_ko_recall_outlist <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = "blueberry_ko_acc_metrics.rds",
-                                                                 dataset_name = "Soil (Blueberry)",
-                                                                 metric_col="recall",
-                                                                 wilcox_cat2ignore = extra_nsti_categories,
-                                                                 y_pos_start = 1.03)
-
-blueberry_ko_precision <- blueberry_ko_precision_outlist[[1]]
-blueberry_ko_precision_wilcoxon <- blueberry_ko_precision_outlist[[2]]
-
-blueberry_ko_recall <- blueberry_ko_recall_outlist[[1]]
-blueberry_ko_recall_wilcoxon <- blueberry_ko_recall_outlist[[2]]
-
+for(d in datasets) {
+  
+  ko_precision_raw[[d]] <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = paste(d, "_ko_acc_df.rds", sep=""),
+                                                              dataset_name = dataset2name[[d]],
+                                                              metric_col="precision",
+                                                              wilcox_cat2ignore = extra_nsti_categories,
+                                                              y_pos_start = 1.03)
+  
+  ko_precision[[d]] <- ko_precision_raw[[d]][[1]]
+  ko_precision_wilcoxon[[d]] <- ko_precision_raw[[d]][[2]]
+  
+  
+  ko_recall_raw[[d]] <- parse_acc_metrics_rds_and_calc_wilcoxon(acc_rds = paste(d, "_ko_acc_df.rds", sep=""),
+                                                           dataset_name = dataset2name[[d]],
+                                                           metric_col="recall",
+                                                           wilcox_cat2ignore = extra_nsti_categories,
+                                                           y_pos_start = 1.03)
+  
+  ko_recall[[d]] <- ko_recall_raw[[d]][[1]]
+  ko_recall_wilcoxon[[d]] <- ko_recall_raw[[d]][[2]]
+  
+}
 
 # Precision
-combined_ko_precision <- rbind(hmp_ko_precision, mammal_ko_precision,
-                         ocean_ko_precision, blueberry_ko_precision)
+combined_ko_precision <- do.call("rbind", ko_precision)
 
-combined_ko_precision_wilcoxon <- rbind(hmp_ko_precision_wilcoxon, mammal_ko_precision_wilcoxon,
-                                  ocean_ko_precision_wilcoxon, blueberry_ko_precision_wilcoxon)
+combined_ko_precision_wilcoxon <- do.call("rbind", ko_precision_wilcoxon)
 
 combined_ko_precision$cat <- as.character(combined_ko_precision$cat)
+
+# Remove some NSTI categories so it's easier to plot.
+combined_ko_precision <- combined_ko_precision[-which(combined_ko_precision$cat %in% c("NSTI=1.5", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1")), ]
+
 combined_ko_precision$cat <- factor(combined_ko_precision$cat,
-                                             levels=c("Null", "Tax4Fun", "PanFP", "Piphillin", "PICRUSt1", "NSTI=2 (GG)", "NSTI=2",
+                                             levels=c("Null", "Tax4Fun2", "PanFP", "Piphillin", "PICRUSt1", "NSTI=2",
                                                       "NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
 combined_ko_precision_melt <- melt(combined_ko_precision)
+
+combined_ko_precision_melt$dataset <- factor(combined_ko_precision_melt$dataset, levels=c("Cameroon", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
+
 
 ko_precision_boxplots <- ggplot(combined_ko_precision_melt, aes(x=cat, y=value, fill=Database)) +
   geom_boxplot(outlier.shape = NA) +
   geom_quasirandom(size=0.1) +
-  ylim(c(0.2, 1)) +
+  ylim(c(0.25, 1)) +
   ylab(c("Precision")) +
   xlab("") +
   guides(fill=FALSE) +
   facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+  theme(panel.background = element_rect(fill = "gray90"),
+        axis.line = element_line(colour = "black"),
         axis.text.x=element_text(angle=45, hjust=1)) +
   scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4"))
 
 
 # Recall
-combined_ko_recall <- rbind(hmp_ko_recall, mammal_ko_recall,
-                               ocean_ko_recall, blueberry_ko_recall)
+combined_ko_recall <- do.call("rbind", ko_recall)
 
-combined_ko_recall_wilcoxon <- rbind(hmp_ko_recall_wilcoxon, mammal_ko_recall_wilcoxon,
-                                        ocean_ko_recall_wilcoxon, blueberry_ko_recall_wilcoxon)
+combined_ko_recall_wilcoxon <- do.call("rbind", ko_recall_wilcoxon)
 
 combined_ko_recall$cat <- as.character(combined_ko_recall$cat)
+combined_ko_recall <- combined_ko_recall[-which(combined_ko_recall$cat %in% c("NSTI=1.5", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1")), ]
+
+
+
 combined_ko_recall$cat <- factor(combined_ko_recall$cat,
-                                    levels=c("Null", "Tax4Fun", "PanFP", "Piphillin", "PICRUSt1", "NSTI=2 (GG)", "NSTI=2",
+                                    levels=c("Null", "Tax4Fun2", "PanFP", "Piphillin", "PICRUSt1", "NSTI=2",
                                              "NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05"))
 combined_ko_recall_melt <- melt(combined_ko_recall)
+
+combined_ko_recall_melt$dataset <- factor(combined_ko_recall_melt$dataset, levels=c("Cameroon", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
+
 
 ko_recall_boxplots <- ggplot(combined_ko_recall_melt, aes(x=cat, y=value, fill=Database)) +
   geom_boxplot(outlier.shape = NA) +
   geom_quasirandom(size=0.1) +
-  ylim(c(0.2, 1)) +
+  ylim(c(0.25, 1)) +
   ylab(c("Recall")) +
   xlab("") +
   guides(fill=FALSE) +
   facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
+  theme(panel.background = element_rect(fill = "gray90"), axis.line = element_line(colour = "black"),
         axis.text.x=element_text(angle=45, hjust=1)) +
   scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4"))
 
+pdf(file = "../../../figures/Supp_KO_precision_recall.pdf", width=16, height=8)
 
-
-# Plot boxplots (11x7)
 plot_grid(ko_precision_boxplots,
           ko_recall_boxplots,
           nrow=2,
           ncol=1,
-          labels=c("A", "B"))
-
-
-# Report mean and sd per dataset.
-
-# For precision:
-mean(hmp_ko_precision[which(hmp_ko_precision$cat == "NSTI=2"), "precision"])
-sd(hmp_ko_precision[which(hmp_ko_precision$cat == "NSTI=2"), "precision"])
-
-mean(mammal_ko_precision[which(mammal_ko_precision$cat == "NSTI=2"), "precision"])
-sd(mammal_ko_precision[which(mammal_ko_precision$cat == "NSTI=2"), "precision"])
-
-mean(ocean_ko_precision[which(ocean_ko_precision$cat == "NSTI=2"), "precision"])
-sd(ocean_ko_precision[which(ocean_ko_precision$cat == "NSTI=2"), "precision"])
-
-mean(blueberry_ko_precision[which(blueberry_ko_precision$cat == "NSTI=2"), "precision"])
-sd(blueberry_ko_precision[which(blueberry_ko_precision$cat == "NSTI=2"), "precision"])
-
+          labels=c("a", "b"))
+dev.off()
