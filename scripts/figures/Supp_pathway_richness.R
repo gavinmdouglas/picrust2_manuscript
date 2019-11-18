@@ -1,49 +1,89 @@
 ### Supplementary figure comparing # pathways identified as a function of phylogenetic diversity of the samples.
 
-hmp_KEGG_pathways <- read.table("/home/gavin/projects/picrust_pipeline/data/validation/hmp/16S/qiime_pipeline/final_otu_tables/otu_table_gg-only_filt_norm_ko_L3.biom.txt",
+rm(list=ls(all=TRUE))
+
+library(ggplot2)
+library(cowplot)
+
+setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/")
+
+hmp_picrust1_KEGG <- read.table("working_tables/hmp_pathway_comparison/picrust1_kegg_pathways.biom.tsv",
                                 skip=1, comment.char = "", quote="", stringsAsFactors = FALSE, header=TRUE, sep="\t", row.names=1)
 
-colnames(hmp_KEGG_pathways) <- gsub(".nonchimera.fasta", "", colnames(hmp_KEGG_pathways))
+hmp_picrust2_KEGG <- read.table("working_tables/hmp_pathway_comparison/picrust2_kegg_pathways.tsv",
+                                stringsAsFactors = FALSE, header=TRUE, sep="\t", row.names=1)
 
-hmp_KEGG_pathways <- hmp_KEGG_pathways[, -which(colnames(hmp_KEGG_pathways) == "KEGG_Pathways")]
-
-hmp_metacyc_pathways <- read.table("/home/gavin/projects/picrust_pipeline/data/validation/hmp/16S/picrust2_pipeline/picrust2_full_output_2.1.0-b/pathways_out/path_abun_unstrat.tsv",
+hmp_picrust2_metacyc <- read.table("16S_validation/picrust2_out/hmp_picrust2_path_nsti2.0.tsv",
                                    stringsAsFactors = FALSE, header=TRUE, sep="\t", row.names=1)
 
-hmp_faith_pd <- read.table("/home/gavin/projects/picrust_pipeline/data/validation/hmp/16S/qiime2_artifacts/diversity/faith_pd_diversity/exported/alpha-diversity.tsv",
+hmp_faith_pd <- read.table("working_tables/hmp_pathway_comparison/hmp_faiths_diversity.tsv",
                            header=T, sep='\t', row.names=1)
 
+# Make sure that the subset of samples used elsewhere in the manuscript is used here:
+setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/16S_validation/")
+source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_ms_functions.R")
+hmp_ko_predictions <- read_in_ko_predictions("hmp")
 
-overlapping_col <- colnames(hmp_KEGG_pathways)[which(colnames(hmp_KEGG_pathways) %in% colnames(hmp_metacyc_pathways))]
+samples2keep <- colnames(hmp_ko_predictions$all_kos_overlap$picrust2_ko_nsti2)
 
-hmp_faith_pd_subset <- hmp_faith_pd[overlapping_col,, drop=FALSE]
+hmp_picrust1_KEGG <- hmp_picrust1_KEGG[, samples2keep]
 
-hmp_KEGG_pathways <- hmp_KEGG_pathways[, overlapping_col]
-hmp_metacyc_pathways <- hmp_metacyc_pathways[, overlapping_col]
+hmp_picrust2_KEGG <- hmp_picrust2_KEGG[, samples2keep]
 
-hmp_KEGG_pathways_relab <- data.frame(sweep(hmp_KEGG_pathways, 2, colSums(hmp_KEGG_pathways), '/')) * 100
-hmp_metacyc_pathways_relab <- data.frame(sweep(hmp_metacyc_pathways, 2, colSums(hmp_metacyc_pathways), '/')) * 100
+hmp_picrust2_metacyc <- hmp_picrust2_metacyc[, samples2keep]
 
-hmp_KEGG_pathways_relab <- hmp_KEGG_pathways_relab[-which(rowSums(hmp_KEGG_pathways_relab) == 0),]
+hmp_faith_pd <- hmp_faith_pd[samples2keep, , drop=FALSE]
 
-hmp_faith_pd_vs_KEGG_richness <- data.frame(sample=overlapping_col,
-                                            faith_pd=hmp_faith_pd_subset$faith_pd,
-                                            kegg_richness=colSums(hmp_KEGG_pathways_relab > 0))
+# Remove all PICRUSt1 pathways that are not possible in PICRUSt2.
+kegg_pathway_descrip <- read.table(gzfile("/home/gavin/github_repos/picrust_repos/picrust2/picrust2/default_files/description_mapfiles/KEGG_pathways_info.tsv.gz"),
+                                   header=FALSE, sep="\t", stringsAsFactors = FALSE, quote="", comment.char = "")
 
-hmp_faith_pd_vs_KEGG_richness_melt <- melt(hmp_faith_pd_vs_KEGG_richness, id.vars=c("sample", "faith_pd"))
+rownames(kegg_pathway_descrip) <- kegg_pathway_descrip$V2
 
-kegg_richness_plot <- ggplot(hmp_faith_pd_vs_KEGG_richness_melt, aes(x=faith_pd, y=value)) +
-  geom_point(size=1.5) + ylab("Number of KEGG Pathways") +
+hmp_picrust1_KEGG_subset <- hmp_picrust1_KEGG[-which(rowSums(hmp_picrust1_KEGG) == 0), ]
+hmp_picrust1_KEGG_subset <- hmp_picrust1_KEGG_subset[which(rownames(hmp_picrust1_KEGG_subset) %in% rownames(kegg_pathway_descrip)), ]
+
+hmp_picrust2_KEGG_subset <- hmp_picrust2_KEGG[-which(rowSums(hmp_picrust2_KEGG) == 0), ]
+
+
+hmp_pathway_richness_df <- data.frame(sample=samples2keep,
+                                      faith_pd=hmp_faith_pd$faith_pd,
+                                      picrust1_kegg_richness=colSums(hmp_picrust1_KEGG_subset > 0),
+                                      picrust2_kegg_richness=colSums(hmp_picrust2_KEGG_subset > 0),
+                                      picrust2_metacyc_richness=colSums(hmp_picrust2_metacyc > 0))
+
+hmp_pathway_richness_melt <- melt(hmp_pathway_richness_df, id.vars=c("sample", "faith_pd"))
+
+
+picrust1_kegg_richness_plot <- ggplot(hmp_pathway_richness_melt[which(hmp_pathway_richness_melt$variable == "picrust1_kegg_richness"), ],
+                                      aes(x=faith_pd, y=value)) +
+                                      geom_point(size=1.5) + ylab("Number of Pathways") +
+                                      xlab("Faith's Phylogenetic Diversity") +
+                                      ggtitle("PICRUSt1 (KEGG)") +
+                                      ylim(0, 350)
+
+picrust2_kegg_richness_plot <- ggplot(hmp_pathway_richness_melt[which(hmp_pathway_richness_melt$variable == "picrust2_kegg_richness"), ],
+                                      aes(x=faith_pd, y=value)) +
+  geom_point(size=1.5) + ylab("Number of Pathways") +
   xlab("Faith's Phylogenetic Diversity") +
+  ggtitle("PICRUSt2 (KEGG)") +
   ylim(0, 350)
 
-hmp_faith_pd_vs_MetaCyc_richness <- data.frame(sample=overlapping_col,
-                                               faith_pd=hmp_faith_pd_subset$faith_pd,
-                                               MetaCyc_richness=colSums(hmp_metacyc_pathways_relab > 0))
 
-hmp_faith_pd_vs_MetaCyc_richness_melt <- melt(hmp_faith_pd_vs_MetaCyc_richness, id.vars=c("sample", "faith_pd"))
-
-metacyc_richness_plot <- ggplot(hmp_faith_pd_vs_MetaCyc_richness_melt, aes(x=faith_pd, y=value)) +
-  geom_point(size=1.5) + ylab("Number of MetaCyc Pathways") +
+picrust2_metacyc_richness_plot <- ggplot(hmp_pathway_richness_melt[which(hmp_pathway_richness_melt$variable == "picrust2_metacyc_richness"), ],
+                                      aes(x=faith_pd, y=value)) +
+  geom_point(size=1.5) + ylab("Number of Pathways") +
   xlab("Faith's Phylogenetic Diversity") +
+  ggtitle("PICRUSt2 (MetaCyc)") +
   ylim(0, 350)
+
+pdf(file = "../../figures/Supp_pathway_richness.pdf", width=12, height=4)
+
+plot_grid(picrust1_kegg_richness_plot, picrust2_kegg_richness_plot, picrust2_metacyc_richness_plot, labels = c("a", "b", "c"), nrow=1)
+
+dev.off()
+
+
+# Calculation of how many more pathways are called by PICRUSt1 vs PICRUSt2.
+mean(colSums(hmp_picrust1_KEGG_subset > 0) / colSums(hmp_picrust2_KEGG_subset > 0))
+
