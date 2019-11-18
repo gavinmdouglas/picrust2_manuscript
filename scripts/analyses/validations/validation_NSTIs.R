@@ -235,7 +235,7 @@ weighted_nsti_boxplots <- ggplot(combined_nsti_weighted, aes(dataset, weighted_N
   ylab("Weighted Nearest Sequenced Taxon Index") + xlab("Dataset") + 
   scale_y_continuous(expand = c(0, 0), limits = c(0, 1))
 
-pdf(file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/figures/Supp_NSTI_boxplots.pdf", width=12, height=7)
+pdf(file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/figures/Supp_NSTI_boxplots.pdf", width=12, height=8)
 
 plot_grid(full_nsti_boxplots, cropped_nsti_boxplots, weighted_nsti_boxplots, percent_id_boxplots,
           labels = c("a", "b", "c", "d"), align="h", axis="b")
