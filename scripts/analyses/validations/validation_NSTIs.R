@@ -123,8 +123,8 @@ ocean_nsti <- ocean_nsti[ocean_percent_id$V1,]
 blueberry_nsti <- blueberry_nsti[blueberry_percent_id$V1,]
 primate_nsti <- primate_nsti[primate_percent_id$V1,]
 
-cameroon_nsti_id <- data.frame(asv=rownames(cameroon_nsti), nsti=cameroon_nsti$metadata_NSTI, percent_id=cameroon_percent_id$V3, dataset="Cameroon", stringsAsFactors = FALSE)
-indian_nsti_id <- data.frame(asv=rownames(indian_nsti), nsti=indian_nsti$metadata_NSTI, percent_id=indian_percent_id$V3, dataset="India", stringsAsFactors = FALSE)
+cameroon_nsti_id <- data.frame(asv=rownames(cameroon_nsti), nsti=cameroon_nsti$metadata_NSTI, percent_id=cameroon_percent_id$V3, dataset="Cameroonian", stringsAsFactors = FALSE)
+indian_nsti_id <- data.frame(asv=rownames(indian_nsti), nsti=indian_nsti$metadata_NSTI, percent_id=indian_percent_id$V3, dataset="Indian", stringsAsFactors = FALSE)
 hmp_nsti_id <- data.frame(asv=rownames(hmp_nsti), nsti=hmp_nsti$metadata_NSTI, percent_id=hmp_percent_id$V3, dataset="HMP", stringsAsFactors = FALSE)
 mammal_nsti_id <- data.frame(asv=rownames(mammal_nsti), nsti=mammal_nsti$metadata_NSTI, percent_id=mammal_percent_id$V3, dataset="Mammal", stringsAsFactors = FALSE)
 ocean_nsti_id <- data.frame(asv=rownames(ocean_nsti), nsti=ocean_nsti$metadata_NSTI, percent_id=ocean_percent_id$V3, dataset="Ocean", stringsAsFactors = FALSE)
@@ -193,8 +193,8 @@ mean((hmp_excluded_asvs_summed_per/sum(hmp_biom_relab))*100,
      (ocean_excluded_asvs_summed_per/sum(ocean_biom_relab))*100,
      (blueberry_excluded_asvs_summed_per/sum(blueberry_biom_relab))*100)
 
-cameroon_nsti_weighted$dataset <- "Cameroon"
-indian_nsti_weighted$dataset <- "India"
+cameroon_nsti_weighted$dataset <- "Cameroonian"
+indian_nsti_weighted$dataset <- "Indian"
 hmp_nsti_weighted$dataset <- "HMP"
 mammal_nsti_weighted$dataset <- "Mammal"
 ocean_nsti_weighted$dataset <- "Ocean"
@@ -204,10 +204,10 @@ primate_nsti_weighted$dataset <- "Primate"
 combined_nsti_weighted <- rbind(cameroon_nsti_weighted, indian_nsti_weighted, hmp_nsti_weighted, mammal_nsti_weighted, ocean_nsti_weighted,
                                 blueberry_nsti_weighted, primate_nsti_weighted)
 
-combined_nsti_weighted$dataset <- factor(combined_nsti_weighted$dataset, levels=c("Cameroon", "India", "HMP", "Primate",
+combined_nsti_weighted$dataset <- factor(combined_nsti_weighted$dataset, levels=c("Cameroonian", "HMP",  "Indian", "Primate",
                                                                                   "Mammal", "Ocean", "Soil (Blueberry)" ))
 
-combined_nsti_id$dataset  <- factor(combined_nsti_id$dataset, levels=c("Cameroon", "India", "HMP", "Primate",
+combined_nsti_id$dataset  <- factor(combined_nsti_id$dataset, levels=c("Cameroonian", "HMP", "Indian", "Primate",
                                                                        "Mammal", "Ocean", "Soil (Blueberry)" ))
 
 percent_id_boxplots <- ggplot(combined_nsti_id, aes(dataset, 100 - percent_id)) + geom_boxplot(fill="light grey") + theme_bw() + 
@@ -235,7 +235,7 @@ weighted_nsti_boxplots <- ggplot(combined_nsti_weighted, aes(dataset, weighted_N
   ylab("Weighted Nearest Sequenced Taxon Index") + xlab("Dataset") + 
   scale_y_continuous(expand = c(0, 0), limits = c(0, 1))
 
-pdf(file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/figures/Supp_NSTI_boxplots.pdf", width=12, height=8)
+pdf(file = "/home/gavin/gavin_backup/projects/picrust2_manuscript/figures/Supp_NSTI_boxplots.pdf", width=12, height=7)
 
 plot_grid(full_nsti_boxplots, cropped_nsti_boxplots, weighted_nsti_boxplots, percent_id_boxplots,
           labels = c("a", "b", "c", "d"), align="h", axis="b")
