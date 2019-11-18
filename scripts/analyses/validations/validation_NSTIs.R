@@ -154,6 +154,12 @@ hmp_excluded_asvs_summed_per <- sum(rowSums(hmp_biom_relab[hmp_excluded_asvs,]))
 (hmp_excluded_asvs_summed_per/sum(hmp_biom_relab))*100
 length(hmp_excluded_asvs)
 
+mammal_excluded_asvs <- mammal_nsti_id[which(mammal_nsti_id$nsti > 2), "asv"]
+mammal_excluded_asvs_summed_per <- sum(rowSums(mammal_biom_relab[mammal_excluded_asvs,]))
+(length(mammal_excluded_asvs)/nrow(mammal_nsti_id))*100
+(mammal_excluded_asvs_summed_per/sum(mammal_biom_relab))*100
+length(mammal_excluded_asvs)
+
 ocean_excluded_asvs <- ocean_nsti_id[which(ocean_nsti_id$nsti > 2), "asv"]
 ocean_excluded_asvs_summed_per <- sum(rowSums(ocean_biom_relab[ocean_excluded_asvs,]))
 (length(ocean_excluded_asvs)/nrow(ocean_nsti_id))*100
@@ -173,6 +179,19 @@ primate_excluded_asvs_summed_per <- sum(rowSums(primate_biom_relab[primate_exclu
 (length(primate_excluded_asvs)/nrow(primate_nsti_id))*100
 (primate_excluded_asvs_summed_per/sum(primate_biom_relab))*100
 length(primate_excluded_asvs)
+
+mean((length(cameroon_excluded_asvs)/nrow(cameroon_nsti_id))*100,
+     (length(indian_excluded_asvs)/nrow(indian_nsti_id))*100,
+     (length(hmp_excluded_asvs)/nrow(hmp_nsti_id))*100,
+     (length(mammal_excluded_asvs)/nrow(mammal_nsti_id))*100,
+     (length(ocean_excluded_asvs)/nrow(ocean_nsti_id))*100,
+     (length(blueberry_excluded_asvs)/nrow(blueberry_nsti_id))*100,
+     (length(primate_excluded_asvs)/nrow(primate_nsti_id))*100)
+     
+mean((hmp_excluded_asvs_summed_per/sum(hmp_biom_relab))*100,
+     (mammal_excluded_asvs_summed_per/sum(mammal_biom_relab))*100,
+     (ocean_excluded_asvs_summed_per/sum(ocean_biom_relab))*100,
+     (blueberry_excluded_asvs_summed_per/sum(blueberry_biom_relab))*100)
 
 cameroon_nsti_weighted$dataset <- "Cameroon"
 indian_nsti_weighted$dataset <- "India"
@@ -236,15 +255,24 @@ kruskal.test(dataset ~ weighted_NSTI, data=combined_nsti_weighted)
 # Kruskal-Wallis chi-squared = 560, df = 560, p-value = 0.4921
 
 # mean and sd NSTI values for each dataset:
-# HMP - 0.1199486,  0.1974815
+
+# Cameroon - 0.3713435, 0.3483202
+mean(cameroon_nsti$metadata_NSTI)
+sd(cameroon_nsti$metadata_NSTI)
+
+# Indian - 0.09970479, 0.1117562
+mean(indian_nsti$metadata_NSTI)
+sd(indian_nsti$metadata_NSTI)
+
+# HMP - 0.1145611,  0.4894008
 mean(hmp_nsti$metadata_NSTI)
 sd(hmp_nsti$metadata_NSTI)
 
-# iGEM - 0.2648246, 0.1635812
+# iGEM - 0.1961959, 0.2161644
 mean(mammal_nsti$metadata_NSTI)
 sd(mammal_nsti$metadata_NSTI)
 
-# Ocean - 0.344677, 0.314393
+# Ocean - 0.5068952, 2.060702
 mean(ocean_nsti$metadata_NSTI)
 sd(ocean_nsti$metadata_NSTI)
 
@@ -252,6 +280,9 @@ sd(ocean_nsti$metadata_NSTI)
 mean(blueberry_nsti$metadata_NSTI)
 sd(blueberry_nsti$metadata_NSTI)
 
+# Primate - 0.265337, 1.85833
+mean(primate_nsti$metadata_NSTI)
+sd(primate_nsti$metadata_NSTI)
 
 # mean and sd % id values for each dataset:
 # HMP - 97.25469,  4.358125

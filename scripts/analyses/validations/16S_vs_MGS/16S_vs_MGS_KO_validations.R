@@ -104,9 +104,14 @@ ko_db <- read.table(gzfile("/home/gavin/github_repos/picrust_repos/picrust2/picr
 
 datasets <- c("hmp", "mammal", "ocean", "blueberry", "crossbiome", "mat", "indian", "cameroon", "primate")
 
+ko_metrics_out <- list()
+
 for(dataset in datasets) {
-  tmp <- compute_ko_validation_metrics(dataset_infiles = read_in_ko_predictions(dataset),
-                                       in_db = ko_db,
-                                       save_RDS = TRUE,
-                                       out_prefix = paste("../saved_RDS/16S_vs_MGS_metrics/", dataset, sep=""))
+  ko_metrics_out[[dataset]] <- list()
+  ko_metrics_out[[dataset]][["infiles"]] <- read_in_ko_predictions(dataset)
+
+  ko_metrics_out[[dataset]][["metrics"]] <- compute_ko_validation_metrics(dataset_infiles = ko_metrics_out[[dataset]][["infiles"]],
+                                                                           in_db = ko_db,
+                                                                           save_RDS = TRUE,
+                                                                           out_prefix = paste("../saved_RDS/16S_vs_MGS_metrics/", dataset, sep=""))
 }

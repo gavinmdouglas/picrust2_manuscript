@@ -16,7 +16,7 @@ source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_m
 extra_nsti_categories <- c("NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05")
 
 datasets <- c("hmp", "mammal", "ocean", "blueberry", "indian", "cameroon", "primate")
-dataset_names <- c("HMP", "Mammal", "Ocean", "Soil (Blueberry)", "Indian", "Cameroon", "Primate")
+dataset_names <- c("HMP", "Mammal", "Ocean", "Soil (Blueberry)", "India", "Cameroon", "Primate")
 
 ec_rho_outlist <- list()
 ec_rho <- list()
