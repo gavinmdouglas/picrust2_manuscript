@@ -10,7 +10,6 @@ library(ggplot2)
 library(reshape2)
 library(cowplot)
 library(magick)
-library(pdftools)
 
 # Panel A.
 flowchart_plot <- ggdraw() +
@@ -80,13 +79,16 @@ taxa_barplot <- ggplot(db_taxa_counts_melt, aes(x=variable, y=value, fill=Databa
 
 ### Plot final figure.
 bottom_row <- plot_grid(percent_remaining_plot, taxa_barplot,
-                        labels = c('B', 'C'), ncol=2, nrow=1)
+                        labels = c('b', 'c'), ncol=2, nrow=1)
 setTimeLimit(); setSessionTimeLimit()
 
-#10x10
+pdf(file = "../figures/Figure1.pdf", width=10, height=10)
+
 plot_grid(flowchart_plot,
           bottom_row,
-          labels = c('A', ''),
+          labels = c('a', ''),
           ncol=1,
           nrow=2,
           rel_heights=c(2, 1))
+
+dev.off()
