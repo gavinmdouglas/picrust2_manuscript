@@ -23,7 +23,7 @@ ko_rho_wilcoxon <- list()
 
 datasets <- c("cameroon", "primate", "hmp", "mammal", "ocean", "blueberry", "indian")
 
-dataset2name <- list("cameroon"="Cameroon", "indian"="India", "hmp"="HMP", "mammal"="Mammal",
+dataset2name <- list("cameroon"="Cameroonian", "indian"="Indian", "hmp"="HMP", "mammal"="Mammal",
                      "ocean"="Ocean", "blueberry"="Soil (Blueberry)", "primate"="Primate")
 
 
@@ -54,9 +54,9 @@ combined_ko_rho_wilcoxon_no_nsti[which(combined_ko_rho_wilcoxon_no_nsti$group1 =
 
 combined_ko_rho_no_nsti_melt <- melt(combined_ko_rho_no_nsti)
 
-combined_ko_rho_no_nsti_melt$dataset <- factor(combined_ko_rho_no_nsti_melt$dataset, levels=c("Cameroon", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
+combined_ko_rho_no_nsti_melt$dataset <- factor(combined_ko_rho_no_nsti_melt$dataset, levels=c("Cameroonian", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
 
-pdf(file = "../../../figures/Figure2.pdf", width=12, height=6, units = "in")
+pdf(file = "../../../figures/Figure2.pdf", width=12, height=6)
 
 ggplot(combined_ko_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) +
   geom_boxplot(outlier.shape = NA) +
@@ -76,3 +76,25 @@ ggplot(combined_ko_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) +
   stat_pvalue_manual(data = combined_ko_rho_wilcoxon_no_nsti, label = "p_symbol", bracket.size = 0.2, tip.length = 0.01, label.size = 3)
 
 dev.off()
+
+
+# Calculate basic summary statistics.
+
+dataset_ko_rho_stats <- data.frame(matrix(NA, nrow=7, ncol=2))
+colnames(dataset_ko_rho_stats) <- c("PICRUSt2_mean", "PICRUSt2_sd")
+rownames(dataset_ko_rho_stats) <- datasets
+
+for(d in datasets) {
+  
+  d_name <- dataset2name[[d]]
+  
+  dataset_ko_rho_stats[d, ] <- c(mean(combined_ko_rho[which(combined_ko_rho$dataset == d_name & combined_ko_rho$cat == "NSTI=2"), "metric"]),
+                                 sd(combined_ko_rho[which(combined_ko_rho$dataset == d_name & combined_ko_rho$cat == "NSTI=2"), "metric"]))
+  
+}
+
+# HMP dataset PICRUSt2 vs Piphillin is difficult to interpret based on means / medians since the distributions are so similar.
+# Looking at the distribution of per-sample differences is the best way to interpret how they differ - which shows
+# that PICRUSt2 does *slightly* better.
+summary(combined_ko_rho[which(combined_ko_rho$dataset == "HMP" & combined_ko_rho$cat == "NSTI=2"), "metric"] -
+        combined_ko_rho[which(combined_ko_rho$dataset == "HMP" & combined_ko_rho$cat == "Piphillin"), "metric"])
