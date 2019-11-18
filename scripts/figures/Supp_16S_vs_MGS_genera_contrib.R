@@ -47,11 +47,15 @@ blueberry_num_contrib_genera_mgs_vs_16S <- ggplot(all_16S_vs_mgs_contrib$blueber
   xlab("Metagenomics") +
   coord_cartesian(clip = 'off')
 
-### Plot final figure.
+
+pdf(file = "../../figures/Supp_num_contrib_genera.pdf", width=9, height=9)
+
 plot_grid(hmp_num_contrib_genera_mgs_vs_16S,
           mammal_num_contrib_genera_mgs_vs_16S,
           ocean_num_contrib_genera_mgs_vs_16S,
           blueberry_num_contrib_genera_mgs_vs_16S,
-          labels=c("A", "B", "C", "D"),
+          labels=c("a", "b", "c", "d"),
           nrow=2,
           ncol=2)
+
+dev.off()
