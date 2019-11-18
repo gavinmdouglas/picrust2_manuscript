@@ -1,278 +1,222 @@
-### Plot spearman correlations for Blueberry soil and wine fermentation EC/pathabun predictions vs MGS.
-### Also plot how spearman correlations change as % eukaryotic varies.
-### Also possibly plot correlation with example fungi-specific EC number.
+### Plot example results from HMP2 dataset.
 
 rm(list=ls(all=TRUE))
 
 library(ggplot2)
 library(reshape2)
-library(ggpubr)
 library(cowplot)
 library(ggbeeswarm)
 
-setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data")
+setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/")
 source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_ms_functions.R")
 
-extra_nsti_categories <- c("NSTI=1.5", "NSTI=1", "NSTI=0.5", "NSTI=0.25", "NSTI=0.1", "NSTI=0.05")
+# Panel A.
+# First plot pathways enriched in Proteobacteria (CD vs nonIBD).
+cd_sig_higher_ratio_prep_melt <- readRDS("results_out/cd_sig_higher_ratio_prep_melt.rds")
 
-# Read in metrics and prep per dataset.
-# Blueberry:
-blue_ec_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "saved_RDS/18S_ITS_vs_MGS_metrics/blueberry_ec_scc_metrics.rds",
-                                                      dataset_name = "Soil (Blueberry)",
-                                                      wilcox_cat2ignore = extra_nsti_categories,
-                                                      y_pos_start = 0.75)
+cd_sig_higher_ratio_prep_melt$variable <- as.character(cd_sig_higher_ratio_prep_melt$variable)
+cd_sig_higher_ratio_prep_melt$variable <- factor(cd_sig_higher_ratio_prep_melt$variable, levels=c("PWY0-42", "PWY-5189", "PWY-5188"))
 
-blue_ec_rho <- blue_ec_rho_outlist[[1]]
-blue_ec_rho_wilcoxon <- blue_ec_rho_outlist[[2]]
-
-
-# wine:
-wine_ec_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "saved_RDS/18S_ITS_vs_MGS_metrics/wine_ec_scc_metrics.rds",
-                                                       dataset_name = "Wine Fermentation",
-                                                       wilcox_cat2ignore = extra_nsti_categories,
-                                                       y_pos_start = 0.75)
-
-wine_ec_rho <- wine_ec_rho_outlist[[1]]
-wine_ec_rho_wilcoxon <- wine_ec_rho_outlist[[2]]
-
-combined_ec_rho <- rbind(blue_ec_rho, wine_ec_rho)
-combined_ec_rho_wilcoxon <- rbind(blue_ec_rho_wilcoxon,wine_ec_rho_wilcoxon)
-
-combined_ec_rho_no_nsti <- combined_ec_rho
-combined_ec_rho_no_nsti$cat <- as.character(combined_ec_rho_no_nsti$cat)
-combined_ec_rho_no_nsti <- combined_ec_rho_no_nsti[-which(combined_ec_rho_no_nsti$cat %in% extra_nsti_categories) ,]
-combined_ec_rho_no_nsti[which(combined_ec_rho_no_nsti$cat == "NSTI=2"), "cat"] <- "PICRUSt2"
-combined_ec_rho_no_nsti$cat <- factor(combined_ec_rho_no_nsti$cat,
-                                      levels=c("Null", "PICRUSt2"))
-
-combined_ec_rho_wilcoxon_no_nsti <- combined_ec_rho_wilcoxon
-combined_ec_rho_wilcoxon_no_nsti[which(combined_ec_rho_wilcoxon_no_nsti$group1 == "NSTI=2"), "group1"] <- "PICRUSt2"
-
-# Add column of p-values to add to plot.
-combined_ec_rho_wilcoxon_no_nsti$clean_p <- paste("P=",
-                                                  formatC(combined_ec_rho_wilcoxon_no_nsti$raw_p, format = "e", digits = 2),
-                                                  combined_ec_rho_wilcoxon_no_nsti$p_symbol,
-                                                  sep="")
-# Clean up a p-value by hand that does not need to be in scientific notation:
-combined_ec_rho_wilcoxon_no_nsti$clean_p[which(combined_ec_rho_wilcoxon_no_nsti$clean_p == "P=7.81e-03*")] <- "P=0.00781*"
-
-combined_ec_rho_no_nsti_melt <- melt(combined_ec_rho_no_nsti)
-
-ec_scc_boxplots <- ggplot(combined_ec_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) +
+cd_sig_higher_ratio_plot <- ggplot(cd_sig_higher_ratio_prep_melt, aes(x=variable, y=log2ratio, fill=diagnosis)) +
   geom_boxplot(outlier.shape = NA) +
-  geom_quasirandom(size=1) +
-  ylim(c(0, 1)) +
-  ylab(c("Spearman Correlation")) +
+  geom_quasirandom(dodge.width=0.8, size=0.1, bandwidth = 0.5) +
+  coord_flip() +
+  scale_fill_manual(values=c("white", "grey")) +
   xlab("") +
-  facet_grid(. ~ dataset, scales = "free", space = "free") +
-  #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  #      panel.background = element_blank(), axis.line = element_line(colour = "black"),
-  #      axis.text.x=element_text(angle=45, hjust=1)) +
-  guides(fill=FALSE) +
-  scale_fill_manual(values=c("light grey", "#00BFC4")) +
-  stat_pvalue_manual(combined_ec_rho_wilcoxon_no_nsti, label = "clean_p") +
-  ggtitle("EC Numbers")
+  ylab(expression('log'[2]*'((Contributed by Proteobacteria + 1)/(Contributed by Other + 1))')) +
+  scale_y_continuous(limits=c(-5, 11)) +
+  labs(fill="Phenotype") +
+  theme(legend.position = c(.7, .9),
+        legend.background = element_rect(color = "black", 
+                                         fill = "white", size = 0.2, linetype = "solid"))
 
-# Get mean and sd values.
-mean(blue_ec_rho[which(blue_ec_rho$cat == "Null"), "metric"])
-sd(blue_ec_rho[which(blue_ec_rho$cat == "Null"), "metric"])
+# Panel B
+# Plot scatterplot of # contributors in MGS stoopl vs 16S ileal samples.
+num_contrib_genera_out <- readRDS("results_out/num_contrib_genera_out.rds")
+num_contrib_genera_mgs_vs_16S <- ggplot(num_contrib_genera_out, aes(x=mgs_mean, y=picrust2_mean)) +
+  geom_point(size=2) +
+  scale_x_continuous(limits=c(0, 25), expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  ggtitle("# Genera Contributing to each Pathway") +
+  ylab("PICRUSt2 (Ileum)") +
+  xlab("Metagenomics (Stool)") +
+  coord_cartesian(clip = 'off')
 
-mean(blue_ec_rho[which(blue_ec_rho$cat == "NSTI=2"), "metric"])
-sd(blue_ec_rho[which(blue_ec_rho$cat == "NSTI=2"), "metric"])
+# Panel C
+# Plot scatterplot of top 10 genera contributors to tetrapyrolle I in PICRUSt2 / MGS.
+PWY_5188_breakdown <- readRDS("results_out/PWY_5188_breakdown.rds")
 
+# Identify top contributors in either PICRUSt2 or MGS and set everything else to be "Other".
+PWY_5188_breakdown$Genus <- PWY_5188_breakdown$Row.names
 
-mean(wine_ec_rho[which(wine_ec_rho$cat == "Null"), "metric"])
-sd(wine_ec_rho[which(wine_ec_rho$cat == "Null"), "metric"])
+picrust2_cutoff_abun <- sort(PWY_5188_breakdown$picrust2_mean, decreasing = TRUE)[10]
+mgs_cutoff_abun <- sort(PWY_5188_breakdown$mgs_mean, decreasing = TRUE)[10]
+rows2keep <- which(PWY_5188_breakdown$picrust2_mean >= picrust2_cutoff_abun | PWY_5188_breakdown$mgs_mean >= mgs_cutoff_abun)
+PWY_5188_breakdown$Genus[-rows2keep] <- "Other"
 
-mean(wine_ec_rho[which(wine_ec_rho$cat == "NSTI=2"), "metric"])
-sd(wine_ec_rho[which(wine_ec_rho$cat == "NSTI=2"), "metric"])
+genera_ordered <- c("Blautia", "Clostridium", "Coprococcus", "Dialister", "Roseburia", "Ruminococcus", 
+                    "Veillonella", "Fusobacterium", "Bilophila", "Campylobacter", "Escherichia", 
+                    "Haemophilus", "Sutterella", "Akkermansia", "Other")
 
+# Colours chosen based on phyla of all genera.
+manual_col <- c("firebrick", "firebrick2", "deeppink", "deeppink3", "indianred1", "indianred3", "red", 
+                "yellow3", "steelblue", "steelblue2", "royalblue2", "lightslateblue", "dodgerblue", 
+                "black", "grey")
 
-# Do the same thing, but for pathway abundances.
-blue_pathabun_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "saved_RDS/18S_ITS_vs_MGS_metrics/blueberry_pathabun_scc_metrics.rds",
-                                                       dataset_name = "Soil (Blueberry)",
-                                                       wilcox_cat2ignore = extra_nsti_categories,
-                                                       y_pos_start = 0.75)
+PWY_5188_breakdown$Genus <- gsub("g__", "", PWY_5188_breakdown$Genus)
 
-blue_pathabun_rho <- blue_pathabun_rho_outlist[[1]]
-blue_pathabun_rho_wilcoxon <- blue_pathabun_rho_outlist[[2]]
+PWY_5188_breakdown$Genus <- factor(PWY_5188_breakdown$Genus, levels=(genera_ordered))
 
-blue_pathabun_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "saved_RDS/18S_ITS_vs_MGS_metrics/blueberry_pathabun_scc_metrics.rds",
-                                                       dataset_name = "Soil (Blueberry)",
-                                                       wilcox_cat2ignore = extra_nsti_categories,
-                                                       y_pos_start = 0.75)
+PWY_5188_breakdown_scatterplot <- ggplot(data = PWY_5188_breakdown, aes(x = mgs_mean, y = picrust2_mean, colour=Genus)) + 
+  geom_point(size=4) +
+  scale_colour_manual(values=manual_col, labels = c(substitute(italic(genus), env=list(genus=genera_ordered[1])),
+                                                    substitute(italic(genus), env=list(genus=genera_ordered[2])),
+                                                    substitute(italic(genus), env=list(genus=genera_ordered[3])),
+                                                    substitute(italic(genus), env=list(genus=genera_ordered[4])),
+                                                    substitute(italic(genus), env=list(genus=genera_ordered[5])),
+                                                    substitute(italic(genus), env=list(genus=genera_ordered[6])),
+                                                    substitute(italic(genus), env=list(genus=genera_ordered[7])),
+                                                    substitute(italic(genus), env=list(genus=genera_ordered[8])),
+                                                    substitute(italic(genus), env=list(genus=genera_ordered[9])),
+                                                    substitute(italic(genus), env=list(genus=genera_ordered[10])),
+                                                    substitute(italic(genus), env=list(genus=genera_ordered[11])),
+                                                    substitute(italic(genus), env=list(genus=genera_ordered[12])),
+                                                    substitute(italic(genus), env=list(genus=genera_ordered[13])),
+                                                    substitute(italic(genus), env=list(genus=genera_ordered[14])),
+                                                    "Other")) +
+  scale_x_continuous(limits=c(0, 0.07), expand = c(0, 0)) +
+  scale_y_continuous(limits=c(0, 0.04), expand = c(0, 0)) +
+  coord_cartesian(clip = 'off') +
+  ggtitle("PWY-5188: tetrapyrrole biosynthesis I\n(from glutamate)") +
+  xlab("Metagenomics (Stool) Contributing %") +
+  ylab("PICRUSt2 (Ileum) Contributing %") +
+  theme(legend.text.align = 0)
 
-blue_pathabun_rho <- blue_pathabun_rho_outlist[[1]]
-blue_pathabun_rho_wilcoxon <- blue_pathabun_rho_outlist[[2]]
+# Plot stacked barcharts of main contributing to PWY-6572 and PWY0-1533
 
-
-# wine:
-wine_pathabun_rho_outlist <- parse_rho_rds_and_calc_wilcoxon(rho_rds = "saved_RDS/18S_ITS_vs_MGS_metrics/wine_pathabun_scc_metrics.rds",
-                                                       dataset_name = "Wine Fermentation",
-                                                       wilcox_cat2ignore = extra_nsti_categories,
-                                                       y_pos_start = 0.75)
-
-wine_pathabun_rho <- wine_pathabun_rho_outlist[[1]]
-wine_pathabun_rho_wilcoxon <- wine_pathabun_rho_outlist[[2]]
-
-
-
-
-
-combined_pathabun_rho <- rbind(blue_pathabun_rho, wine_pathabun_rho)
-combined_pathabun_rho_wilcoxon <- rbind(blue_pathabun_rho_wilcoxon,wine_pathabun_rho_wilcoxon)
-
-combined_pathabun_rho_no_nsti <- combined_pathabun_rho
-combined_pathabun_rho_no_nsti$cat <- as.character(combined_pathabun_rho_no_nsti$cat)
-combined_pathabun_rho_no_nsti <- combined_pathabun_rho_no_nsti[-which(combined_pathabun_rho_no_nsti$cat %in% extra_nsti_categories) ,]
-combined_pathabun_rho_no_nsti[which(combined_pathabun_rho_no_nsti$cat == "NSTI=2"), "cat"] <- "PICRUSt2"
-combined_pathabun_rho_no_nsti$cat <- factor(combined_pathabun_rho_no_nsti$cat,
-                                      levels=c("Null", "PICRUSt2"))
-
-combined_pathabun_rho_wilcoxon_no_nsti <- combined_pathabun_rho_wilcoxon
-combined_pathabun_rho_wilcoxon_no_nsti[which(combined_pathabun_rho_wilcoxon_no_nsti$group1 == "NSTI=2"), "group1"] <- "PICRUSt2"
-
-combined_pathabun_rho_no_nsti_melt <- melt(combined_pathabun_rho_no_nsti)
-
-combined_pathabun_rho_wilcoxon_no_nsti$clean_p <- paste("P=",
-                                                  formatC(combined_pathabun_rho_wilcoxon_no_nsti$raw_p, format = "e", digits = 2),
-                                                  combined_pathabun_rho_wilcoxon_no_nsti$p_symbol,
-                                                  sep="")
-
-# Clean up a p-value by hand that does not need to be in scientific notation:
-combined_pathabun_rho_wilcoxon_no_nsti$clean_p[which(combined_pathabun_rho_wilcoxon_no_nsti$clean_p == "P=7.81e-03*")] <- "P=0.00781*"
-combined_pathabun_rho_wilcoxon_no_nsti$clean_p[which(combined_pathabun_rho_wilcoxon_no_nsti$clean_p == "P=5.47e-02ns")] <- "P=0.0547"
-
-pathabun_scc_boxplots <- ggplot(combined_pathabun_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_quasirandom(size=1) +
-  ylim(c(0, 1)) +
-  ylab(c("Spearman Correlation")) +
-  xlab("") +
-  facet_grid(. ~ dataset, scales = "free", space = "free") +
-  #theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-  #      panel.background = element_blank(), axis.line = element_line(colour = "black"),
-  #      axis.text.x=element_text(angle=45, hjust=1)) +
-  guides(fill=FALSE) +
-  scale_fill_manual(values=c("light grey", "#00BFC4")) +
-  stat_pvalue_manual(combined_pathabun_rho_wilcoxon_no_nsti, label = "clean_p") +
-  ggtitle("MetaCyc Pathways")
+hmp2_16S_pathabun_strat_genus_sum <- readRDS("results_out/hmp2_16S_pathabun_strat_full_genus_sum.rds")
 
 
-# Get mean and sd values.
-mean(blue_pathabun_rho[which(blue_pathabun_rho$cat == "Null"), "metric"])
-sd(blue_pathabun_rho[which(blue_pathabun_rho$cat == "Null"), "metric"])
+# Remove "Bacteria" from genus string:
+hmp2_16S_pathabun_strat_genus_sum$genus <- gsub("k__Bacteria; ", "", hmp2_16S_pathabun_strat_genus_sum$genus)
 
-mean(blue_pathabun_rho[which(blue_pathabun_rho$cat == "NSTI=2"), "metric"])
-sd(blue_pathabun_rho[which(blue_pathabun_rho$cat == "NSTI=2"), "metric"])
+# Identify genera contributing most abundance across both pathways.
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572 <- hmp2_16S_pathabun_strat_genus_sum[which(hmp2_16S_pathabun_strat_genus_sum$pathway == "PWY-6572"), ]
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt <- melt(hmp2_16S_pathabun_strat_genus_sum_PWY_6572)
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_tmp <- hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_tmp <- hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_tmp[, -3]
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_genera <- aggregate(value ~ genus + pathway, data=hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_tmp, FUN=sum)
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_genera <- hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_genera[with(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_genera, order(value, decreasing = TRUE)),]
+PWY_6572_top_genera <- head(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_genera$genus, 10)
 
+hmp2_16S_pathabun_strat_genus_sum_PWY0_1533 <- hmp2_16S_pathabun_strat_genus_sum[which(hmp2_16S_pathabun_strat_genus_sum$pathway == "PWY0-1533"), ]
+hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt <- melt(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533)
+hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_tmp <- hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt
+hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_tmp <- hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_tmp[, -3]
+hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_genera <- aggregate(value ~ genus + pathway, data=hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_tmp, FUN=sum)
+hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_genera <- hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_genera[with(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_genera, order(value, decreasing = TRUE)),]
+PWY0_1533_top_genera <- head(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_genera$genus, 10)
 
-mean(wine_pathabun_rho[which(wine_pathabun_rho$cat == "Null"), "metric"])
-sd(wine_pathabun_rho[which(wine_pathabun_rho$cat == "Null"), "metric"])
+overall_top_genera <- sort(unique(c(PWY0_1533_top_genera, PWY_6572_top_genera)))
 
-mean(wine_pathabun_rho[which(wine_pathabun_rho$cat == "NSTI=2"), "metric"])
-sd(wine_pathabun_rho[which(wine_pathabun_rho$cat == "NSTI=2"), "metric"])
+#qual_col <- c('#e6194b', '#3cb44b', 'yellow', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', 'greenyellow', '#fabebe', '#008080', '#e6beff',
+#              '#9a6324', '#fffac8', '#800000', '#aaffc3', '#808000', 'royalblue1', 'grey')
 
-### PANEL C
-# Read in % of MGS reads mapped to each phyla (based on metaxa2).
-# Get percent eukaryotic after removing Metazoa and Virdiplantae.
-blue_metaxa2 <- read.table("working_tables/metaxa2_counts/blueberry_metaxa2_phyla_counts.tsv",
-                                header=T, row.names=1, sep="\t", check.names = FALSE)
-rownames(blue_metaxa2) <- gsub("BB", "", rownames(blue_metaxa2))
-rownames(blue_metaxa2) <- gsub("_", "-", rownames(blue_metaxa2))
-blue_metaxa2_relab <- data.frame(sweep(blue_metaxa2, 1, rowSums(blue_metaxa2), '/'), check.names = FALSE) * 100
-blue_metaxa2_relab_euk <- blue_metaxa2_relab[, grep("^Eukaryota\\|", colnames(blue_metaxa2_relab))]
-blue_metaxa2_relab_euk_subset <- blue_metaxa2_relab_euk[, -which(colnames(blue_metaxa2_relab_euk) %in% c("Eukaryota|Metazoa", "Eukaryota|Viridiplantae"))]
-blue_metaxa2_relab_euk_subset$total_filt <- rowSums(blue_metaxa2_relab_euk_subset)
+qual_col <- c('#e6194b', '#3cb44b', 'yellow', '#4363d8', '#f58231', '#911eb4', '#46f0f0', '#f032e6', 'greenyellow', '#fabebe', '#008080', 'grey')
 
-blue_ec_rho_nsti2 <- blue_ec_rho[which(blue_ec_rho$cat == "NSTI=2"),]
-rownames(blue_ec_rho_nsti2) <- as.character(blue_ec_rho_nsti2$sample_names)
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus_clean <- hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus
+hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$genus_clean <- hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$genus
 
-wine_metaxa2 <- read.table("working_tables/metaxa2_counts/wine_metaxa2_phyla_counts.tsv",
-                                header=T, row.names=1, sep="\t", check.names = FALSE)
-wine_id_map <- read.table("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/wine_id_mapping.txt",
-                          header=T, sep="\t", stringsAsFactors = FALSE)
-rownames(wine_id_map) <- wine_id_map$MGS_run
-rownames(wine_metaxa2) <- wine_id_map[rownames(wine_metaxa2), "X16S_name"]
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt[which(! hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus_clean %in%  PWY_6572_top_genera), "genus_clean"] <- "Other"
+hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt[which(! hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$genus_clean %in%  PWY0_1533_top_genera), "genus_clean"] <- "Other"
 
-wine_metaxa2_relab <- data.frame(sweep(wine_metaxa2, 1, rowSums(wine_metaxa2), '/'), check.names = FALSE) * 100
-wine_metaxa2_relab_euk <- wine_metaxa2_relab[, grep("^Eukaryota\\|", colnames(wine_metaxa2_relab))]
-wine_metaxa2_relab_euk_subset <- wine_metaxa2_relab_euk[, -which(colnames(wine_metaxa2_relab_euk) %in% c("Eukaryota|Metazoa", "Eukaryota|Viridiplantae"))]
-wine_metaxa2_relab_euk_subset$total_filt <- rowSums(wine_metaxa2_relab_euk_subset)
-
-wine_ec_rho_nsti2 <- wine_ec_rho[which(wine_ec_rho$cat == "NSTI=2"),]
-rownames(wine_ec_rho_nsti2) <- as.character(wine_ec_rho_nsti2$sample_names)
-
-blue_metaxa2_relab_euk_subset$rho <- blue_ec_rho_nsti2[rownames(blue_metaxa2_relab_euk), "metric"]
-wine_metaxa2_relab_euk_subset$rho <- wine_ec_rho_nsti2[rownames(wine_metaxa2_relab_euk), "metric"]
-
-blue_metaxa2_relab_euk_subset$Dataset <- "Soil (Blueberry)"
-wine_metaxa2_relab_euk_subset$Dataset <- "Wine Fermentation"
-
-blue_metaxa2_relab_euk_subset <- blue_metaxa2_relab_euk_subset[, c("Dataset", "total_filt", "rho")]
-wine_metaxa2_relab_euk_subset <- wine_metaxa2_relab_euk_subset[, c("Dataset", "total_filt", "rho")]
-
-combined_metaxa2_rho <- rbind(blue_metaxa2_relab_euk_subset, wine_metaxa2_relab_euk_subset)
-
-eukaryote_rho_scatterplot <- ggplot(combined_metaxa2_rho, aes(x=total_filt, y=rho, colour=Dataset)) +
-  geom_point() +
-  ylim(c(0, 1)) +
-  ylab(c("Spearman Correlation")) +
-  xlab("% Eukaryotic DNA") +
-  scale_colour_manual(values=c("deepskyblue3", "firebrick3")) +
-  theme(legend.position = c(0.05, 0.8), legend.background = element_rect(color = "black", 
-                                                                        fill = "white", size = 0.3, linetype = "solid"))
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus_clean <- factor(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus_clean, levels=c(overall_top_genera, "Other"))
+hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$genus_clean <- factor(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$genus_clean, levels=c(overall_top_genera, "Other"))
 
 
-# Get mean and sd % eukaryotic for each dataset
-mean(blue_metaxa2_relab_euk_subset$total_filt)
-sd(blue_metaxa2_relab_euk_subset$total_filt)
-
-mean(wine_metaxa2_relab_euk_subset$total_filt)
-sd(wine_metaxa2_relab_euk_subset$total_filt)
-
-
-# PANEL D: Sig ECs in blueberry dataset.
-blueberry_sig_ec <- read.table("working_tables/all_blueberry_sig_ecs.tsv",
-                                 header=TRUE, sep="\t", check.names=FALSE)
-
-# Restrict to EC numbers with a mean of at least 0.15% relative abundance across all samples.
-
-EC_col <- grep("EC:", colnames(blueberry_sig_ec), value = TRUE)
-
-common_EC <- names(which(colMeans(blueberry_sig_ec[, EC_col]) > 0.15))
-
-blueberry_sig_ec <- blueberry_sig_ec[, c(common_EC, "group", "sample")]
-
-blueberry_sig_ec_melt <- melt(blueberry_sig_ec)
-
-blueberry_sig_ec_melt$group <- as.character(blueberry_sig_ec_melt$group)
-blueberry_sig_ec_melt$Type <- factor(gsub("Mng", "", blueberry_sig_ec_melt$group), levels=c("Bulk", "Rhizo", "Root"))
-
-blueberry_sig_ecs_boxplots <- ggplot(blueberry_sig_ec_melt, aes(x=Type, y=value, fill=Type)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_quasirandom(size=0.1) +
-  ylim(c(0, 1.5)) +
-  ylab("% Relative Abundance") +
-  xlab("") +
-  scale_fill_manual("Sample Type", values=c("light grey", "cornflowerblue", "orange")) +
-  facet_grid(. ~ variable, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        axis.text.x=element_text(angle=45, hjust=1))
+# First get plot of only a shared legend.
+hmp2_16S_pathabun_strat_genus_sum_TMP <- melt(hmp2_16S_pathabun_strat_genus_sum)
+hmp2_16S_pathabun_strat_genus_sum_TMP <- hmp2_16S_pathabun_strat_genus_sum_TMP[which(hmp2_16S_pathabun_strat_genus_sum_TMP$pathway %in% c("PWY-6572", "PWY0-1533")),]
+hmp2_16S_pathabun_strat_genus_sum_TMP[which(! hmp2_16S_pathabun_strat_genus_sum_TMP$genus %in%  overall_top_genera), "genus"] <- "Other"
+hmp2_16S_pathabun_strat_genus_sum_TMP$genus <- factor(hmp2_16S_pathabun_strat_genus_sum_TMP$genus, levels=c(overall_top_genera, "Other"))
+tmp_plot <- ggplot(hmp2_16S_pathabun_strat_genus_sum_TMP, aes(x=variable, y=value, fill=genus)) +
+  geom_bar(stat="identity") +
+  scale_fill_manual(values=qual_col) + 
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black"),
+        axis.text.x=element_blank(),
+        legend.text=element_text(size=8)) +
+  labs(fill="Genus")
+grobs <- ggplotGrob(tmp_plot)$grobs
+stacked_legend <- grobs[[which(sapply(grobs, function(x) x$name) == "guide-box")]]
 
 
+# Get samples ordered by total relative abundance.
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_sample <- aggregate(value ~ variable, data=hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt, FUN=sum)
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_sample <- hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_sample[with(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_sample, order(value, decreasing = FALSE)),]
+
+hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$variable <- factor(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$variable,
+                                                                   levels=hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt_by_sample$variable)
+
+PWY_6572_col <- qual_col[which(levels(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus_clean) %in% hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt$genus_clean)]
+
+PWY_6572_stacked <- ggplot(hmp2_16S_pathabun_strat_genus_sum_PWY_6572_melt, aes(x=variable, y=value, fill=genus_clean)) +
+  geom_bar(stat="identity") +
+  scale_fill_manual(values=PWY_6572_col) + 
+  theme_bw() + theme(panel.border = element_blank(),
+                     panel.grid.major = element_blank(),
+                     panel.grid.minor = element_blank(),
+                     axis.line = element_line(colour = "black"),
+                     axis.text.x=element_blank(),
+                     axis.text=element_text(size=12),
+                     axis.title=element_text(size=14),
+                     plot.title = element_text(hjust=0.2, vjust=-10, face="bold")) +
+  ylab("Relative Abundance (%)") +
+  xlab("Sample") +
+  ggtitle("PWY-6572: Chondroitin sulfate degradation I (bacterial)") +
+  scale_y_continuous(expand = c(0, 0)) +
+  guides(fill=FALSE)
+
+
+  
+# Get samples ordered by total relative abundance.
+hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_sample <- aggregate(value ~ variable, data=hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt, FUN=sum)
+hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_sample <- hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_sample[with(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_sample, order(value, decreasing = FALSE)),]
+  
+hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$variable <- factor(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$variable,
+                                                                    levels=hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt_by_sample$variable)
+  
+PWY0_1533_col <- qual_col[which(levels(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$genus_clean) %in% hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt$genus_clean)]
+
+PWY0_1533_stacked <- ggplot(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt, aes(x=variable, y=value, fill=genus_clean)) +
+  geom_bar(stat="identity") +
+  scale_fill_manual(values=PWY0_1533_col) + 
+  theme_bw() + theme(panel.border = element_blank(),
+                     panel.grid.major = element_blank(),
+                     panel.grid.minor = element_blank(),
+                     axis.line = element_line(colour = "black"),
+                     axis.text.x=element_blank(),
+                     axis.text=element_text(size=12),
+                     axis.title=element_text(size=14),
+                     plot.title = element_text(hjust=0.2, vjust=-10, face="bold")) +
+  ylab("Relative Abundance (%)") +
+  xlab("Sample") +
+  ggtitle("PWY0-1533: Methylphosphonate degradation I") +
+  scale_y_continuous(expand = c(0, 0)) +
+  guides(fill=FALSE)
+
+
+#20x12
 ### Plot final figure.
-top_row <- plot_grid(ec_scc_boxplots,
-                     pathabun_scc_boxplots,
-                     eukaryote_rho_scatterplot,
-                     labels = c('A', 'B', 'C'),
-                     ncol=3,
-                     nrow=1)
-                    
-# 13 x 7
-plot_grid(top_row,
-          blueberry_sig_ecs_boxplots,
-          labels = c('', 'D'),
-          ncol = 1,
-          nrow=2)
+plot_grid(cd_sig_higher_ratio_plot,
+          num_contrib_genera_mgs_vs_16S,
+          PWY_5188_breakdown_scatterplot,
+          PWY_6572_stacked,
+          PWY0_1533_stacked,
+          stacked_legend,
+          labels=c("A", "B", "C", "D", "E", ""),
+          nrow=2,
+          ncol=3)
