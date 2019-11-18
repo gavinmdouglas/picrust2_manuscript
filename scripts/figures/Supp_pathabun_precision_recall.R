@@ -26,7 +26,7 @@ pathabun_recall_wilcoxon <- list()
 
 datasets <- c("cameroon", "primate", "hmp", "mammal", "ocean", "blueberry", "indian")
 
-dataset2name <- list("cameroon"="Cameroon", "indian"="India", "hmp"="HMP", "mammal"="Mammal",
+dataset2name <- list("cameroon"="Cameroonian", "indian"="Indian", "hmp"="HMP", "mammal"="Mammal",
                      "ocean"="Ocean", "blueberry"="Soil (Blueberry)", "primate"="Primate")
 
 for(d in datasets) {
@@ -66,13 +66,13 @@ combined_pathabun_precision$cat <- factor(combined_pathabun_precision$cat,
                                     levels=c("Null", "NSTI=2", "NSTI=1", "NSTI=0.05"))
 combined_pathabun_precision_melt <- melt(combined_pathabun_precision)
 
-combined_pathabun_precision_melt$dataset <- factor(combined_pathabun_precision_melt$dataset, levels=c("Cameroon", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
+combined_pathabun_precision_melt$dataset <- factor(combined_pathabun_precision_melt$dataset, levels=c("Cameroonian", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
 
 
 pathabun_precision_boxplots <- ggplot(combined_pathabun_precision_melt, aes(x=cat, y=value, fill=Database)) +
   geom_boxplot(outlier.shape = NA) +
   geom_quasirandom(size=0.1) +
-  ylim(c(0.5, 1)) +
+  scale_y_continuous(breaks=c(0.6, 0.8, 1.0), limits=c(0.5, 1.10)) +
   ylab(c("Precision")) +
   xlab("") +
   guides(fill=FALSE) +
@@ -80,7 +80,8 @@ pathabun_precision_boxplots <- ggplot(combined_pathabun_precision_melt, aes(x=ca
   theme(panel.background = element_rect(fill = "gray90"),
         axis.line = element_line(colour = "black"),
         axis.text.x=element_text(angle=45, hjust=1)) +
-  scale_fill_manual(values=c("light grey", "#00BFC4"))
+  scale_fill_manual(values=c("light grey", "#00BFC4")) +
+  stat_pvalue_manual(combined_pathabun_precision_wilcoxon, label = "p_symbol")
 
 
 # Recall
@@ -97,20 +98,21 @@ combined_pathabun_recall$cat <- factor(combined_pathabun_recall$cat,
                                  levels=c("Null", "NSTI=2", "NSTI=1", "NSTI=0.05"))
 combined_pathabun_recall_melt <- melt(combined_pathabun_recall)
 
-combined_pathabun_recall_melt$dataset <- factor(combined_pathabun_recall_melt$dataset, levels=c("Cameroon", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
+combined_pathabun_recall_melt$dataset <- factor(combined_pathabun_recall_melt$dataset, levels=c("Cameroonian", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
 
 
 pathabun_recall_boxplots <- ggplot(combined_pathabun_recall_melt, aes(x=cat, y=value, fill=Database)) +
   geom_boxplot(outlier.shape = NA) +
   geom_quasirandom(size=0.1) +
-  ylim(c(0.5, 1)) +
+  scale_y_continuous(breaks=c(0.6, 0.8, 1.0), limits=c(0.5, 1.10)) +
   ylab(c("Recall")) +
   xlab("") +
   guides(fill=FALSE) +
   facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
   theme(panel.background = element_rect(fill = "gray90"), axis.line = element_line(colour = "black"),
         axis.text.x=element_text(angle=45, hjust=1)) +
-  scale_fill_manual(values=c("light grey", "#00BFC4"))
+  scale_fill_manual(values=c("light grey", "#00BFC4")) +
+  stat_pvalue_manual(combined_pathabun_recall_wilcoxon, label = "p_symbol")
 
 pdf(file = "../../../figures/Supp_pathabun_precision_recall.pdf", width=13, height=8)
 

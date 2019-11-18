@@ -24,7 +24,7 @@ pathabun_rho_wilcoxon <- list()
 
 datasets <- c("cameroon", "primate", "hmp", "mammal", "ocean", "blueberry", "indian")
 
-dataset2name <- list("cameroon"="Cameroon", "indian"="India", "hmp"="HMP", "mammal"="Mammal",
+dataset2name <- list("cameroon"="Cameroonian", "indian"="Indian", "hmp"="HMP", "mammal"="Mammal",
                      "ocean"="Ocean", "blueberry"="Soil (Blueberry)", "primate"="Primate")
 
 
@@ -141,7 +141,7 @@ IMG_pheno_boxplots <- ggplot(combined_acc_by_phenotype_subset_melt, aes(x=Catego
 
 # Plot figure (11x5)
 
-pdf(file = "../../../figures/Figure3.pdf", width=15, height=6)
+pdf(file = "../../../figures/Figure3.pdf", width=14.5, height=5)
 
 plot_grid(pathabun_rho_boxplots, IMG_pheno_boxplots,
           labels = c("a", "b"), ncol=2, nrow=1, rel_widths = c(1, 0.5))

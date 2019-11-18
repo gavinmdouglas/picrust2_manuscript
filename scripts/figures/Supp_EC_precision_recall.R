@@ -23,7 +23,7 @@ ec_recall_wilcoxon <- list()
 
 datasets <- c("cameroon", "primate", "hmp", "mammal", "ocean", "blueberry", "indian")
 
-dataset2name <- list("cameroon"="Cameroon", "indian"="India", "hmp"="HMP", "mammal"="Mammal",
+dataset2name <- list("cameroon"="Cameroonian", "indian"="Indian", "hmp"="HMP", "mammal"="Mammal",
                      "ocean"="Ocean", "blueberry"="Soil (Blueberry)", "primate"="Primate")
 
 for(d in datasets) {
@@ -63,13 +63,13 @@ combined_ec_precision$cat <- factor(combined_ec_precision$cat,
                                     levels=c("Null", "PAPRICA", "NSTI=2","NSTI=1","NSTI=0.05"))
 combined_ec_precision_melt <- melt(combined_ec_precision)
 
-combined_ec_precision_melt$dataset <- factor(combined_ec_precision_melt$dataset, levels=c("Cameroon", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
+combined_ec_precision_melt$dataset <- factor(combined_ec_precision_melt$dataset, levels=c("Cameroonian", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
 
 
 ec_precision_boxplots <- ggplot(combined_ec_precision_melt, aes(x=cat, y=value, fill=Database)) +
   geom_boxplot(outlier.shape = NA) +
   geom_quasirandom(size=0.1) +
-  ylim(c(0.2, 1)) +
+  scale_y_continuous(breaks=c(0.2, 0.4, 0.6, 0.8, 1.0), limits=c(0.2, 1.10)) +
   ylab(c("Precision")) +
   xlab("") +
   guides(fill=FALSE) +
@@ -77,7 +77,8 @@ ec_precision_boxplots <- ggplot(combined_ec_precision_melt, aes(x=cat, y=value, 
   theme(panel.background = element_rect(fill = "gray90"),
         axis.line = element_line(colour = "black"),
         axis.text.x=element_text(angle=45, hjust=1)) +
-  scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4"))
+  scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
+  stat_pvalue_manual(combined_ec_precision_wilcoxon, label = "p_symbol")
 
 
 # Recall
@@ -95,20 +96,21 @@ combined_ec_recall$cat <- factor(combined_ec_recall$cat,
                                           "NSTI=1", "NSTI=0.05"))
 combined_ec_recall_melt <- melt(combined_ec_recall)
 
-combined_ec_recall_melt$dataset <- factor(combined_ec_recall_melt$dataset, levels=c("Cameroon", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
+combined_ec_recall_melt$dataset <- factor(combined_ec_recall_melt$dataset, levels=c("Cameroonian", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
 
 
 ec_recall_boxplots <- ggplot(combined_ec_recall_melt, aes(x=cat, y=value, fill=Database)) +
   geom_boxplot(outlier.shape = NA) +
   geom_quasirandom(size=0.1) +
-  ylim(c(0.2, 1)) +
+  scale_y_continuous(breaks=c(0.2, 0.4, 0.6, 0.8, 1.0), limits=c(0.20, 1.10)) +
   ylab(c("Recall")) +
   xlab("") +
   guides(fill=FALSE) +
   facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
   theme(panel.background = element_rect(fill = "gray90"), axis.line = element_line(colour = "black"),
         axis.text.x=element_text(angle=45, hjust=1)) +
-  scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4"))
+  scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
+  stat_pvalue_manual(combined_ec_recall_wilcoxon, label = "p_symbol")
 
 pdf(file = "../../../figures/Supp_EC_precision_recall.pdf", width=14, height=8)
 

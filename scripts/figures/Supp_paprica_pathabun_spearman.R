@@ -14,7 +14,7 @@ source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_m
 
 datasets <- c("cameroon", "primate", "hmp", "mammal", "ocean", "blueberry", "indian")
 
-dataset2name <- list("cameroon"="Cameroon", "indian"="India", "hmp"="HMP", "mammal"="Mammal",
+dataset2name <- list("cameroon"="Cameroonian", "indian"="Indian", "hmp"="HMP", "mammal"="Mammal",
                      "ocean"="Ocean", "blueberry"="Soil (Blueberry)", "primate"="Primate")
 
 paprica_pathabun_metrics <- readRDS("paprica_path_metrics.rds")
