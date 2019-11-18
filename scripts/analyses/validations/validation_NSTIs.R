@@ -204,11 +204,11 @@ primate_nsti_weighted$dataset <- "Primate"
 combined_nsti_weighted <- rbind(cameroon_nsti_weighted, indian_nsti_weighted, hmp_nsti_weighted, mammal_nsti_weighted, ocean_nsti_weighted,
                                 blueberry_nsti_weighted, primate_nsti_weighted)
 
-combined_nsti_weighted$dataset <- factor(combined_nsti_weighted$dataset, levels=c("Cameroonian", "HMP",  "Indian", "Primate",
-                                                                                  "Mammal", "Ocean", "Soil (Blueberry)" ))
+combined_nsti_weighted$dataset <- factor(combined_nsti_weighted$dataset, levels=c("Cameroonian", "HMP",  "Indian",
+                                                                                  "Mammal", "Ocean", "Primate" "Soil (Blueberry)" ))
 
-combined_nsti_id$dataset  <- factor(combined_nsti_id$dataset, levels=c("Cameroonian", "HMP", "Indian", "Primate",
-                                                                       "Mammal", "Ocean", "Soil (Blueberry)" ))
+combined_nsti_id$dataset  <- factor(combined_nsti_id$dataset, levels=c("Cameroonian", "HMP", "Indian", 
+                                                                       "Mammal", "Ocean", "Primate", "Soil (Blueberry)" ))
 
 percent_id_boxplots <- ggplot(combined_nsti_id, aes(dataset, 100 - percent_id)) + geom_boxplot(fill="light grey") + theme_bw() + 
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
