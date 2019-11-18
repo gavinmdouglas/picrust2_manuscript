@@ -23,7 +23,7 @@ LOOCV_out_18S_plot <- ggplot(LOOCV_out_18S, aes(x=level, y=mean_rho, fill=c("cor
   ggtitle("Fungi 18S EC Numbers") +
   guides(fill=FALSE) +
   xlab("") +
-  ylim(c(0, 1.1)) +
+  ylim(c(0, 1.05)) +
   ylab(c("Mean Spearman's Correlation Coefficient")) +
   scale_fill_manual(values=c("coral3")) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -61,14 +61,16 @@ LOOCV_out_16S_plot <- ggplot(LOOCV_out_16S, aes(x=level, y=mean_rho, fill=c("dar
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   stat_pvalue_manual(wilcoxon_df, label = "p_symbol")
 
-
+pdf(file = "../figures/Supp_LOOCV_boxplots.pdf", width=10, height=5)
 
 plot_grid(LOOCV_out_18S_plot,
           LOOCV_out_ITS_plot,
           LOOCV_out_16S_plot,
-          labels=c("A", "B", "C"),
+          labels=c("a", "b", "c"),
           ncol=3,
           nrow=1)
+
+dev.off()
 
 wilcox.test(LOOCV_out_18S$mean_rho[which(LOOCV_out_18S$level=="Assembly")], LOOCV_out_18S$mean_rho[which(LOOCV_out_18S$level=="Assembly Null")])$p.value
 wilcox.test(LOOCV_out_ITS$mean_rho[which(LOOCV_out_ITS$level=="Assembly")], LOOCV_out_ITS$mean_rho[which(LOOCV_out_ITS$level=="Assembly Null")])$p.value

@@ -266,13 +266,16 @@ blueberry_sig_ecs_boxplots <- ggplot(blueberry_sig_ec_melt, aes(x=Type, y=value,
 top_row <- plot_grid(ec_scc_boxplots,
                      pathabun_scc_boxplots,
                      eukaryote_rho_scatterplot,
-                     labels = c('A', 'B', 'C'),
+                     labels = c('a', 'b', 'c'),
                      ncol=3,
                      nrow=1)
                     
-# 13 x 7
+pdf(file = "../figures/Supp_eukaryotic_validation.pdf", width=13, height=7)
+
 plot_grid(top_row,
           blueberry_sig_ecs_boxplots,
-          labels = c('', 'D'),
+          labels = c('', 'd'),
           ncol = 1,
           nrow=2)
+
+dev.off()

@@ -11,6 +11,8 @@ nonibd_sig_higher_ratio_prep_melt <- readRDS("results_out/nonibd_sig_higher_rati
 
 nonibd_sig_higher_ratio_prep_melt$variable <- as.character(nonibd_sig_higher_ratio_prep_melt$variable)
 
+pdf(file = "../../../figures/Supp_clostridia_contrib_functions.pdf", width=16, height=16)
+
 ggplot(nonibd_sig_higher_ratio_prep_melt, aes(x=descrip, y=log2ratio, fill=diagnosis)) +
   geom_boxplot(width=0.75, outlier.shape = NA) +
   coord_flip() +
@@ -21,3 +23,5 @@ ggplot(nonibd_sig_higher_ratio_prep_melt, aes(x=descrip, y=log2ratio, fill=diagn
   theme(legend.position = c(0.8, 0.9),
         legend.background = element_rect(color = "black", 
                                          fill = "white", size = 0.2, linetype = "solid"))
+
+dev.off()

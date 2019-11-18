@@ -33,7 +33,7 @@ pheno_in_unstrat <- readRDS("hmp2_pheno_count_Ileum.rds")
 # Read in ASVs:
 asv_abun <- readRDS("hmp2_biom_count_Ileum.rds")
 
-descrip_gzfile <- gzfile('/home/gavin/github_repos/picrust_repos/picrust2/picrust2/default_files/description_mapfiles/metacyc_pathways_info_prokaryotes.txt.gz', 'rt')
+descrip_gzfile <- gzfile('/home/gavin/github_repos/picrust_repos/picrust2/picrust2/default_files/description_mapfiles/metacyc_pathways_info.txt.gz', 'rt')
 
 path_descrip <- read.table(descrip_gzfile, header=FALSE, sep="\t", row.names=1, comment.char="", quote="", stringsAsFactors = FALSE)
 close(descrip_gzfile)
@@ -113,5 +113,10 @@ phylum_boxplot <- ggplot(sig_taxa_df, aes(x=diagnosis, y=p_sig, fill=diagnosis))
   scale_fill_manual(values=c("white", "grey")) +
   theme(legend.position = "none") 
 
-# 10 x 8
-plot_grid(asv_boxplot, species_boxplot, genus_boxplot, phylum_boxplot, labels=c("A", "B", "C", "D"))
+
+pdf(file = "../../../../figures/Supp_hmp2_aldex2_hits.pdf", width=10, height=8)
+
+plot_grid(asv_boxplot, species_boxplot, genus_boxplot, phylum_boxplot, labels=c("a", "b", "c", "d"))
+
+dev.off()
+
