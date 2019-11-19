@@ -209,14 +209,18 @@ PWY0_1533_stacked <- ggplot(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt, ae
   guides(fill=FALSE)
 
 
-#20x12
 ### Plot final figure.
+pdf(file = "../../../figures/Figure4.pdf", width=20, height=12)
+
 plot_grid(cd_sig_higher_ratio_plot,
           num_contrib_genera_mgs_vs_16S,
           PWY_5188_breakdown_scatterplot,
           PWY_6572_stacked,
           PWY0_1533_stacked,
           stacked_legend,
-          labels=c("A", "B", "C", "D", "E", ""),
+          labels=c("a", "b", "c", "d", "e", ""),
           nrow=2,
           ncol=3)
+
+dev.off()
+
