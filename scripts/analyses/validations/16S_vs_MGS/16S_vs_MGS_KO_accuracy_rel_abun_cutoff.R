@@ -111,15 +111,18 @@ for(dataset in datasets) {
   ko_metrics_out[[dataset]] <- list()
   ko_metrics_out[[dataset]][["infiles"]] <- read_in_ko_predictions(dataset)
   
+  ko_metrics_out[[dataset]][["infiles"]]$all_kos_overlap_rel <- list()
+
   for(n in names(ko_metrics_out[[dataset]][["infiles"]]$all_kos_overlap)) {
-    ko_metrics_out[[dataset]][["infiles"]]$all_kos_overlap_rel <- list()
-    ko_metrics_out[[dataset]][["infiles"]]$all_kos_overlap_rel[[n]] <- data.frame(sweep(ko_metrics_out[[dataset]][["infiles"]]$all_kos_overlap[[n]],  2, colSums(ko_metrics_out[[dataset]][["infiles"]]$all_kos_overlap[[n]]) , '/')) * 100
-    
-    ko_metrics_out[[dataset]][["metrics"]] <- compute_ko_validation_metrics(dataset_infiles = ko_metrics_out[[dataset]][["infiles"]],
-                                                                            in_db = ko_db,
-                                                                            save_RDS = FALSE)
+    ko_metrics_out[[dataset]][["infiles"]]$all_kos_overlap_rel[[n]] <- data.frame(sweep(ko_metrics_out[[dataset]][["infiles"]]$all_kos_overlap[[n]],
+                                                                                        2,
+                                                                                        colSums(ko_metrics_out[[dataset]][["infiles"]]$all_kos_overlap[[n]]),
+                                                                                        '/')) * 100
   }
   
+  ko_metrics_out[[dataset]][["metrics"]] <- compute_ko_validation_metrics(dataset_infiles = ko_metrics_out[[dataset]][["infiles"]],
+                                                                          in_db = ko_db,
+                                                                          save_RDS = FALSE)
 }
 
 # Get breakdown of relative abundance of FP KOs.
@@ -213,11 +216,12 @@ rownames(depth_vs_precision) <- datasets
 
 all_precision <- c()
 all_depth <- c()
+all_datasets <- c()
 
 for(dataset in datasets) {
   ko_sums <- colSums(ko_metrics_out[[dataset]]$infiles$all_kos_overlap$mgs_ko)
 
-  picrust2_subset <- ko_metrics_out[[dataset]]$metrics$acc_df[which(ko_metrics_out[[dataset]]$metrics$acc_df$category == "PICRUSt2"), ]
+  picrust2_subset <- ko_metrics_out[[dataset]]$metrics$acc_df[which(ko_metrics_out[[dataset]]$metrics$acc_df$category == "NSTI=2"), ]
   
   picrust2_subset$mgs_ko_sums <- colSums(ko_metrics_out[[dataset]]$infiles$all_kos_overlap$mgs_ko[, picrust2_subset$sample])
   
@@ -225,6 +229,7 @@ for(dataset in datasets) {
   
   all_precision <- c(all_precision, picrust2_subset$precision)
   all_depth <- c(all_depth, colSums(ko_metrics_out[[dataset]]$infiles$all_kos_overlap$mgs_ko[, picrust2_subset$sample]))
+  all_datasets <- c(all_datasets, rep(dataset, length(picrust2_subset$precision)))
   
   depth_vs_precision[dataset, "rho"] <- picrust2_spearman$estimate
   depth_vs_precision[dataset, "p"] <- picrust2_spearman$p.value
