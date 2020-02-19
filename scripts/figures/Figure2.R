@@ -44,36 +44,107 @@ combined_ko_rho_wilcoxon <- do.call("rbind", ko_rho_wilcoxon)
 
 combined_ko_rho_no_nsti <- combined_ko_rho
 combined_ko_rho_no_nsti$cat <- as.character(combined_ko_rho_no_nsti$cat)
-combined_ko_rho_no_nsti <- combined_ko_rho_no_nsti[-which(combined_ko_rho_no_nsti$cat %in% extra_nsti_categories) ,]
+combined_ko_rho_no_nsti <- combined_ko_rho_no_nsti[-which(combined_ko_rho_no_nsti$cat %in% extra_nsti_categories), ]
 combined_ko_rho_no_nsti[which(combined_ko_rho_no_nsti$cat == "NSTI=2"), "cat"] <- "PICRUSt2"
+
+combined_ko_rho_no_nsti <- combined_ko_rho_no_nsti[-which(combined_ko_rho_no_nsti$cat == "Scrambled"), ]
+
 combined_ko_rho_no_nsti$cat <- factor(combined_ko_rho_no_nsti$cat,
                                       levels=c("Null", "Tax4Fun2", "PanFP", "Piphillin", "PICRUSt1", "PICRUSt2"))
 
 combined_ko_rho_wilcoxon_no_nsti <- combined_ko_rho_wilcoxon
 combined_ko_rho_wilcoxon_no_nsti[which(combined_ko_rho_wilcoxon_no_nsti$group1 == "NSTI=2"), "group1"] <- "PICRUSt2"
+combined_ko_rho_wilcoxon_no_nsti <- combined_ko_rho_wilcoxon_no_nsti[-which(combined_ko_rho_wilcoxon_no_nsti$group2 == "Scrambled"), ]
+combined_ko_rho_wilcoxon_no_nsti$group2
 
 combined_ko_rho_no_nsti_melt <- melt(combined_ko_rho_no_nsti)
 
 combined_ko_rho_no_nsti_melt$dataset <- factor(combined_ko_rho_no_nsti_melt$dataset, levels=c("Cameroonian", "Indian", "HMP", "Primate", "Mammal", "Ocean", "Soil (Blueberry)"))
 
-pdf(file = "../../../figures/Figure2.pdf", width=12, height=6)
+combined_ko_rho_no_nsti_melt[which(combined_ko_rho_no_nsti_melt$cat == "Scrambled\nASVs"), "Database"] <- "PICRUSt2"
 
-ggplot(combined_ko_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) +
-  geom_boxplot(outlier.shape = NA) +
-  geom_quasirandom(size=0.1) +
-  scale_y_continuous(breaks=c(0.6, 0.8, 1.0), limits=c(0.485, 1.06)) +
-  ylab(c("Spearman Correlation Coefficient")) +
-  xlab("") +
-  facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-        panel.background = element_blank(), axis.line = element_line(colour = "black"),
-        axis.text.x=element_text(angle=45, hjust=1),
-        legend.position = c(0.05, 0.12), legend.background = element_rect(color = "black", 
-                                                                          fill = "white", size = 0.3, linetype = "solid"),
-        legend.title = element_text(colour="black", size=8, face="bold"),
-        legend.text = element_text(colour="black", size=8)) +
-  scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
-  stat_pvalue_manual(data = combined_ko_rho_wilcoxon_no_nsti, label = "p_symbol", bracket.size = 0.2, tip.length = 0.01, label.size = 3)
+ko_rho_boxplots <- ggplot(combined_ko_rho_no_nsti_melt, aes(x=cat, y=value, fill=Database)) +
+                        geom_boxplot(outlier.shape = NA) +
+                        geom_quasirandom(size=0.1) +
+                        scale_y_continuous(breaks=c(0.6, 0.8, 1.0), limits=c(0.485, 1.10)) +
+                        ylab(c("Spearman Correlation Coefficient")) +
+                        xlab("") +
+                        facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
+                        theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+                              panel.background = element_blank(), axis.line = element_line(colour = "black"),
+                              axis.text.x=element_text(angle=45, hjust=1),
+                              legend.position = c(0.07, 0.2), legend.background = element_rect(color = "black", 
+                                                                                                fill = "white", size = 0.3, linetype = "solid"),
+                              legend.title = element_text(colour="black", size=8, face="bold"),
+                              legend.text = element_text(colour="black", size=8)) +
+                        scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
+                        stat_pvalue_manual(data = combined_ko_rho_wilcoxon_no_nsti, label = "p_symbol", bracket.size = 0.2, tip.length = 0.01, label.size = 2.5)
+
+
+
+wilcoxon_out_musicc_perf_0.05 <- readRDS(file="../DA_concordance/ko_wilcoxon_out_musicc_perf_0.05.rds")
+
+wilcoxon_out_musicc_perf_0.05$hmp$metric <- rownames(wilcoxon_out_musicc_perf_0.05$hmp)
+wilcoxon_out_musicc_perf_0.05_hmp <- melt(wilcoxon_out_musicc_perf_0.05$hmp)
+wilcoxon_out_musicc_perf_0.05_hmp$dataset <- "HMP\n22 supragingival plaque vs 36 tongue dorsum"
+
+wilcoxon_out_musicc_perf_0.05$cameroon$metric <- rownames(wilcoxon_out_musicc_perf_0.05$cameroon)
+wilcoxon_out_musicc_perf_0.05_cameroon <- melt(wilcoxon_out_musicc_perf_0.05$cameroon)
+wilcoxon_out_musicc_perf_0.05_cameroon$dataset <- "Cameroonian\n19 parasite+ vs 36 parasite- individuals"
+
+wilcoxon_out_musicc_perf_0.05$indian$metric <- rownames(wilcoxon_out_musicc_perf_0.05$indian)
+wilcoxon_out_musicc_perf_0.05_indian <- melt(wilcoxon_out_musicc_perf_0.05$indian)
+wilcoxon_out_musicc_perf_0.05_indian$dataset <- "Indian\n51 individuals from Bhopal vs 38 from Kerala"
+
+wilcoxon_out_musicc_perf_0.05$primate$metric <- rownames(wilcoxon_out_musicc_perf_0.05$primate)
+wilcoxon_out_musicc_perf_0.05_primate <- melt(wilcoxon_out_musicc_perf_0.05$primate)
+wilcoxon_out_musicc_perf_0.05_primate$dataset <- "Primate\n29 old world vs 29 new world monkeys"
+
+wilcoxon_out_musicc_perf_0.05_combined <- rbind(wilcoxon_out_musicc_perf_0.05_hmp, wilcoxon_out_musicc_perf_0.05_cameroon,
+                                                wilcoxon_out_musicc_perf_0.05_indian, wilcoxon_out_musicc_perf_0.05_primate)
+
+wilcoxon_out_musicc_perf_0.05_combined$variable <- as.character(wilcoxon_out_musicc_perf_0.05_combined$variable)
+wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "mgs_ko_alt")] <- "Alt. MGS"
+wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "panfp_ko")] <- "PanFP"
+wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "picrust1_ko")] <- "PICRUSt1"
+wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "picrust2_ko_nsti2")] <- "PICRUSt2"
+wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "picrust2_scrambled")] <- "Scrambled\nASVs"
+wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "piphillin_ko")] <- "Piphillin"
+wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "tax4fun2_ko")] <- "Tax4Fun2"
+
+wilcoxon_out_musicc_perf_0.05_combined$variable <- factor(wilcoxon_out_musicc_perf_0.05_combined$variable, levels=c("Scrambled\nASVs", "Alt. MGS", "Tax4Fun2", "PanFP", "Piphillin", "PICRUSt1", "PICRUSt2"))
+
+# wilcoxon_out_musicc_perf_0.05_combined <- wilcoxon_out_musicc_perf_0.05_combined[-which(wilcoxon_out_musicc_perf_0.05_combined$variable %in% c("PanFP", "Tax4Fun2", "PICRUSt1")), ]
+# 
+# wilcoxon_out_musicc_perf_0.05_combined$variable <- factor(wilcoxon_out_musicc_perf_0.05_combined$variable,
+#                                                           levels=c("Scrambled\nASVs", "Alt. MGS", "Piphillin", "PICRUSt2"))
+
+wilcoxon_out_musicc_perf_0.05_combined_subset <- wilcoxon_out_musicc_perf_0.05_combined[which(wilcoxon_out_musicc_perf_0.05_combined$metric %in% c("precision", "recall", "f1")), ]
+wilcoxon_out_musicc_perf_0.05_combined_subset[which(wilcoxon_out_musicc_perf_0.05_combined_subset$metric == "precision"), "metric"] <- "Precision"
+wilcoxon_out_musicc_perf_0.05_combined_subset[which(wilcoxon_out_musicc_perf_0.05_combined_subset$metric == "recall"), "metric"] <- "Recall"
+wilcoxon_out_musicc_perf_0.05_combined_subset[which(wilcoxon_out_musicc_perf_0.05_combined_subset$metric == "f1"), "metric"] <- "F1 Score"
+
+wilcoxon_out_musicc_perf_0.05_combined_subset$metric <- factor(wilcoxon_out_musicc_perf_0.05_combined_subset$metric, levels=c("Precision", "Recall", "F1 Score"))
+
+DA_acc_barplot <- ggplot(wilcoxon_out_musicc_perf_0.05_combined_subset,
+                             aes(x=variable, y=value, fill=metric)) +
+                        geom_bar(stat="identity") +
+                        scale_fill_manual(values=c("#0072B2", "#E69F00", "#009E73")) +
+                        facet_grid(metric ~ dataset, scales = "free", space = "free", switch="y") +
+                        theme(panel.grid.minor = element_blank(),
+                              panel.grid.major.x = element_blank(),
+                              axis.line = element_line(colour = "black"),
+                              axis.text.x=element_text(angle=45, hjust=1),
+                              legend.position = "none",
+                              panel.spacing.x=unit(0.5, "lines") , panel.spacing.y=unit(0.75,"lines")) +
+                        ylab("") +
+                        xlab("") +
+                        scale_y_continuous(expand = c(0, 0), limits = c(0, 1))
+
+
+pdf(file = "../../../figures/Figure2.pdf", width=12, height=8)
+
+plot_grid(ko_rho_boxplots, DA_acc_barplot, nrow=2, labels=c('a', 'b'), rel_heights = c(1, 0.85))
 
 dev.off()
 
