@@ -1,6 +1,6 @@
 ### Plot example results from HMP2 dataset.
 
-rm(list=ls(all=TRUE))
+rm(list=ls(all.names=TRUE))
 
 library(ggplot2)
 library(reshape2)
@@ -210,7 +210,7 @@ PWY0_1533_stacked <- ggplot(hmp2_16S_pathabun_strat_genus_sum_PWY0_1533_melt, ae
 
 
 ### Plot final figure.
-pdf(file = "../../../figures/Figure4.pdf", width=20, height=12)
+pdf(file = "../../../figures/Supp_CD_validation.pdf", width=20, height=12)
 
 plot_grid(cd_sig_higher_ratio_plot,
           num_contrib_genera_mgs_vs_16S,
