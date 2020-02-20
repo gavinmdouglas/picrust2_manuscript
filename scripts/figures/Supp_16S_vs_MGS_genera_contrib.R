@@ -1,6 +1,6 @@
 ### Plot number of genera contributing to each pathway in each 16S-MGS paired dataset.
 
-rm(list=ls(all=TRUE))
+rm(list=ls(all.names=TRUE))
 
 library(ggplot2)
 library(reshape2)
@@ -18,7 +18,10 @@ hmp_num_contrib_genera_mgs_vs_16S <- ggplot(all_16S_vs_mgs_contrib$hmp$num_contr
   ggtitle("Mean # contributing genera (HMP)") +
   ylab("PICRUSt2") +
   xlab("Metagenomics") +
-  coord_cartesian(clip = 'off')
+  coord_cartesian(clip = 'off') +
+  theme_bw() +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 mammal_num_contrib_genera_mgs_vs_16S <- ggplot(all_16S_vs_mgs_contrib$mammal$num_contrib, aes(x=mgs_mean, y=picrust2_mean)) +
   geom_point(size=2) +
@@ -27,7 +30,10 @@ mammal_num_contrib_genera_mgs_vs_16S <- ggplot(all_16S_vs_mgs_contrib$mammal$num
   ggtitle("Mean # contributing genera (Mammalian stool)") +
   ylab("PICRUSt2") +
   xlab("Metagenomics") +
-  coord_cartesian(clip = 'off')
+  coord_cartesian(clip = 'off') +
+  theme_bw() +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 ocean_num_contrib_genera_mgs_vs_16S <- ggplot(all_16S_vs_mgs_contrib$ocean$num_contrib, aes(x=mgs_mean, y=picrust2_mean)) +
   geom_point(size=2) +
@@ -36,7 +42,10 @@ ocean_num_contrib_genera_mgs_vs_16S <- ggplot(all_16S_vs_mgs_contrib$ocean$num_c
   ggtitle("Mean # contributing genera (Ocean)") +
   ylab("PICRUSt2") +
   xlab("Metagenomics") +
-  coord_cartesian(clip = 'off')
+  coord_cartesian(clip = 'off') +
+  theme_bw() +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 blueberry_num_contrib_genera_mgs_vs_16S <- ggplot(all_16S_vs_mgs_contrib$blueberry$num_contrib, aes(x=mgs_mean, y=picrust2_mean)) +
   geom_point(size=2) +
@@ -45,7 +54,10 @@ blueberry_num_contrib_genera_mgs_vs_16S <- ggplot(all_16S_vs_mgs_contrib$blueber
   ggtitle("Mean # contributing genera (Blueberry soil)") +
   ylab("PICRUSt2") +
   xlab("Metagenomics") +
-  coord_cartesian(clip = 'off')
+  coord_cartesian(clip = 'off') +
+  theme_bw() +
+  theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
 
 
 pdf(file = "../../figures/Supp_num_contrib_genera.pdf", width=9, height=9)

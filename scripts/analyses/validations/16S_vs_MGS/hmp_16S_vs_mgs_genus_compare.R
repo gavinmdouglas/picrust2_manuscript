@@ -1,9 +1,9 @@
-rm(list=ls(all=TRUE))
+rm(list=ls(all.names=TRUE))
 
 source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/analyses/hmp2/hmp2_util_functions.R")
 source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_ms_functions.R")
 
-descrip_gzfile <- gzfile('/home/gavin/github_repos/picrust_repos/picrust2/picrust2/default_files/description_mapfiles/metacyc_pathways_info_prokaryotes.txt.gz', 'rt')
+descrip_gzfile <- gzfile('/home/gavin/github_repos/picrust_repos/picrust2/picrust2/default_files/description_mapfiles/metacyc_pathways_info.txt.gz', 'rt')
 
 pathway_descrip <- read.table(descrip_gzfile, header=FALSE, sep="\t", row.names=1, comment.char="", quote="", stringsAsFactors = FALSE)
 
@@ -92,7 +92,12 @@ compare_strat_pred_vs_mgs <- function(picrust2_strat, mgs_strat, asv_taxa, mgs_c
   num_contrib_genera_out[is.na(num_contrib_genera_out)] <- 0
   
   
-  unique_path <- unique(c(pathabun_strat_filt_genus_sum$pathway, MGS_pathabun_strat_filt_genus_sum$pathway))
+  unique_path <- c(pathabun_strat_filt_genus_sum$pathway, MGS_pathabun_strat_filt_genus_sum$pathway)
+  
+  if(length(which(duplicated(unique_path))) > 0) {
+    unique_path <- unique_path[-which(duplicated(unique_path))]
+  }
+  
   path_spearman <- rep(NA, length(unique_path))
   names(path_spearman) <- unique_path
   
@@ -130,7 +135,7 @@ ocean_strat_pred_vs_mgs <- compare_strat_pred_vs_mgs(picrust2_strat = "/home/gav
                                                       path2rm = path2remove,
                                                      sample_name_map="/home/gavin/projects/picrust_pipeline/data/validation/ocean/ocean_16S_mgs_sample_links.txt")
 
-blue_strat_pred_vs_mgs <- compare_strat_pred_vs_mgs(picrust2_strat = "/home/gavin/projects/picrust_pipeline/data/validation/blueberry/16S/picrust2_pipeline/picrust2_full_output_pipeline_2.1.0-b/pathways_out/path_abun_strat.tsv",
+blue_strat_pred_vs_mgs <- compare_strat_pred_vs_mgs(picrust2_strat = "/home/gavin/projects/picrust_pipeline/data/validation/blueberry/16S/picrust2_pipeline/picrust2_full_output_2.1.0-b/pathways_out/path_abun_strat.tsv",
                                                      mgs_strat = "/home/gavin/projects/picrust_pipeline/data/validation/blueberry/mgs/humann2_final_out/humann2_pathabundance_stratified.tsv",
                                                      asv_taxa = "/home/gavin/projects/picrust_pipeline/data/validation/blueberry/16S/ASVs_OTUs_taxa_classified/blue_ASVs_taxa_GG/exported/taxonomy.tsv",
                                                      mgs_col_str2replace = "_Abundance",

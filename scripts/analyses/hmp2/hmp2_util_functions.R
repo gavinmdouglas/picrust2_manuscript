@@ -22,7 +22,12 @@ compare_func_ratios_by_asv_groups <- function(strat_table, ASVs_of_interest, sam
   strat_table_asv_other <- strat_table[which(! strat_table$sequence %in% ASVs_of_interest),]
   
   # Only keep functions that are found at least once in the ASVs of interest.
-  func2keep <- unique(strat_table_asv_interest$func)
+  func2keep <- strat_table_asv_interest$func
+  
+  if(length(which(duplicated(func2keep))) > 0) {
+    func2keep <- func2keep[-which(duplicated(func2keep))]
+  }
+  
   strat_table_asv_interest <- strat_table_asv_interest[which(strat_table_asv_interest$func %in% func2keep), ]
   strat_table_asv_other <- strat_table_asv_other[which(strat_table_asv_other$func %in% func2keep), ]
   
@@ -41,7 +46,12 @@ compare_func_ratios_by_asv_groups <- function(strat_table, ASVs_of_interest, sam
   strat_table_asv_other_summed <- strat_table_asv_other_summed[, -1]
   
   # Add in pathways that might be missing from each table.
-  all_funcs <- unique(c(rownames(strat_table_asv_interest_summed), rownames(strat_table_asv_other_summed)))
+  all_funcs <- c(rownames(strat_table_asv_interest_summed), rownames(strat_table_asv_other_summed))
+  
+  if(length(which(duplicated(all_funcs))) > 0) {
+    all_funcs <- all_funcs[-which(duplicated(all_funcs))]
+  }
+  
   strat_table_asv_interest_summed_NoMiss <- add_missing_funcs(strat_table_asv_interest_summed, all_funcs)
   strat_table_asv_other_summed_NoMiss <- add_missing_funcs(strat_table_asv_other_summed, all_funcs)  
   

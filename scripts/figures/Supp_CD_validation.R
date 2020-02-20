@@ -15,7 +15,7 @@ source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/picrust2_m
 cd_sig_higher_ratio_prep_melt <- readRDS("results_out/cd_sig_higher_ratio_prep_melt.rds")
 
 cd_sig_higher_ratio_prep_melt$variable <- as.character(cd_sig_higher_ratio_prep_melt$variable)
-cd_sig_higher_ratio_prep_melt$variable <- factor(cd_sig_higher_ratio_prep_melt$variable, levels=c("PWY0-42", "PWY-5189", "PWY-5188"))
+cd_sig_higher_ratio_prep_melt$variable <- factor(cd_sig_higher_ratio_prep_melt$variable, levels=c("PWY1G-0", "PWY-5189", "PWY-5188"))
 
 cd_sig_higher_ratio_plot <- ggplot(cd_sig_higher_ratio_prep_melt, aes(x=variable, y=log2ratio, fill=diagnosis)) +
   geom_boxplot(outlier.shape = NA) +
@@ -24,11 +24,14 @@ cd_sig_higher_ratio_plot <- ggplot(cd_sig_higher_ratio_prep_melt, aes(x=variable
   scale_fill_manual(values=c("white", "grey")) +
   xlab("") +
   ylab(expression('log'[2]*'((Contributed by Proteobacteria + 1)/(Contributed by Other + 1))')) +
-  scale_y_continuous(limits=c(-5, 11)) +
+  scale_y_continuous(limits=c(-8, 11)) +
   labs(fill="Phenotype") +
+  theme_bw() + 
   theme(legend.position = c(.7, .9),
         legend.background = element_rect(color = "black", 
-                                         fill = "white", size = 0.2, linetype = "solid"))
+                                         fill = "white", size = 0.2, linetype = "solid"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank())
 
 # Panel B
 # Plot scatterplot of # contributors in MGS stoopl vs 16S ileal samples.

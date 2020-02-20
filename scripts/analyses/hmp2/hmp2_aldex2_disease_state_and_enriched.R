@@ -2,7 +2,7 @@
 ### Summarize these significant hits and then test for significantly enriched functions in
 ### pathways of interest.
 
-rm(list=ls(all=TRUE))
+rm(list=ls(all.names=TRUE))
 
 setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/count_tables/")
 
@@ -19,7 +19,11 @@ library(cowplot)
 # Get mean % contribution by a particular clade. Returns list for each function with % contributed by that clade.
 df_clade_mean_contrib <- function(strat_func_by_tax_rel, clade_string, num_cores) {
   
-  funcs <- unique(gsub("\\|.+$", "", rownames(strat_func_by_tax_rel)))
+  funcs <- gsub("\\|.+$", "", rownames(strat_func_by_tax_rel))
+  
+  if(length(which(duplicated(funcs))) > 0) {
+    funcs <- funcs[-which(duplicated(funcs))]
+  }
   
   func_mean_clade_contrib <- mclapply(funcs, function(x) { 
     single_func_mean_contrib(x, strat_func_by_tax_rel, clade_string)
@@ -73,7 +77,7 @@ pheno_in_unstrat <- readRDS("hmp2_pheno_count_Ileum.rds")
 # Read in ASVs:
 asv_abun <- readRDS("hmp2_biom_count_Ileum.rds")
 
-descrip_gzfile <- gzfile('/home/gavin/github_repos/picrust_repos/picrust2/picrust2/default_files/description_mapfiles/metacyc_pathways_info_prokaryotes.txt.gz', 'rt')
+descrip_gzfile <- gzfile('/home/gavin/github_repos/picrust_repos/picrust2/picrust2/default_files/description_mapfiles/metacyc_pathways_info.txt.gz', 'rt')
 
 path_descrip <- read.table(descrip_gzfile, header=FALSE, sep="\t", row.names=1, comment.char="", quote="", stringsAsFactors = FALSE)
 close(descrip_gzfile)
@@ -120,6 +124,7 @@ Ileum_CD_non_IBD_asv_all_levels_filt <-  Ileum_CD_non_IBD_asv_all_levels[which(r
 Ileum_CD_non_IBD_asv_all_levels_filt_aldex <- aldex(Ileum_CD_non_IBD_asv_all_levels_filt, biopsy_16S_meta[colnames(Ileum_CD_non_IBD_pheno_in_filt), "diagnosis"], effect=TRUE)
 sig_taxa <- rownames(Ileum_CD_non_IBD_asv_all_levels_filt_aldex)[which(Ileum_CD_non_IBD_asv_all_levels_filt_aldex$wi.eBH < 0.2)]
 
+# "336454bed7f3f817495886a809d3b775"  --> k__Bacteria; p__Firmicutes; c__Clostridia; o__Clostridiales; f__Lachnospiraceae; g__Lachnospira; s__
 # [2] "2031d34eae50b711bfb7c1a7b9a22f39" --> k__Bacteria; p__Firmicutes; c__Clostridia; o__Clostridiales; f__; g__; s__                                                                                     
 # [4] "k__Bacteria; p__Firmicutes; c__Clostridia; o__Clostridiales; f__Lachnospiraceae; g__Lachnospira; s__"
 # [5] "k__Bacteria; p__Firmicutes; c__Clostridia; o__Clostridiales; f__Lachnospiraceae; g__Lachnospira"     
@@ -131,17 +136,23 @@ sig_taxa <- rownames(Ileum_CD_non_IBD_asv_all_levels_filt_aldex)[which(Ileum_CD_
 # (1) Those that are at higher RA in nonIBD and (2) those are higher RA in CD
 
 # Determine ASVs which fall within the significant taxa categories.
-nonibd_sig_higher_ASVs <- c("2031d34eae50b711bfb7c1a7b9a22f39")
+nonibd_sig_higher_ASVs <- c("2031d34eae50b711bfb7c1a7b9a22f39", "336454bed7f3f817495886a809d3b775")
 nonibd_sig_higher_ASVs <- c(nonibd_sig_higher_ASVs, rownames(asv_tax_in_levels)[which(asv_tax_in_levels$Species == "k__Bacteria; p__Firmicutes; c__Clostridia; o__Clostridiales; f__Lachnospiraceae; g__Lachnospira; s__")])
 nonibd_sig_higher_ASVs <- c(nonibd_sig_higher_ASVs, rownames(asv_tax_in_levels)[which(asv_tax_in_levels$Genus == "k__Bacteria; p__Firmicutes; c__Clostridia; o__Clostridiales; f__Lachnospiraceae; g__Lachnospira")])
-# 35 ASVs
+# 34 ASVs
 
 cd_sig_higher_ASVs <- rownames(asv_tax_in_levels)[which(asv_tax_in_levels$Phylum == "k__Bacteria; p__Proteobacteria")]
 # 192 ASVs
 
-nonibd_sig_higher_out <- compare_func_ratios_by_asv_groups(strat_table = pathabun_in_strat, ASVs_of_interest = nonibd_sig_higher_ASVs, sample_group1 = ASV_CD_samples, sample_group2 = ASV_nonIBD_samples)
+nonibd_sig_higher_out <- compare_func_ratios_by_asv_groups(strat_table = pathabun_in_strat,
+                                                           ASVs_of_interest = nonibd_sig_higher_ASVs,
+                                                           sample_group1 = Ileum_CD_samples[which(Ileum_CD_samples %in% colnames(pathabun_in_strat))],
+                                                           sample_group2 = Ileum_nonIBD_samples[which(Ileum_nonIBD_samples %in% colnames(pathabun_in_strat))])
 
-cd_sig_higher_out <- compare_func_ratios_by_asv_groups(strat_table = pathabun_in_strat, ASVs_of_interest = cd_sig_higher_ASVs, sample_group1 = ASV_CD_samples, sample_group2 = ASV_nonIBD_samples)
+cd_sig_higher_out <- compare_func_ratios_by_asv_groups(strat_table = pathabun_in_strat,
+                                                       ASVs_of_interest = cd_sig_higher_ASVs,
+                                                       sample_group1 = Ileum_CD_samples[which(Ileum_CD_samples %in% colnames(pathabun_in_strat))],
+                                                       sample_group2 = Ileum_nonIBD_samples[which(Ileum_nonIBD_samples %in% colnames(pathabun_in_strat))])
 
 
 nonibd_sig_higher_out_wil <- nonibd_sig_higher_out$wilcox
@@ -161,7 +172,7 @@ combined_out_wil_sig_nonIBD_higher <- gsub("nonIBD-higher_" , "", combined_out_w
 # Make plots of Proteobacteria/other sig pathways and Clostridia/other sig pathways
 cd_sig_higher_ratio_prep <- data.frame(t(cd_sig_higher_out$ratio[combined_out_wil_sig_CD_higher,]), check.names=FALSE)
 cd_sig_higher_ratio_prep$sample <- rownames(cd_sig_higher_ratio_prep)
-cd_sig_higher_ratio_prep$diagnosis <- ASV_samples_meta[rownames(cd_sig_higher_ratio_prep), "diagnosis"]
+cd_sig_higher_ratio_prep$diagnosis <- biopsy_16S_meta[rownames(cd_sig_higher_ratio_prep), "diagnosis"]
 cd_sig_higher_ratio_prep_melt <- melt(cd_sig_higher_ratio_prep)
 cd_sig_higher_ratio_prep_melt$descrip <- paste(cd_sig_higher_ratio_prep_melt$variable, path_descrip[as.character(cd_sig_higher_ratio_prep_melt$variable), "V2"], sep=": ")
 cd_sig_higher_ratio_prep_melt$log2ratio <- log2(cd_sig_higher_ratio_prep_melt$value)
@@ -169,7 +180,7 @@ cd_sig_higher_ratio_prep_melt$log2ratio <- log2(cd_sig_higher_ratio_prep_melt$va
 cd_sig_higher_ratio_prep_melt$descrip <- factor(cd_sig_higher_ratio_prep_melt$descrip,
                                                 levels=c("PWY-5189: tetrapyrrole biosynthesis II (from glycine)",
                                                          "PWY-5188: tetrapyrrole biosynthesis I (from glutamate)",
-                                                         "PWY0-42: 2-methylcitrate cycle I"))
+                                                         "PWY1G-0: mycothiol biosynthesis"))
 
 cd_sig_higher_ratio_plot <- ggplot(cd_sig_higher_ratio_prep_melt, aes(x=descrip, y=log2ratio, fill=diagnosis)) +
                             geom_boxplot(width=0.75, outlier.shape = NA) +

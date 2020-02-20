@@ -1035,7 +1035,12 @@ compare_func_ratios_by_asv_groups <- function(strat_table, ASVs_of_interest, sam
   strat_table_asv_other_summed <- strat_table_asv_other_summed[, -1]
   
   # Add in pathways that might be missing from each table.
-  all_funcs <- unique(c(rownames(strat_table_asv_interest_summed), rownames(strat_table_asv_other_summed)))
+  all_funcs <- c(rownames(strat_table_asv_interest_summed), rownames(strat_table_asv_other_summed))
+  
+  if(length(which(duplicated(all_funcs))) > 0) {
+    all_funcs <- all_funcs[-which(duplicated(all_funcs))]
+  }
+  
   strat_table_asv_interest_summed_NoMiss <- add_missing_funcs(strat_table_asv_interest_summed, all_funcs)
   strat_table_asv_other_summed_NoMiss <- add_missing_funcs(strat_table_asv_other_summed, all_funcs)  
   
@@ -1083,7 +1088,12 @@ num_contrib_genera <- function(pred_df, mgs_df) {
   pred_df <- pred_df[-which(pred_df$genus == "unclassified"), ]
   mgs_df <- mgs_df[-which(mgs_df$genus == "unclassified"), ]
   
-  all_path <- unique(c(pred_df$pathway, mgs_df$pathway))
+  all_path <- c(pred_df$pathway, mgs_df$pathway)
+  
+  if(length(which(duplicated(all_path))) > 0) {
+    all_path <- all_path[-which(duplicated(all_path))]
+  }
+  
   
   num_contrib_df <- data.frame(matrix(NA, nrow=length(all_path), ncol=4))
   colnames(num_contrib_df) <- c("picrust2_mean", "picrust2_sem", "mgs_mean", "mgs_sem")

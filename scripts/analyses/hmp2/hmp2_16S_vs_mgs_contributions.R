@@ -1,6 +1,6 @@
 ### Compare taxonomic contributions to pathways between the 16S (biopsy) and MGS (stool) datarm(list=ls(all=TRUE)).
 
-rm(list=ls(all=TRUE))
+rm(list=ls(all.names=TRUE))
 
 setwd("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/hmp2_tables/")
 source("/home/gavin/gavin_backup/projects/picrust2_manuscript/scripts/analyses/hmp2/hmp2_util_functions.R")
@@ -50,13 +50,22 @@ hmp2_16S_pathabun_strat$genus[which(hmp2_16S_pathabun_strat$genus == "g__")] <- 
 hmp2_16S_pathabun_strat <- hmp2_16S_pathabun_strat[, -which(colnames(hmp2_16S_pathabun_strat) == "sequence")]
 
 # Only keep pathways in PICRUSt2 mapfile (i.e. prokaryotic pathways only) that aren't superpathways or engineered.
-descrip_gzfile <- gzfile('/home/gavin/github_repos/picrust_repos/picrust2/picrust2/default_files/description_mapfiles/metacyc_pathways_info_prokaryotes.txt.gz', 'rt')
+descrip_gzfile <- gzfile('/home/gavin/github_repos/picrust_repos/picrust2/picrust2/default_files/description_mapfiles/metacyc_pathways_info.txt.gz', 'rt')
 
 pathway_descrip <- read.table(descrip_gzfile, header=FALSE, sep="\t", row.names=1, comment.char="", quote="", stringsAsFactors = FALSE)
 
 close(descrip_gzfile)
 
-pathway_descrip_subset <- pathway_descrip[unique(hmp2_mgs_pathabun_strat$pathway),, drop=FALSE]
+path2keep <- hmp2_mgs_pathabun_strat$pathway
+
+if(length(which(duplicated(path2keep))) > 0) {
+  path2keep <- path2keep[-which(duplicated(path2keep))]
+}
+
+pathway_descrip_subset <- pathway_descrip[path2keep, , drop=FALSE]
+
+
+
 
 path2remove_i <- c(grep("superpathway", pathway_descrip_subset$V2), grep("engineered", pathway_descrip_subset$V2))
 
@@ -100,7 +109,11 @@ num_contrib_genera_out[is.na(num_contrib_genera_out)] <- 0
 saveRDS(object = num_contrib_genera_out, file = "results_out/num_contrib_genera_out.rds")
 
 
-unique_path <- unique(c(hmp2_16S_pathabun_strat_genus_sum$pathway, hmp2_mgs_pathabun_strat_genus_sum$pathway))
+unique_path <- c(hmp2_16S_pathabun_strat_genus_sum$pathway, hmp2_mgs_pathabun_strat_genus_sum$pathway)
+if(length(which(duplicated(unique_path))) > 0) {
+  unique_path <- unique_path[-which(duplicated(unique_path))]
+}
+
 path_spearman <- rep(NA, length(unique_path))
 names(path_spearman) <- unique_path
 
