@@ -152,6 +152,9 @@ read_in_pathway_predictions <- function(dataset) {
   picrust2_pathabun_nsti0.1_file <- paste("picrust2_out/", dataset, "_picrust2_path_nsti0.1.tsv", sep="")
   picrust2_pathabun_nsti0.05_file <- paste("picrust2_out/", dataset, "_picrust2_path_nsti0.05.tsv", sep="")
   
+  picrust2_pathabun_scrambled_mean_file <- paste("picrust2_scrambled_out/", dataset, "_pathway_mean.tsv", sep="")
+  picrust2_pathabun_scrambled_median_file <- paste("picrust2_scrambled_out/", dataset, "_pathway_median.tsv", sep="")
+  
   picrust2_pathabun_nsti2 <- read_table_check_exists(picrust2_pathabun_nsti2_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_pathabun_nsti1.5 <- read_table_check_exists(picrust2_pathabun_nsti1.5_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_pathabun_nsti1 <- read_table_check_exists(picrust2_pathabun_nsti1_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
@@ -159,6 +162,9 @@ read_in_pathway_predictions <- function(dataset) {
   picrust2_pathabun_nsti0.25 <- read_table_check_exists(picrust2_pathabun_nsti0.25_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_pathabun_nsti0.1 <- read_table_check_exists(picrust2_pathabun_nsti0.1_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_pathabun_nsti0.05 <- read_table_check_exists(picrust2_pathabun_nsti0.05_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
+  
+  picrust2_pathabun_scrambled_mean <- read_table_check_exists(picrust2_pathabun_scrambled_mean_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
+  picrust2_pathabun_scrambled_median <- read_table_check_exists(picrust2_pathabun_scrambled_median_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   
   mgs_pathabun_file <- paste("../mgs_validation/", dataset, "/humann2_pathabun_unstrat.tsv", sep="")
   mgs_pathabun <- read_table_check_exists(mgs_pathabun_file, header=T, sep="\t", row.names=1)
@@ -184,6 +190,10 @@ read_in_pathway_predictions <- function(dataset) {
   picrust2_pathabun_nsti0.25 <- picrust2_pathabun_nsti0.25[, overlapping_samples]
   picrust2_pathabun_nsti0.1 <- picrust2_pathabun_nsti0.1[, overlapping_samples]
   picrust2_pathabun_nsti0.05 <- picrust2_pathabun_nsti0.05[, overlapping_samples]
+  
+  picrust2_pathabun_scrambled_mean <- picrust2_pathabun_scrambled_mean[, overlapping_samples]
+  picrust2_pathabun_scrambled_median <- picrust2_pathabun_scrambled_median[, overlapping_samples]
+  
   mgs_pathabun <- mgs_pathabun[, overlapping_samples]
   
   # Add in missing pathways to tables.
@@ -194,6 +204,10 @@ read_in_pathway_predictions <- function(dataset) {
   picrust2_pathabun_nsti0.25_all <- add_missing_funcs(picrust2_pathabun_nsti0.25, possible_picrust2_pathways)
   picrust2_pathabun_nsti0.1_all <- add_missing_funcs(picrust2_pathabun_nsti0.1, possible_picrust2_pathways)
   picrust2_pathabun_nsti0.05_all <- add_missing_funcs(picrust2_pathabun_nsti0.05, possible_picrust2_pathways)
+  
+  picrust2_pathabun_scrambled_mean_all <- add_missing_funcs(picrust2_pathabun_scrambled_mean, possible_picrust2_pathways)
+  picrust2_pathabun_scrambled_median_all <- add_missing_funcs(picrust2_pathabun_scrambled_median, possible_picrust2_pathways)
+
   mgs_pathabun_all <- add_missing_funcs(mgs_pathabun, possible_picrust2_pathways)
 
   # Create list of each set of predictions (with missing pathways added and not).
@@ -204,16 +218,20 @@ read_in_pathway_predictions <- function(dataset) {
                             picrust2_pathabun_nsti0.25=picrust2_pathabun_nsti0.25,
                             picrust2_pathabun_nsti0.1=picrust2_pathabun_nsti0.1,
                             picrust2_pathabun_nsti0.05=picrust2_pathabun_nsti0.05,
+                            picrust2_pathabun_scrambled_mean=picrust2_pathabun_scrambled_mean,
+                            picrust2_pathabun_scrambled_median=picrust2_pathabun_scrambled_median,
                             mgs_pathabun=mgs_pathabun)
   
-  all_pathabuns <- list(picrust2_pathabun_nsti2=picrust2_pathabun_nsti2_all,
-                        picrust2_pathabun_nsti1.5=picrust2_pathabun_nsti1.5_all,
-                        picrust2_pathabun_nsti1=picrust2_pathabun_nsti1_all,
-                        picrust2_pathabun_nsti0.5=picrust2_pathabun_nsti0.5_all,
-                        picrust2_pathabun_nsti0.25=picrust2_pathabun_nsti0.25_all,
-                        picrust2_pathabun_nsti0.1=picrust2_pathabun_nsti0.1_all,
-                        picrust2_pathabun_nsti0.05=picrust2_pathabun_nsti0.05_all,
-                        mgs_pathabun=mgs_pathabun_all)
+  all_pathabuns <- list(picrust2_pathabun_nsti2=picrust2_pathabun_nsti2_all[possible_picrust2_pathways, ],
+                        picrust2_pathabun_nsti1.5=picrust2_pathabun_nsti1.5_all[possible_picrust2_pathways, ],
+                        picrust2_pathabun_nsti1=picrust2_pathabun_nsti1_all[possible_picrust2_pathways, ],
+                        picrust2_pathabun_nsti0.5=picrust2_pathabun_nsti0.5_all[possible_picrust2_pathways, ],
+                        picrust2_pathabun_nsti0.25=picrust2_pathabun_nsti0.25_all[possible_picrust2_pathways, ],
+                        picrust2_pathabun_nsti0.1=picrust2_pathabun_nsti0.1_all[possible_picrust2_pathways, ],
+                        picrust2_pathabun_nsti0.05=picrust2_pathabun_nsti0.05_all[possible_picrust2_pathways, ],
+                        picrust2_pathabun_scrambled_mean=picrust2_pathabun_scrambled_mean_all[possible_picrust2_pathways, ],
+                        picrust2_pathabun_scrambled_median=picrust2_pathabun_scrambled_median_all[possible_picrust2_pathways, ],
+                        mgs_pathabun=mgs_pathabun_all[possible_picrust2_pathways, ])
   
   return(list(nonzero_pathabun=nonzero_pathabuns, all_pathabun=all_pathabuns))
 }
@@ -239,6 +257,9 @@ read_in_ec_predictions <- function(dataset) {
   picrust2_ec_nsti0.1_file <- paste("picrust2_out/", dataset, "_picrust2_ec_nsti0.1.tsv", sep="")
   picrust2_ec_nsti0.05_file <- paste("picrust2_out/", dataset, "_picrust2_ec_nsti0.05.tsv", sep="")
 
+  picrust2_ec_scrambled_mean_file <- paste("picrust2_scrambled_out/", dataset, "_ec_mean.tsv", sep="")
+  picrust2_ec_scrambled_median_file <- paste("picrust2_scrambled_out/", dataset, "_ec_median.tsv", sep="")
+  
   picrust2_ec_nsti2 <- read_table_check_exists(picrust2_ec_nsti2_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_ec_nsti1.5 <- read_table_check_exists(picrust2_ec_nsti1.5_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_ec_nsti1 <- read_table_check_exists(picrust2_ec_nsti1_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
@@ -246,6 +267,9 @@ read_in_ec_predictions <- function(dataset) {
   picrust2_ec_nsti0.25 <- read_table_check_exists(picrust2_ec_nsti0.25_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_ec_nsti0.1 <- read_table_check_exists(picrust2_ec_nsti0.1_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_ec_nsti0.05 <- read_table_check_exists(picrust2_ec_nsti0.05_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
+  
+  picrust2_ec_scrambled_mean <- read_table_check_exists(picrust2_ec_scrambled_mean_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
+  picrust2_ec_scrambled_median <- read_table_check_exists(picrust2_ec_scrambled_median_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   
   paprica_ec_file <- paste("paprica_out/", dataset, "_paprica_ec.csv", sep="")
   paprica_ec <- data.frame(t(read_table_check_exists(paprica_ec_file, header=T, sep=",", stringsAsFactors = FALSE,
@@ -283,6 +307,10 @@ read_in_ec_predictions <- function(dataset) {
   picrust2_ec_nsti0.25 <- picrust2_ec_nsti0.25[, overlapping_samples]
   picrust2_ec_nsti0.1 <- picrust2_ec_nsti0.1[, overlapping_samples]
   picrust2_ec_nsti0.05 <- picrust2_ec_nsti0.05[, overlapping_samples]
+  
+  picrust2_ec_scrambled_mean <- picrust2_ec_scrambled_mean[, overlapping_samples]
+  picrust2_ec_scrambled_median <- picrust2_ec_scrambled_median[, overlapping_samples]
+  
   paprica_ec <- paprica_ec[, overlapping_samples]
   mgs_ec <- mgs_ec[, overlapping_samples]
   
@@ -294,6 +322,10 @@ read_in_ec_predictions <- function(dataset) {
   picrust2_ec_nsti0.25_all <- add_missing_funcs(picrust2_ec_nsti0.25, possible_picrust2_ecs)
   picrust2_ec_nsti0.1_all <- add_missing_funcs(picrust2_ec_nsti0.1, possible_picrust2_ecs)
   picrust2_ec_nsti0.05_all <- add_missing_funcs(picrust2_ec_nsti0.05, possible_picrust2_ecs)
+  
+  picrust2_ec_scrambled_mean_all <- add_missing_funcs(picrust2_ec_scrambled_mean, possible_picrust2_ecs)
+  picrust2_ec_scrambled_median_all <- add_missing_funcs(picrust2_ec_scrambled_median, possible_picrust2_ecs)
+
   paprica_ec_all <- add_missing_funcs(paprica_ec, possible_paprica_ecs)
   mgs_ec_all <- add_missing_funcs(mgs_ec, possible_mgs_ecs)
   
@@ -305,6 +337,8 @@ read_in_ec_predictions <- function(dataset) {
                       picrust2_ec_nsti0.25=picrust2_ec_nsti0.25,
                       picrust2_ec_nsti0.1=picrust2_ec_nsti0.1,
                       picrust2_ec_nsti0.05=picrust2_ec_nsti0.05,
+                      picrust2_ec_scrambled_mean=picrust2_ec_scrambled_mean,
+                      picrust2_ec_scrambled_median=picrust2_ec_scrambled_median,
                       paprica_ec=paprica_ec,
                       mgs_ec=mgs_ec)
   
@@ -316,6 +350,8 @@ read_in_ec_predictions <- function(dataset) {
                           picrust2_ec_nsti0.25=picrust2_ec_nsti0.25_all[overlapping_possible_ecs,],
                           picrust2_ec_nsti0.1=picrust2_ec_nsti0.1_all[overlapping_possible_ecs,],
                           picrust2_ec_nsti0.05=picrust2_ec_nsti0.05_all[overlapping_possible_ecs,],
+                          picrust2_ec_scrambled_mean=picrust2_ec_scrambled_mean_all[overlapping_possible_ecs,],
+                          picrust2_ec_scrambled_median=picrust2_ec_scrambled_median_all[overlapping_possible_ecs,],
                           paprica_ec=paprica_ec_all[overlapping_possible_ecs,],
                           mgs_ec=mgs_ec_all[overlapping_possible_ecs,])
   
@@ -355,6 +391,9 @@ read_in_ko_predictions <- function(dataset, verbose=TRUE) {
   picrust2_ko_nsti0.1_file <- paste("picrust2_out/", dataset, "_picrust2_ko_nsti0.1.tsv", sep="")
   picrust2_ko_nsti0.05_file <- paste("picrust2_out/", dataset, "_picrust2_ko_nsti0.05.tsv", sep="")
 
+  picrust2_ko_scrambled_mean_file <- paste("picrust2_scrambled_out/", dataset, "_ko_mean.tsv", sep="")
+  picrust2_ko_scrambled_median_file <- paste("picrust2_scrambled_out/", dataset, "_ko_median.tsv", sep="")
+  
   if(verbose) {
     print("Reading in unstratified KO tables")    
   }
@@ -366,7 +405,10 @@ read_in_ko_predictions <- function(dataset, verbose=TRUE) {
   picrust2_ko_nsti0.25 <- read_table_check_exists(picrust2_ko_nsti0.25_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_ko_nsti0.1 <- read_table_check_exists(picrust2_ko_nsti0.1_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
   picrust2_ko_nsti0.05 <- read_table_check_exists(picrust2_ko_nsti0.05_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
-
+  
+  picrust2_ko_scrambled_mean <- read_table_check_exists(picrust2_ko_scrambled_mean_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
+  picrust2_ko_scrambled_median <- read_table_check_exists(picrust2_ko_scrambled_median_file, header=T, sep="\t", stringsAsFactors = FALSE, row.names=1, quote="", comment.char="")
+  
   if(verbose) {
     print("Reading in alternative HSP tool tables")    
   }
@@ -420,6 +462,8 @@ read_in_ko_predictions <- function(dataset, verbose=TRUE) {
   picrust2_ko_nsti0.25 <- picrust2_ko_nsti0.25[, overlapping_samples]
   picrust2_ko_nsti0.1 <- picrust2_ko_nsti0.1[, overlapping_samples]
   picrust2_ko_nsti0.05 <- picrust2_ko_nsti0.05[, overlapping_samples]
+  picrust2_ko_scrambled_mean <- picrust2_ko_scrambled_mean[, overlapping_samples]
+  picrust2_ko_scrambled_median <- picrust2_ko_scrambled_median[, overlapping_samples]
   picrust1_ko <- picrust1_ko[, overlapping_samples]
   panfp_ko <- panfp_ko[, overlapping_samples]
   piphillin_ko <- piphillin_ko[, overlapping_samples]
@@ -434,6 +478,8 @@ read_in_ko_predictions <- function(dataset, verbose=TRUE) {
   picrust2_ko_nsti0.25_all <- add_missing_funcs(picrust2_ko_nsti0.25, possible_picrust2_kos)
   picrust2_ko_nsti0.1_all <- add_missing_funcs(picrust2_ko_nsti0.1, possible_picrust2_kos)
   picrust2_ko_nsti0.05_all <- add_missing_funcs(picrust2_ko_nsti0.05, possible_picrust2_kos)
+  picrust2_ko_scrambled_mean_all <- add_missing_funcs(picrust2_ko_scrambled_mean, possible_picrust2_kos)
+  picrust2_ko_scrambled_median_all <- add_missing_funcs(picrust2_ko_scrambled_median, possible_picrust2_kos)
   picrust1_ko_all <- add_missing_funcs(picrust1_ko, possible_picrust1_kos)
   panfp_ko_all <- add_missing_funcs(panfp_ko, possible_panfp_kos)
   piphillin_ko_all <- add_missing_funcs(piphillin_ko, possible_piphillin_kos)
@@ -448,6 +494,8 @@ read_in_ko_predictions <- function(dataset, verbose=TRUE) {
                       picrust2_ko_nsti0.25=picrust2_ko_nsti0.25,
                       picrust2_ko_nsti0.1=picrust2_ko_nsti0.1,
                       picrust2_ko_nsti0.05=picrust2_ko_nsti0.05,
+                      picrust2_ko_scrambled_mean=picrust2_ko_scrambled_mean,
+                      picrust2_ko_scrambled_median=picrust2_ko_scrambled_median,
                       picrust1_ko=picrust1_ko,
                       panfp_ko=panfp_ko,
                       piphillin_ko=piphillin_ko,
@@ -462,6 +510,8 @@ read_in_ko_predictions <- function(dataset, verbose=TRUE) {
                           picrust2_ko_nsti0.25=picrust2_ko_nsti0.25_all[overlapping_possible_kos,],
                           picrust2_ko_nsti0.1=picrust2_ko_nsti0.1_all[overlapping_possible_kos,],
                           picrust2_ko_nsti0.05=picrust2_ko_nsti0.05_all[overlapping_possible_kos,],
+                          picrust2_ko_scrambled_mean=picrust2_ko_scrambled_mean_all[overlapping_possible_kos,],
+                          picrust2_ko_scrambled_median=picrust2_ko_scrambled_median_all[overlapping_possible_kos,],
                           picrust1_ko=picrust1_ko_all[overlapping_possible_kos,],
                           panfp_ko=panfp_ko_all[overlapping_possible_kos,],
                           piphillin_ko=piphillin_ko_all[overlapping_possible_kos,],
@@ -1111,3 +1161,208 @@ breakdown_mean_genera_contrib <- function(pred_df, mgs_df, pathway) {
   return(merged_out)
 }
 
+
+run_wilcoxon_relab_tests <- function(table, metadata, dataset_name="unknown") {
+  
+  group1_subset <- metadata$group1[which(metadata$group1 %in% colnames(table))]
+  group2_subset <- metadata$group2[which(metadata$group2 %in% colnames(table))]
+  
+  print(paste("Comparison for", dataset_name, "limited to", as.character(length(group1_subset)),
+              "vs", as.character(length(group2_subset)), "samples", sep=" "))
+  
+  table_relab <-  data.frame(sweep(table, 2, colSums(table), `/`)) * 100
+  
+  wilcox_out_df <- data.frame(matrix(NA, nrow=nrow(table_relab), ncol=3))
+  rownames(wilcox_out_df) <- rownames(table)
+  colnames(wilcox_out_df) <- c("mean_group1", "mean_group2", "wilcox_p")
+  
+  for(f in rownames(table_relab)) {
+    wilcox_out_df[f, "mean_group1"] <- mean(as.numeric(table_relab[f, group1_subset]))
+    wilcox_out_df[f, "mean_group2"] <- mean(as.numeric(table_relab[f, group2_subset]))
+    wilcox_out_df[f, "wilcox_p"] <- wilcox.test(as.numeric(table_relab[f, group1_subset]), as.numeric(table_relab[f, group2_subset]))$p.value
+  }
+  
+  wilcox_out_df$wilcox_BH <- p.adjust(wilcox_out_df$wilcox_p, "BH")
+  
+  return(wilcox_out_df)
+}
+
+run_aldex2_two_groups <- function(table, metadata, dataset_name="unknown",
+                                  mc.samples.set=128, test.set="t", effect.set=TRUE,
+                                  include.sample.summary.set=FALSE, denom.set="all",
+                                  verbose.set=FALSE) {
+  
+  group1_subset <- metadata$group1[which(metadata$group1 %in% colnames(table))]
+  group2_subset <- metadata$group2[which(metadata$group2 %in% colnames(table))]
+  
+  print(paste("Comparison for", dataset_name, "limited to", as.character(length(group1_subset)),
+              "vs", as.character(length(group2_subset)), "samples", sep=" "))
+  
+  aldex2_out <- aldex(reads = floor(table[, c(group1_subset, group2_subset)]),
+                      conditions=c(rep("group1", length(group1_subset)),
+                                   rep("group2", length(group2_subset))),
+                      mc.samples.set=128,
+                      test.set="t",
+                      effect.set=TRUE,
+                      include.sample.summary.set=FALSE,
+                      denom.set="all",
+                      verbose.set=FALSE)
+  
+  # Add in missing functions (which may have been excluded due to being 0 in all samples).
+  if(nrow(aldex2_out) < nrow(table)) {
+    missing_funcs <- rownames(table)[which(! rownames(table) %in% rownames(aldex2_out))]
+    missing_df <- data.frame(matrix(NA, nrow=length(missing_funcs), ncol=ncol(aldex2_out)))
+    colnames(missing_df) <- colnames(aldex2_out)
+    rownames(missing_df) <- missing_funcs
+    orig <- aldex2_out
+    aldex2_out <- rbind(aldex2_out, missing_df)
+  }
+  
+  return(aldex2_out)
+}
+
+
+run_default_deseq2_two_groups <- function(table, metadata, alpha.set, dataset_name="unknown") {
+  
+  group1_subset <- metadata$group1[which(metadata$group1 %in% colnames(table))]
+  group2_subset <- metadata$group2[which(metadata$group2 %in% colnames(table))]
+  
+  print(paste("Comparison for", dataset_name, "limited to", as.character(length(group1_subset)),
+              "vs", as.character(length(group2_subset)), "samples", sep=" "))
+  
+  group1_subset <- metadata$group1[which(metadata$group1 %in% colnames(table))]
+  group2_subset <- metadata$group2[which(metadata$group2 %in% colnames(table))]
+  
+  # Create metadata df.
+  metadata_tab <- data.frame(matrix(NA, nrow=(length(group1_subset) + length(group2_subset)), ncol=1))
+  rownames(metadata_tab) <- c(group1_subset, group2_subset)
+  colnames(metadata_tab) <- c("group")
+  metadata_tab[group1_subset, "group"] <- "group1"
+  metadata_tab[group2_subset, "group"] <- "group2"
+  metadata_tab$group <- as.factor(metadata_tab$group)
+  
+  # Input count df needs to have columns in same order as metadata rows.
+  table_subset <- floor(table[, rownames(metadata_tab)])
+  
+  dds <- DESeqDataSetFromMatrix(countData = table_subset,
+                                colData = metadata_tab,
+                                design = ~ group)
+  default_deseq2 <- DESeq(dds)
+  default_deseq2_results <- results(default_deseq2, alpha=alpha.set)
+  
+  return(default_deseq2_results)
+}
+
+
+run_GMmean_deseq2_two_groups <- function(table, metadata, alpha.set, dataset_name="unknown") {
+  
+  group1_subset <- metadata$group1[which(metadata$group1 %in% colnames(table))]
+  group2_subset <- metadata$group2[which(metadata$group2 %in% colnames(table))]
+  
+  print(paste("Comparison for", dataset_name, "limited to", as.character(length(group1_subset)),
+              "vs", as.character(length(group2_subset)), "samples", sep=" "))
+  
+  group1_subset <- metadata$group1[which(metadata$group1 %in% colnames(table))]
+  group2_subset <- metadata$group2[which(metadata$group2 %in% colnames(table))]
+  
+  # Create metadata df.
+  metadata_tab <- data.frame(matrix(NA, nrow=(length(group1_subset) + length(group2_subset)), ncol=1))
+  rownames(metadata_tab) <- c(group1_subset, group2_subset)
+  colnames(metadata_tab) <- c("group")
+  metadata_tab[group1_subset, "group"] <- "group1"
+  metadata_tab[group2_subset, "group"] <- "group2"
+  metadata_tab$group <- as.factor(metadata_tab$group)
+  
+  # Input count df needs to have columns in same order as metadata rows.
+  table_subset <- floor(table[, rownames(metadata_tab)])
+  
+  dds <- DESeqDataSetFromMatrix(countData = table_subset,
+                                colData = metadata_tab,
+                                design = ~ group)
+  
+  gm_mean = function(x, na.rm=TRUE){
+    exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
+  }
+  
+  geoMeans = apply(counts(dds), 1, gm_mean)
+  dds = estimateSizeFactors(dds, geoMeans = geoMeans)
+  dds = DESeq(dds, fitType="local")
+  
+  return(results(dds, alpha=alpha.set))
+}
+
+
+summarize_test_performance <- function(table_list, sig_column, reference_name, sig_cutoff=0.05) {
+  
+  for(n in names(table_list)) {
+    table_list[[n]][which(is.na(table_list[[n]][, sig_column])), sig_column] <- 1 
+  }
+  
+  test_categories <- names(table_list)[which(! names(table_list) %in% reference_name)]
+  
+  perf_df <- data.frame(matrix(NA, nrow=9, ncol=(length(names(table_list)) - 1)))
+  colnames(perf_df) <- test_categories
+  rownames(perf_df) <- c("false_pos", "true_pos", "false_neg", "true_neg", "precision",
+                         "recall", "f1", "specificity", "fpr")
+  
+  reference_pos <- rownames(table_list[[reference_name]])[which(table_list[[reference_name]][, sig_column] < sig_cutoff)]
+  reference_neg <- rownames(table_list[[reference_name]])[which(table_list[[reference_name]][, sig_column] >= sig_cutoff)]
+  
+  for(category in test_categories) {
+    category_pos <- rownames(table_list[[reference_name]])[which(table_list[[category]][, sig_column] < sig_cutoff)]
+    category_neg <- rownames(table_list[[reference_name]])[which(table_list[[category]][, sig_column] >= sig_cutoff)]
+    
+    category_false_pos <- category_pos[which(category_pos %in% reference_neg)]
+    category_true_pos <- category_pos[which(category_pos %in% reference_pos)]
+    category_false_neg <- category_neg[which(category_neg %in% reference_pos)]
+    category_true_neg <- category_neg[which(category_neg %in% reference_neg)]
+    
+    perf_df["false_pos", category] <- length(category_false_pos)
+    perf_df["true_pos", category] <- length(category_true_pos)
+    perf_df["false_neg", category] <- length(category_false_neg)
+    perf_df["true_neg", category] <- length(category_true_neg)
+    perf_df["precision", category] <- length(category_true_pos) / (length(category_true_pos) + length(category_false_pos))
+    perf_df["recall", category] <- length(category_true_pos) / (length(category_true_pos) + length(category_false_neg))
+    perf_df["f1", category] <- 2 * ((perf_df["precision", category] * perf_df["recall", category]) / (perf_df["precision", category] + perf_df["recall", category]))
+    perf_df["specificity", category] <- length(category_true_neg) / length(reference_neg)
+    perf_df["fpr", category] <- length(category_false_pos) / length(reference_neg)
+  }
+  
+  return(perf_df)
+}
+
+
+differential_prevalence <- function(table, metadata, dataset_name="unknown") {
+  group1_subset <- metadata$group1[which(metadata$group1 %in% colnames(table))]
+  group2_subset <- metadata$group2[which(metadata$group2 %in% colnames(table))]
+  
+  print(paste("Comparison for", dataset_name, "limited to", as.character(length(group1_subset)),
+              "vs", as.character(length(group2_subset)), "samples", sep=" "))
+  
+  prevalence_out_df <- data.frame(matrix(NA, nrow=nrow(table), ncol=6))
+  rownames(prevalence_out_df) <- rownames(table)
+  colnames(prevalence_out_df) <- c("present_group1", "absent_group1", "present_group2", "absent_group2", "fishers_ratio", "fishers_p")
+  
+  for(f in rownames(table)) {
+    
+    present_group1 <- length(which(as.numeric(table[f, group1_subset]) > 0))
+    absent_group1 <- length(which(as.numeric(table[f, group1_subset]) == 0))
+    
+    present_group2 <- length(which(as.numeric(table[f, group2_subset]) > 0))
+    absent_group2 <- length(which(as.numeric(table[f, group2_subset]) == 0))
+    
+    fishers_exact_out <- fisher.test(matrix(c(present_group1, absent_group1, present_group2, absent_group2), nrow=2, ncol=2))
+    
+    prevalence_out_df[f, "present_group1"] <- present_group1
+    prevalence_out_df[f, "present_group2"] <- present_group2
+    prevalence_out_df[f, "absent_group1"] <- absent_group1
+    prevalence_out_df[f, "absent_group2"] <- absent_group2
+    prevalence_out_df[f, "fishers_ratio"] <- fishers_exact_out$estimate
+    prevalence_out_df[f, "fishers_p"] <- fishers_exact_out$p.value
+    
+  }
+  
+  prevalence_out_df$fishers_BH <- p.adjust(prevalence_out_df$fishers_p, "BH")
+  
+  return(prevalence_out_df)
+}
