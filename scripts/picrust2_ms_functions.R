@@ -1264,43 +1264,6 @@ run_default_deseq2_two_groups <- function(table, metadata, alpha.set, dataset_na
 }
 
 
-run_GMmean_deseq2_two_groups <- function(table, metadata, alpha.set, dataset_name="unknown") {
-  
-  group1_subset <- metadata$group1[which(metadata$group1 %in% colnames(table))]
-  group2_subset <- metadata$group2[which(metadata$group2 %in% colnames(table))]
-  
-  print(paste("Comparison for", dataset_name, "limited to", as.character(length(group1_subset)),
-              "vs", as.character(length(group2_subset)), "samples", sep=" "))
-  
-  group1_subset <- metadata$group1[which(metadata$group1 %in% colnames(table))]
-  group2_subset <- metadata$group2[which(metadata$group2 %in% colnames(table))]
-  
-  # Create metadata df.
-  metadata_tab <- data.frame(matrix(NA, nrow=(length(group1_subset) + length(group2_subset)), ncol=1))
-  rownames(metadata_tab) <- c(group1_subset, group2_subset)
-  colnames(metadata_tab) <- c("group")
-  metadata_tab[group1_subset, "group"] <- "group1"
-  metadata_tab[group2_subset, "group"] <- "group2"
-  metadata_tab$group <- as.factor(metadata_tab$group)
-  
-  # Input count df needs to have columns in same order as metadata rows.
-  table_subset <- floor(table[, rownames(metadata_tab)])
-  
-  dds <- DESeqDataSetFromMatrix(countData = table_subset,
-                                colData = metadata_tab,
-                                design = ~ group)
-  
-  gm_mean = function(x, na.rm=TRUE){
-    exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
-  }
-  
-  geoMeans = apply(counts(dds), 1, gm_mean)
-  dds = estimateSizeFactors(dds, geoMeans = geoMeans)
-  dds = DESeq(dds, fitType="local")
-  
-  return(results(dds, alpha=alpha.set))
-}
-
 
 summarize_test_performance <- function(table_list, sig_column, reference_name, sig_cutoff=0.05) {
   
@@ -1342,6 +1305,75 @@ summarize_test_performance <- function(table_list, sig_column, reference_name, s
 }
 
 
+
+
+run_wilcoxon_musicc_tests <- function(table, metadata, uscg_set, dataset_name="unknown") {
+  
+  group1_subset <- metadata$group1[which(metadata$group1 %in% colnames(table))]
+  group2_subset <- metadata$group2[which(metadata$group2 %in% colnames(table))]
+  
+  print(paste("Comparison for", dataset_name, "limited to", as.character(length(group1_subset)),
+              "vs", as.character(length(group2_subset)), "samples", sep=" "))
+  
+  # Divide each column by the median number of USCGs and then remove the USCGs from the table.
+  table_transformed <-  data.frame(sweep(table, 2, colMedians(as.matrix(table[uscg_set, ])), `/`))
+  table_transformed <- table_transformed[-which(rownames(table_transformed) %in% uscg_set), ]
+  
+  wilcox_out_df <- data.frame(matrix(NA, nrow=nrow(table_transformed), ncol=3))
+  rownames(wilcox_out_df) <- rownames(table_transformed)
+  colnames(wilcox_out_df) <- c("mean_group1", "mean_group2", "wilcox_p")
+  
+  for(f in rownames(table_transformed)) {
+    wilcox_out_df[f, "mean_group1"] <- mean(as.numeric(table_transformed[f, group1_subset]))
+    wilcox_out_df[f, "mean_group2"] <- mean(as.numeric(table_transformed[f, group2_subset]))
+    wilcox_out_df[f, "wilcox_p"] <- wilcox.test(as.numeric(table_transformed[f, group1_subset]), as.numeric(table_transformed[f, group2_subset]))$p.value
+  }
+  
+  wilcox_out_df$wilcox_BH <- p.adjust(wilcox_out_df$wilcox_p, "BH")
+  
+  return(wilcox_out_df)
+}
+
+
+
+run_GMmean_deseq2_two_groups <- function(table, metadata, alpha.set, dataset_name="unknown") {
+  
+  group1_subset <- metadata$group1[which(metadata$group1 %in% colnames(table))]
+  group2_subset <- metadata$group2[which(metadata$group2 %in% colnames(table))]
+  
+  print(paste("Comparison for", dataset_name, "limited to", as.character(length(group1_subset)),
+              "vs", as.character(length(group2_subset)), "samples", sep=" "))
+  
+  group1_subset <- metadata$group1[which(metadata$group1 %in% colnames(table))]
+  group2_subset <- metadata$group2[which(metadata$group2 %in% colnames(table))]
+  
+  # Create metadata df.
+  metadata_tab <- data.frame(matrix(NA, nrow=(length(group1_subset) + length(group2_subset)), ncol=1))
+  rownames(metadata_tab) <- c(group1_subset, group2_subset)
+  colnames(metadata_tab) <- c("group")
+  metadata_tab[group1_subset, "group"] <- "group1"
+  metadata_tab[group2_subset, "group"] <- "group2"
+  metadata_tab$group <- as.factor(metadata_tab$group)
+  
+  # Input count df needs to have columns in same order as metadata rows.
+  table_subset <- floor(table[, rownames(metadata_tab)])
+  
+  dds <- DESeqDataSetFromMatrix(countData = table_subset,
+                                colData = metadata_tab,
+                                design = ~ group)
+  
+  gm_mean = function(x, na.rm=TRUE){
+    exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
+  }
+  
+  geoMeans = apply(counts(dds), 1, gm_mean)
+  dds = estimateSizeFactors(dds, geoMeans = geoMeans)
+  dds = DESeq(dds, fitType="local" )
+  
+  return(results(dds, alpha=alpha.set))
+}
+
+
 differential_prevalence <- function(table, metadata, dataset_name="unknown") {
   group1_subset <- metadata$group1[which(metadata$group1 %in% colnames(table))]
   group2_subset <- metadata$group2[which(metadata$group2 %in% colnames(table))]
@@ -1376,3 +1408,4 @@ differential_prevalence <- function(table, metadata, dataset_name="unknown") {
   
   return(prevalence_out_df)
 }
+
