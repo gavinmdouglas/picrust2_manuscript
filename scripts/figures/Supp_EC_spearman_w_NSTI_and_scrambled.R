@@ -31,7 +31,7 @@ for(i in 1:length(datasets)) {
   
    ec_rho[[datasets[i]]] <- ec_rho_outlist[[datasets[i]]][[1]]
    ec_rho_wilcoxon[[datasets[i]]] <- ec_rho_outlist[[datasets[i]]][[2]]
-   ec_rho_wilcoxon[[datasets[i]]][which(ec_rho_wilcoxon[[datasets[i]]]$group2 == "Scrambled"), "group2"] <- "ASVs\nScrambled"
+   ec_rho_wilcoxon[[datasets[i]]][which(ec_rho_wilcoxon[[datasets[i]]]$group2 == "Scrambled"), "group2"] <- "Shuffled\nASVs"
 }
 
 # Make plot for each dataset.
@@ -42,16 +42,16 @@ for(j in 1:length(datasets)) {
   dataset_ec_rho <- ec_rho[[datasets[j]]]
   
   dataset_ec_rho$cat <- as.character(dataset_ec_rho$cat)
-  dataset_ec_rho[which(dataset_ec_rho$cat == "Scrambled"), "cat"] <- "ASVs\nScrambled"
+  dataset_ec_rho[which(dataset_ec_rho$cat == "Scrambled"), "cat"] <- "Shuffled\nASVs"
   dataset_ec_rho <- dataset_ec_rho[-which(dataset_ec_rho$cat %in% c("NSTI=1.5",  "NSTI=0.5", "NSTI=0.25", "NSTI=0.1")), ]
   
   dataset_ec_rho$cat <- factor(dataset_ec_rho$cat,
-                         levels=c("Null", "PAPRICA", "ASVs\nScrambled", "NSTI=2", "NSTI=1", "NSTI=0.05"))
+                         levels=c("Null", "PAPRICA", "Shuffled\nASVs", "NSTI=2", "NSTI=1", "NSTI=0.05"))
 
   dataset_ec_rho_melt <- melt(dataset_ec_rho)
 
   dataset_ec_rho_melt[which(dataset_ec_rho_melt$Database == "Other"), "Database"] <- "PAPRICA"
-  dataset_ec_rho_melt[which(dataset_ec_rho_melt$cat == "ASVs\nScrambled"), "Database"] <- "PICRUSt2"
+  dataset_ec_rho_melt[which(dataset_ec_rho_melt$cat == "Shuffled\nASVs"), "Database"] <- "PICRUSt2"
 
   EC_spearman_boxplots[[datasets[j]]] <- ggplot(dataset_ec_rho_melt, aes(x=cat, y=value, fill=Database)) +
                                         geom_boxplot(outlier.shape = NA) +

@@ -2,8 +2,9 @@
 ### These metrics were calculated by assuming the metagenomics sequencing was the "gold standard".
 ### Also tests for statistical significance between these categories.
 
-rm(list=ls(all=TRUE))
+rm(list=ls(all.names=TRUE))
 
+library(cowplot)
 library(ggplot2)
 library(reshape2)
 library(ggpubr)
@@ -108,11 +109,11 @@ wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0
 wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "panfp_ko")] <- "PanFP"
 wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "picrust1_ko")] <- "PICRUSt1"
 wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "picrust2_ko_nsti2")] <- "PICRUSt2"
-wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "picrust2_scrambled")] <- "Scrambled\nASVs"
+wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "picrust2_scrambled")] <- "Shuffled\nASVs"
 wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "piphillin_ko")] <- "Piphillin"
 wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "tax4fun2_ko")] <- "Tax4Fun2"
 
-wilcoxon_out_musicc_perf_0.05_combined$variable <- factor(wilcoxon_out_musicc_perf_0.05_combined$variable, levels=c("Scrambled\nASVs", "Alt. MGS", "Tax4Fun2", "PanFP", "Piphillin", "PICRUSt1", "PICRUSt2"))
+wilcoxon_out_musicc_perf_0.05_combined$variable <- factor(wilcoxon_out_musicc_perf_0.05_combined$variable, levels=c("Shuffled\nASVs", "Alt. MGS", "Tax4Fun2", "PanFP", "Piphillin", "PICRUSt1", "PICRUSt2"))
 
 # wilcoxon_out_musicc_perf_0.05_combined <- wilcoxon_out_musicc_perf_0.05_combined[-which(wilcoxon_out_musicc_perf_0.05_combined$variable %in% c("PanFP", "Tax4Fun2", "PICRUSt1")), ]
 # 
@@ -151,8 +152,8 @@ dev.off()
 
 # Calculate basic summary statistics.
 
-dataset_ko_rho_stats <- data.frame(matrix(NA, nrow=7, ncol=2))
-colnames(dataset_ko_rho_stats) <- c("PICRUSt2_mean", "PICRUSt2_sd")
+dataset_ko_rho_stats <- data.frame(matrix(NA, nrow=7, ncol=4))
+colnames(dataset_ko_rho_stats) <- c("PICRUSt2_mean", "PICRUSt2_sd", "PICRUSt2_scrambled_mean", "PICRUSt2_scrambled_sd")
 rownames(dataset_ko_rho_stats) <- datasets
 
 for(d in datasets) {
@@ -160,7 +161,9 @@ for(d in datasets) {
   d_name <- dataset2name[[d]]
   
   dataset_ko_rho_stats[d, ] <- c(mean(combined_ko_rho[which(combined_ko_rho$dataset == d_name & combined_ko_rho$cat == "NSTI=2"), "metric"]),
-                                 sd(combined_ko_rho[which(combined_ko_rho$dataset == d_name & combined_ko_rho$cat == "NSTI=2"), "metric"]))
+                                 sd(combined_ko_rho[which(combined_ko_rho$dataset == d_name & combined_ko_rho$cat == "NSTI=2"), "metric"]),
+                                 mean(combined_ko_rho[which(combined_ko_rho$dataset == d_name & combined_ko_rho$cat == "Scrambled"), "metric"]),
+                                 sd(combined_ko_rho[which(combined_ko_rho$dataset == d_name & combined_ko_rho$cat == "Scrambled"), "metric"]))
   
 }
 

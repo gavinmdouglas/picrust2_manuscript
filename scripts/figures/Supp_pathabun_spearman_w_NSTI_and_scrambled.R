@@ -34,7 +34,7 @@ for(d in datasets) {
                                                              dist_to_add=0.05)
   pathabun_rho[[d]] <- pathabun_rho_outlist_raw[[d]][[1]]
   pathabun_rho_wilcoxon[[d]] <- pathabun_rho_outlist_raw[[d]][[2]]
-  pathabun_rho_wilcoxon[[d]][which(pathabun_rho_wilcoxon[[d]]$group2 == "Scrambled"), "group2"] <- "ASVs\nScrambled"
+  pathabun_rho_wilcoxon[[d]][which(pathabun_rho_wilcoxon[[d]]$group2 == "Scrambled"), "group2"] <- "Shuffled\nASVs"
 }
 
 
@@ -48,15 +48,15 @@ for(j in 1:length(datasets)) {
   dataset_pathabun_rho <- pathabun_rho[[d]]
   
   dataset_pathabun_rho$cat <- as.character(dataset_pathabun_rho$cat)
-  dataset_pathabun_rho[which(dataset_pathabun_rho$cat == "Scrambled"), "cat"] <- "ASVs\nScrambled"
+  dataset_pathabun_rho[which(dataset_pathabun_rho$cat == "Scrambled"), "cat"] <- "Shuffled\nASVs"
   dataset_pathabun_rho <- dataset_pathabun_rho[-which(dataset_pathabun_rho$cat %in% c("NSTI=1.5",  "NSTI=0.5", "NSTI=0.25", "NSTI=0.1")), ]
   
   dataset_pathabun_rho$cat <- factor(dataset_pathabun_rho$cat,
-                               levels=c("Null", "ASVs\nScrambled", "NSTI=2", "NSTI=1", "NSTI=0.05"))
+                               levels=c("Null", "Shuffled\nASVs", "NSTI=2", "NSTI=1", "NSTI=0.05"))
   
   dataset_pathabun_rho_melt <- melt(dataset_pathabun_rho)
   
-  dataset_pathabun_rho_melt[which(dataset_pathabun_rho_melt$cat == "ASVs\nScrambled"), "Database"] <- "PICRUSt2"
+  dataset_pathabun_rho_melt[which(dataset_pathabun_rho_melt$cat == "Shuffled\nASVs"), "Database"] <- "PICRUSt2"
   
   pathabun_spearman_boxplots[[d]] <- ggplot(dataset_pathabun_rho_melt, aes(x=cat, y=value, fill=Database)) +
     geom_boxplot(outlier.shape = NA) +

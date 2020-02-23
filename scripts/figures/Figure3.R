@@ -2,7 +2,7 @@
 ### These metrics were calculated by assuming the metagenomics sequencing was the "gold standard".
 ### Also tests for statistical significance between these categories.
 
-rm(list=ls(all=TRUE))
+rm(list=ls(all.names=TRUE))
 
 library(ggplot2)
 library(reshape2)
@@ -43,6 +43,9 @@ for(d in datasets) {
 combined_pathabun_rho <- do.call("rbind", pathabun_rho)
 combined_pathabun_rho_wilcoxon <- do.call("rbind", pathabun_rho_wilcoxon)
 
+combined_pathabun_rho <- combined_pathabun_rho[-which(combined_pathabun_rho$cat == "Scrambled"), ]
+combined_pathabun_rho_wilcoxon <- combined_pathabun_rho_wilcoxon[-which(combined_pathabun_rho_wilcoxon$group2 == "Scrambled"), ]
+
 combined_pathabun_rho_no_nsti <- combined_pathabun_rho
 combined_pathabun_rho_no_nsti$cat <- as.character(combined_pathabun_rho_no_nsti$cat)
 combined_pathabun_rho_no_nsti <- combined_pathabun_rho_no_nsti[-which(combined_pathabun_rho_no_nsti$cat %in% extra_nsti_categories) ,]
@@ -79,10 +82,15 @@ pathabun_rho_boxplots <- ggplot(combined_pathabun_rho_no_nsti_melt, aes(x=cat, y
   xlab("") +
   guides(fill=FALSE) +
   facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-  theme(panel.background = element_rect(fill = "gray90"), axis.line = element_line(colour = "black"),
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        panel.background = element_rect(fill = "gray95"),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line = element_line(colour = "black"),
         axis.text.x=element_text(angle=45, hjust=1)) +
   scale_fill_manual(values=c("light grey", "#00BFC4")) +
-  stat_pvalue_manual(combined_pathabun_rho_wilcoxon_no_nsti, label = "clean_p")
+  stat_pvalue_manual(combined_pathabun_rho_wilcoxon_no_nsti, label = "clean_p") 
 
 
 ### PANEL B - IMG PHENOTYPES HOLDOUT VALIDATIONS.
@@ -135,7 +143,11 @@ IMG_pheno_boxplots <- ggplot(combined_acc_by_phenotype_subset_melt, aes(x=Catego
   guides(fill=FALSE) +
   scale_fill_manual(values=c("light grey", "#00BFC4")) +
   stat_pvalue_manual(phenotype_wilcox_p_df, label = "clean_p", tip.length = 0.01) +
-  theme(panel.background = element_rect(fill = "gray90"),
+  theme_bw() +
+  theme(panel.border = element_blank(),
+        panel.background = element_rect(fill = "gray95", colour = NA),
+        panel.grid.major = element_blank(),
+                       panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"),
         axis.text.x=element_text(angle=45, hjust=1))
 

@@ -34,7 +34,7 @@ for(d in datasets) {
                                                              dist_to_add=0.05)
   ko_rho[[d]] <- ko_rho_outlist_raw[[d]][[1]]
   ko_rho_wilcoxon[[d]] <- ko_rho_outlist_raw[[d]][[2]]
-  ko_rho_wilcoxon[[d]][which(ko_rho_wilcoxon[[d]]$group2 == "Scrambled"), "group2"] <- "ASVs\nScrambled"
+  ko_rho_wilcoxon[[d]][which(ko_rho_wilcoxon[[d]]$group2 == "Scrambled"), "group2"] <- "Shuffled\nASVs"
   
 }
 
@@ -49,15 +49,15 @@ for(j in 1:length(datasets)) {
   dataset_ko_rho <- ko_rho[[d]]
   
   dataset_ko_rho$cat <- as.character(dataset_ko_rho$cat)
-  dataset_ko_rho[which(dataset_ko_rho$cat == "Scrambled"), "cat"] <- "ASVs\nScrambled"
+  dataset_ko_rho[which(dataset_ko_rho$cat == "Scrambled"), "cat"] <- "Shuffled\nASVs"
   dataset_ko_rho <- dataset_ko_rho[-which(dataset_ko_rho$cat %in% c("NSTI=1.5",  "NSTI=0.5", "NSTI=0.25", "NSTI=0.1")), ]
   
   dataset_ko_rho$cat <- factor(dataset_ko_rho$cat,
-                               levels=c("Null", "Tax4Fun2", "PanFP", "Piphillin", "PICRUSt1", "ASVs\nScrambled", "NSTI=2", "NSTI=1", "NSTI=0.05"))
+                               levels=c("Null", "Tax4Fun2", "PanFP", "Piphillin", "PICRUSt1", "Shuffled\nASVs", "NSTI=2", "NSTI=1", "NSTI=0.05"))
 
   dataset_ko_rho_melt <- melt(dataset_ko_rho)
 
-  dataset_ko_rho_melt[which(dataset_ko_rho_melt$cat == "ASVs\nScrambled"), "Database"] <- "PICRUSt2"
+  dataset_ko_rho_melt[which(dataset_ko_rho_melt$cat == "Shuffled\nASVs"), "Database"] <- "PICRUSt2"
   
   KO_spearman_boxplots[[d]] <- ggplot(dataset_ko_rho_melt, aes(x=cat, y=value, fill=Database)) +
                                                 geom_boxplot(outlier.shape = NA) +
