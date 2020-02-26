@@ -71,11 +71,15 @@ ko_rho_boxplots <- ggplot(combined_ko_rho_no_nsti_melt, aes(x=cat, y=value, fill
                         ylab(c("Spearman Correlation Coefficient")) +
                         xlab("") +
                         facet_grid(. ~ dataset, scales = "free", space = "free", switch="x") +
-                        theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-                              panel.background = element_blank(), axis.line = element_line(colour = "black"),
+                        theme(panel.grid.major = element_blank(),
+                              panel.grid.minor = element_blank(),
+                              panel.border = element_blank(),
+                              panel.background = element_rect(fill = "gray95", colour = NA),
+                              axis.line = element_line(colour = "black"),
                               axis.text.x=element_text(angle=45, hjust=1),
-                              legend.position = c(0.07, 0.2), legend.background = element_rect(color = "black", 
-                                                                                                fill = "white", size = 0.3, linetype = "solid"),
+                              legend.position = c(0.07, 0.2),
+                              legend.background = element_rect(color = "black", fill = "white",
+                                                               size = 0.3, linetype = "solid"),
                               legend.title = element_text(colour="black", size=8, face="bold"),
                               legend.text = element_text(colour="black", size=8)) +
                         scale_fill_manual(values=c("light grey", "#F8766D", "#00BFC4")) +
@@ -83,7 +87,7 @@ ko_rho_boxplots <- ggplot(combined_ko_rho_no_nsti_melt, aes(x=cat, y=value, fill
 
 
 
-wilcoxon_out_musicc_perf_0.05 <- readRDS(file="../DA_concordance/ko_wilcoxon_out_musicc_perf_0.05.rds")
+wilcoxon_out_musicc_perf_0.05 <- readRDS(file="../DA_concordance/ko_da_out.rds")$wilcoxon_musicc_out_perf_0.05
 
 wilcoxon_out_musicc_perf_0.05$hmp$metric <- rownames(wilcoxon_out_musicc_perf_0.05$hmp)
 wilcoxon_out_musicc_perf_0.05_hmp <- melt(wilcoxon_out_musicc_perf_0.05$hmp)
@@ -105,11 +109,16 @@ wilcoxon_out_musicc_perf_0.05_combined <- rbind(wilcoxon_out_musicc_perf_0.05_hm
                                                 wilcoxon_out_musicc_perf_0.05_indian, wilcoxon_out_musicc_perf_0.05_primate)
 
 wilcoxon_out_musicc_perf_0.05_combined$variable <- as.character(wilcoxon_out_musicc_perf_0.05_combined$variable)
+
+categories2remove <- c("picrust2_ko_scrambled_median", "picrust2_ko_nsti0.05", "picrust2_ko_nsti0.1",
+                       "picrust2_ko_nsti0.25", "picrust2_ko_nsti0.5", "picrust2_ko_nsti1", "picrust2_ko_nsti1.5")
+wilcoxon_out_musicc_perf_0.05_combined <- wilcoxon_out_musicc_perf_0.05_combined[-which(wilcoxon_out_musicc_perf_0.05_combined$variable %in% categories2remove), ]
+
 wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "mgs_ko_alt")] <- "Alt. MGS"
 wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "panfp_ko")] <- "PanFP"
 wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "picrust1_ko")] <- "PICRUSt1"
 wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "picrust2_ko_nsti2")] <- "PICRUSt2"
-wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "picrust2_scrambled")] <- "Shuffled\nASVs"
+wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "picrust2_ko_scrambled_mean")] <- "Shuffled\nASVs"
 wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "piphillin_ko")] <- "Piphillin"
 wilcoxon_out_musicc_perf_0.05_combined$variable[which(wilcoxon_out_musicc_perf_0.05_combined$variable == "tax4fun2_ko")] <- "Tax4Fun2"
 

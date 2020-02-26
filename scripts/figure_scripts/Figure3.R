@@ -98,15 +98,15 @@ pathabun_rho_boxplots <- ggplot(combined_pathabun_rho_no_nsti_melt, aes(x=cat, y
 combined_acc_by_phenotype <- read.table("/home/gavin/gavin_backup/projects/picrust2_manuscript/data/working_tables/IMG_pheno_LOOCV_metrics.tsv",
                                         header=T, sep="\t", stringsAsFactors = FALSE, comment.char="")
 
-combined_acc_by_phenotype_subset <- combined_acc_by_phenotype[,c("sample", "acc", "precision", "recall", "category")]
-colnames(combined_acc_by_phenotype_subset) <- c("Phenotype", "Accuracy", "Precision", "Recall", "Category")
+combined_acc_by_phenotype_subset <- combined_acc_by_phenotype[,c("sample", "F1", "precision", "recall", "category")]
+colnames(combined_acc_by_phenotype_subset) <- c("Phenotype", "F1 Score", "Precision", "Recall", "Category")
 combined_acc_by_phenotype_subset <- combined_acc_by_phenotype_subset[with(combined_acc_by_phenotype_subset, order(Category, Phenotype)),]
 
 combined_acc_by_phenotype_subset$Category <- factor(combined_acc_by_phenotype_subset$Category, levels=c("Null", "PICRUSt2"))
 combined_acc_by_phenotype_subset_melt <- melt(combined_acc_by_phenotype_subset)
 
-phenotype_accuracy_wilcox <- wilcox.test(combined_acc_by_phenotype_subset$Accuracy[which(combined_acc_by_phenotype_subset$Category=="Null")],
-                                         combined_acc_by_phenotype_subset$Accuracy[which(combined_acc_by_phenotype_subset$Category=="PICRUSt2")], paired=TRUE)
+phenotype_F1_wilcox <- wilcox.test(combined_acc_by_phenotype_subset$`F1 Score`[which(combined_acc_by_phenotype_subset$Category=="Null")],
+                                         combined_acc_by_phenotype_subset$`F1 Score`[which(combined_acc_by_phenotype_subset$Category=="PICRUSt2")], paired=TRUE)
 
 phenotype_precision_wilcox <- wilcox.test(combined_acc_by_phenotype_subset$Precision[which(combined_acc_by_phenotype_subset$Category=="Null")],
                                           combined_acc_by_phenotype_subset$Precision[which(combined_acc_by_phenotype_subset$Category=="PICRUSt2")], paired=TRUE)
@@ -114,10 +114,10 @@ phenotype_precision_wilcox <- wilcox.test(combined_acc_by_phenotype_subset$Preci
 phenotype_recall_wilcox <- wilcox.test(combined_acc_by_phenotype_subset$Recall[which(combined_acc_by_phenotype_subset$Category=="Null")],
                                        combined_acc_by_phenotype_subset$Recall[which(combined_acc_by_phenotype_subset$Category=="PICRUSt2")], paired=TRUE)
 
-phenotype_wilcox_p_df <- data.frame(variable=c("Accuracy", "Precision", "Recall"),
+phenotype_wilcox_p_df <- data.frame(variable=c("F1 Score", "Precision", "Recall"),
                                     group1="Null",
                                     group2="PICRUSt2",
-                                    pval=c(phenotype_accuracy_wilcox$p.value,
+                                    pval=c(phenotype_F1_wilcox$p.value,
                                            phenotype_precision_wilcox$p.value,
                                            phenotype_recall_wilcox$p.value),
                                     y.position=1.03,
@@ -132,6 +132,8 @@ phenotype_wilcox_p_df$clean_p <- paste("P=",
                                        formatC(phenotype_wilcox_p_df$pval, format = "e", digits = 0),
                                        phenotype_wilcox_p_df$p_symbol,
                                        sep="")
+
+combined_acc_by_phenotype_subset_melt$value[which(is.na(combined_acc_by_phenotype_subset_melt$value))] <- 0
 
 IMG_pheno_boxplots <- ggplot(combined_acc_by_phenotype_subset_melt, aes(x=Category, y=value, fill=Category)) +
   geom_boxplot(outlier.shape = NA) +
