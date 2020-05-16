@@ -35,7 +35,7 @@ validation_groups[["cameroon"]] <- validation_groups$cameroonian
 # Comparison for primate limited to 29 vs 29 samples
 
 ######### Add in alternative mgs KOs as well.
-cameroon_alt_mgs <- read.table("/home/gavin/projects/picrust_pipeline/data/validation/alternative_mgs_pipelines/humann2_KEGG_output/humann2_final_out/cameroon_genefamilies_unstratified.tsv",
+cameroon_alt_mgs <- read.table("alt_mgs_output/cameroon_genefamilies_unstratified.tsv",
                                header=TRUE, sep="\t", row.names=1, comment.char="")
 colnames(cameroon_alt_mgs) <- gsub("_Abundance.RPKs", "", colnames(cameroon_alt_mgs))
 cameroon_metadata <- read.table("/home/gavin/projects/picrust_pipeline/data/validation/cameroon/PRJEB27005.txt",
@@ -46,7 +46,7 @@ cameroon_alt_mgs <- cameroon_alt_mgs[which(rownames(cameroon_alt_mgs) %in% rowna
 cameroon_alt_mgs <- add_missing_funcs(in_df = cameroon_alt_mgs, all_funcs = rownames(ko_metrics_out$cameroon$infiles$all_kos_overlap$mgs_ko))
 cameroon_alt_mgs <- cameroon_alt_mgs[rownames(ko_metrics_out$cameroon$infiles$all_kos_overlap$mgs_ko), ]
 
-hmp_alt_mgs <- read.table("/home/gavin/projects/picrust_pipeline/data/validation/alternative_mgs_pipelines/humann2_KEGG_output/humann2_final_out/hmp_genefamilies_unstratified.tsv",
+hmp_alt_mgs <- read.table("alt_mgs_output/hmp_genefamilies_unstratified.tsv",
                           header=TRUE, sep="\t", row.names=1, comment.char="")
 colnames(hmp_alt_mgs) <- gsub("_R1_R2_cat_Abundance.RPKs", "", colnames(hmp_alt_mgs))
 hmp_alt_mgs <- hmp_alt_mgs[which(rownames(hmp_alt_mgs) %in% rownames(ko_metrics_out$hmp$infiles$all_kos_overlap$mgs_ko)), ]
@@ -54,11 +54,11 @@ hmp_alt_mgs <- add_missing_funcs(in_df = hmp_alt_mgs, all_funcs = rownames(ko_me
 hmp_alt_mgs <- hmp_alt_mgs[rownames(ko_metrics_out$hmp$infiles$all_kos_overlap$mgs_ko), ]
 
 
-indian_alt_mgs <- read.table("/home/gavin/projects/picrust_pipeline/data/validation/alternative_mgs_pipelines/humann2_KEGG_output/humann2_final_out/indian_genefamilies_unstratified.tsv",
+indian_alt_mgs <- read.table("alt_mgs_output/indian_genefamilies_unstratified.tsv",
                              header=TRUE, sep="\t", row.names=1, comment.char="")
 colnames(indian_alt_mgs) <- gsub("_Abundance.RPKs", "", colnames(indian_alt_mgs))
 
-indian_metadata <- read.table("/home/gavin/projects/picrust_pipeline/data/validation/indian/PRJNA397112.txt",
+indian_metadata <- read.table("alt_mgs_output/PRJNA397112.txt",
                               header=TRUE, sep="\t", stringsAsFactors = FALSE, quote="", comment.char = "")
 rownames(indian_metadata) <- indian_metadata$run_accession
 colnames(indian_alt_mgs) <- indian_metadata[colnames(indian_alt_mgs), "sample_alias"]
@@ -67,7 +67,7 @@ indian_alt_mgs <- add_missing_funcs(in_df = indian_alt_mgs, all_funcs = rownames
 indian_alt_mgs <- indian_alt_mgs[rownames(ko_metrics_out$indian$infiles$all_kos_overlap$mgs_ko), ]
 
 
-primate_alt_mgs <- read.table("/home/gavin/projects/picrust_pipeline/data/validation/alternative_mgs_pipelines/humann2_KEGG_output/humann2_final_out/primate_genefamilies_unstratified.tsv",
+primate_alt_mgs <- read.table("alt_mgs_output/primate_genefamilies_unstratified.tsv",
                               header=TRUE, sep="\t", row.names=1, comment.char="")
 colnames(primate_alt_mgs) <- gsub("_kneaddata_Abundance.RPKs", "", colnames(primate_alt_mgs))
 primate_alt_mgs <- primate_alt_mgs[which(rownames(primate_alt_mgs) %in% rownames(ko_metrics_out$primate$infiles$all_kos_overlap$mgs_ko)), ]
